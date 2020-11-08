@@ -33,11 +33,11 @@ export const selectUnitNeighborFieldsData = createSelector(
   (fields: Fields, props: FieldPos) => {
     // console.log(fields);
 
-    [...fields].forEach((fieldsCol) => {
-      [...fieldsCol].forEach((field) => {
-        if (field.blocked) console.log('blocked field:', field.pos);
-      });
-    });
+    // [...fields].forEach((fieldsCol) => {
+    //   [...fieldsCol].forEach((field) => {
+    //     if (field.blocked) console.log('blocked field:', field.pos);
+    //   });
+    // });
 
     const neighbors: NeighborField[] = getNeighbors([...fields], props);
     // console.log('selectorneighbors', neighbors);
@@ -191,7 +191,7 @@ function getNeighbors(fields: Fields, props: FieldPos) {
   let neighbor7: NeighborField = { at: 'south east', field };
   neighbors[7] = neighbor7;
   // console.log(posA, posB, field);
-  console.log(neighbors);
+  // console.log(neighbors);
 
   // console.log(neighborFields);
   // console.log('getNeighbors', neighborFields);

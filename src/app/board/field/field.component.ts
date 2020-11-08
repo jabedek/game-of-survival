@@ -110,35 +110,34 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
       this.store
         .select(selectUnitNeighborFieldsData, switchedPos)
         .subscribe((data: NeighborField[]) => {
-          let totalNeighborBlockades = 0;
-          let totalNeighborUnits = 0;
-          let totalAvailableFields = 0;
-
-          // console.log('neighbors', data);
+          let neighborBlockades = [];
+          let neighborUnits = [];
+          let availableFields = [];
 
           [...data].forEach((neighbor) => {
             if (neighbor.field !== null) {
               if (neighbor.field.blocked === true) {
-                // console.log(neighbor);
-                totalNeighborBlockades += 1;
+                neighborBlockades.push(neighbor);
 
                 if (neighbor.field.occupyingUnit) {
-                  console.log(neighbor.field.occupyingUnit.unitName);
+                  // console.log(neighbor.field.occupyingUnit.unitName);
 
-                  totalNeighborUnits += 1;
+                  neighborUnits.push(neighbor);
                 }
-              } else totalAvailableFields += 1;
+              } else {
+                availableFields.push(neighbor);
+              }
             }
           });
 
-          console.log(
-            'all blockades:',
-            totalNeighborBlockades,
-            'units:',
-            totalNeighborUnits,
-            'available spots:',
-            totalAvailableFields
-          );
+          // console.log(
+          //   'all blockades:',
+          //   neighborBlockades.length,
+          //   'units:',
+          //   neighborUnits.length,
+          //   'available spots:',
+          //   availableFields.length
+          // );
         })
     );
   }

@@ -71,8 +71,9 @@ export class BoardComponent
 
   ngOnInit(): void {
     this.setupBoard();
+    this.borders();
     // this.setSomeBlockades();
-    // this.setSomeUnits();
+    this.setSomeUnits();
   }
 
   ngOnChanges(changes: SimpleChanges) {}
@@ -92,6 +93,7 @@ export class BoardComponent
   }
 
   reloadFields() {
+    this.borderObsticlesUp = false;
     this.store.dispatch(setFieldsUnblocked());
     this.setupBoard();
     this.setSomeBlockades();

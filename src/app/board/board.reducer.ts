@@ -40,7 +40,7 @@ const authReducer = createReducer(
   on(appActions.setOccupyingUnit, (state, { unit }) => {
     // console.log(unit);
 
-    console.log(appActions.setOccupyingUnit.type);
+    // console.log(appActions.setOccupyingUnit.type);
     const { pos } = unit;
 
     const currentField = { ...state.fields[pos.x][pos.y] };
@@ -67,7 +67,7 @@ const authReducer = createReducer(
     };
   }),
   on(appActions.setFieldOccupyingUnitNull, (state, { pos }) => {
-    console.log(appActions.setFieldOccupyingUnitNull.type);
+    // console.log(appActions.setFieldOccupyingUnitNull.type);
 
     const currentField = { ...state.fields[pos.x][pos.y] };
     const newField: Field = {
@@ -147,7 +147,7 @@ const authReducer = createReducer(
     };
   }),
   on(appActions.setFieldBlockedTrue, (state, { pos }) => {
-    console.log(appActions.setFieldBlockedTrue.type);
+    // console.log(appActions.setFieldBlockedTrue.type);
 
     const currentField = { ...state.fields[pos.x][pos.y] };
     const newField: Field = {
