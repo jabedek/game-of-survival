@@ -121,21 +121,20 @@ export class BoardComponent
   }
 
   setSomeUnits() {
-    console.log('setSomeUnits');
-
     let brood: Brood = {
       broodName: 'froggo-jumper',
-      broodUnits: [null, null, null, null],
+      broodUnits: [],
+      broodColor: 'rgba(0, 0, 0, 0)',
     };
     let done = false;
 
     this.store.select(selectBoardFields).subscribe((data: Fields) => {
-      for (let i = 0; i < 4; i++) {
+      let totalUnits = 1;
+      for (let i = 0; i < totalUnits; i++) {
         const unit: Unit = this.putUnitOnUnblockedField(data);
-        console.log(unit);
 
         brood.broodUnits[i] = unit;
-        if (i === 3) {
+        if (i === totalUnits - 1) {
           done = true;
         }
       }
@@ -159,8 +158,6 @@ export class BoardComponent
       };
 
       const isBlocked: boolean = board[pos.x][pos.y].blocked;
-      // froggo'lion
-      // fisho'jumper
 
       if (!isBlocked) {
         const unit = {
@@ -173,10 +170,7 @@ export class BoardComponent
       } else {
         success = false;
       }
-
-      // console.log(success);
     }
-    // console.log(newUnit);
 
     return newUnit;
   }
@@ -198,7 +192,6 @@ export class BoardComponent
 
     for (let x = 0; x < BOARD_DIMENSIONS; x++) {
       for (let y = 0; y < BOARD_DIMENSIONS; y++) {
-        //  this.board2[x][y] = `${x}:${y}`;
         if (
           x == 0 ||
           y == 0 ||
@@ -214,12 +207,6 @@ export class BoardComponent
           this.store.dispatch(setFieldOccupyingUnitNull({ pos }));
           this.store.dispatch(actionResult);
         }
-
-        let unit: Unit = {
-          pos: { x, y },
-          unitName: 'mouse-deer-0',
-          broodName: '',
-        };
       }
     }
   }

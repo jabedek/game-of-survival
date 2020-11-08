@@ -31,7 +31,6 @@ const authReducer = createReducer(
       }));
     });
 
-    // return {...state}
     return {
       ...state,
       fields: [...newFields],
@@ -49,8 +48,6 @@ const authReducer = createReducer(
       blocked: true,
       occupyingUnit: unit,
     };
-
-    console.log(newField);
 
     // composeFields(newField, [...state.fields]);
 
@@ -150,7 +147,6 @@ const authReducer = createReducer(
   }),
   on(appActions.setFieldBlockedTrue, (state, { pos }) => {
     console.log(appActions.setFieldBlockedTrue.type);
-    console.log('setFieldBlockedTrue');
 
     const currentField = { ...state.fields[pos.x][pos.y] };
     const newField: Field = {
@@ -166,15 +162,12 @@ const authReducer = createReducer(
         return field;
       })
     );
-    // console.log(pos, newField);
     return {
       ...state,
       fields,
     };
   }),
   on(appActions.setFieldBlockedFalse, (state, { pos }) => {
-    // console.log('setFieldBlockedFalse');
-
     console.log(appActions.setFieldBlockedFalse.type);
 
     const currentField = { ...state.fields[pos.x][pos.y] };
@@ -191,7 +184,6 @@ const authReducer = createReducer(
         return field;
       })
     );
-    console.log(pos, newField);
     return {
       ...state,
       fields,
@@ -201,32 +193,4 @@ const authReducer = createReducer(
 
 export function reducer(state: BoardState | undefined, action: Action) {
   return authReducer(state, action);
-}
-
-function composeFields(newField: Field, fields: Field[][]) {
-  const newFields: Fields = fields.map((data: Field[]) =>
-    data.map((field: Field) => {
-      if (field.pos.x === newField.pos.x && field.pos.y === newField.pos.y) {
-        field = { ...newField };
-      }
-      return field;
-    })
-  );
-  console.log(newField);
-
-  return newFields;
-}
-
-function initFieldsData() {
-  let fields: Fields = [];
-
-  for (let x = 0; x < BOARD_DIMENSIONS; x++) {
-    fields[x] = [];
-
-    for (let y = 0; y < BOARD_DIMENSIONS; y++) {
-      fields[x][y] = new Field({ x, y }, false);
-    }
-  }
-
-  // this.store.dispatch(initFields({ fields }));
 }

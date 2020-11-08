@@ -90,7 +90,6 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
 
     const unit: Unit = {
       pos: this.pos,
-
       unitName,
       broodName: 'idk',
     };
@@ -98,39 +97,33 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   toggleSelf(): boolean {
-    //Initial mode state:
-    //blocked: false; !occupyingUnit.pos
+    // 0 no click: field is set to mode 0 = [not blocked by anything]
+
+    // 1st click: previous/input mode 0 = [not blocked by anything].
+    //Action: toggleBlockade and set mode to 1 = [blocked].
+
+    // 2st click: previous/input mode 1 = [blocked].
+    // Action: toggleBlockade and set mode to 2  = [blocked by unit].
+
+    // 3rd click: previous/input mode 2 = [blocked by unit].
+    // Action: toggleBlockade and set mode to 0 = [not blocked by anything]
 
     if (this.mode === 0) {
       this.toggleBlockade();
-      //New mode state: 1.
-      //blocked: true; !occupyingUnit.pos
+
       return true;
     }
 
     if (this.mode === 1) {
       this.setOccupyingUnit('mouse-jumper');
-      //New mode state: 2.
-      //blocked: true; !!occupyingUnit.pos
+
       return true;
     }
 
     if (this.mode === 2) {
       this.fieldUnblock();
-      //New mode state: 3.
-      //back to initial state - blocked: false; !occupyingUnit.pos
+
       return true;
     }
   }
 }
-
-// 0 no click: field is set to mode 0 = [not blocked by anything]
-
-// 1st click: previous/input mode 0 = [not blocked by anything].
-//Action: toggleBlockade and set mode to 1 = [blocked].
-
-// 2st click: previous/input mode 1 = [blocked].
-// Action: toggleBlockade and set mode to 2  = [blocked by unit].
-
-// 3rd click: previous/input mode 2 = [blocked by unit].
-// Action: toggleBlockade and set mode to 0 = [not blocked by anything]

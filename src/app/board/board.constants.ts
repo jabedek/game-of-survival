@@ -19,7 +19,7 @@ export const BOARD_FIELD_SIZE = 6 * 5; // 6 * x
 
 export const FIELD_DISPLAY_INFO = false;
 
-export const BROOD_SIZE = 4;
+// export const BROOD_SIZE = 4;
 // export type Brood
 
 export interface Unit {
@@ -28,9 +28,8 @@ export interface Unit {
   broodName: string;
 }
 
-export type BroodUnits = [] | [Unit, Unit, Unit, Unit];
-
 export interface Brood {
-  broodUnits: BroodUnits;
+  broodUnits: Unit[];
   broodName: string;
+  broodColor: string;
 }

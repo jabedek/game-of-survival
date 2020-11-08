@@ -1,5 +1,5 @@
 <button (click)="reloadFields()" type="button">Reload</button>
-<button (click)="borders()" type="button">Borders</button>
+<button (click)="borders()" type="button">Obsticle borders</button>
 <div class="board" [ngStyle]="getBoardStyles()">
   <ng-container *ngIf="board2">
     <ng-container *ngFor="let column of board2; index as x">
