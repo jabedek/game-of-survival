@@ -1,0 +1,25 @@
+<div
+  class="field-container"
+  [style.width.px]="CSSsize"
+  [style.height.px]="CSSsize"
+  (click)="toggleBlockade()"
+>
+  <div class="field" *ngIf="selfDetails$ | async as data; else loading">
+    <div
+      class="field__content"
+      [ngClass]="{
+        'field--is-occupied': data?.blockedBy,
+        'field--is-blocked': data?.blocked
+      }"
+    >
+      <p class="pos__X" *ngIf="displayPos">{{ data?.pos.x }}</p>
+      <p class="pos__Y" *ngIf="displayPos">{{ data?.pos.y }}</p>
+    </div>
+
+    <ng-container *ngIf="displayDetails">
+      {{ data?.blocked }}
+    </ng-container>
+  </div>
+</div>
+
+<ng-template #loading>...</ng-template>

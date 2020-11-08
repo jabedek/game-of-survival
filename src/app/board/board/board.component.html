@@ -1,0 +1,16 @@
+<button (click)="borders()" type="button">Borders</button>
+<div class="board" [ngStyle]="getBoardStyles()">
+  <ng-container *ngIf="board2">
+    <ng-container *ngFor="let column of board2; index as x">
+      <app-field
+        *ngFor="let row of column; index as y"
+        [CSSsize]="fieldSize"
+        [pos]="{ x: x, y: y }"
+        [displayPos]="true"
+        [displayDetails]="false"
+        (toggleFieldBlockade)="handleToggleFieldBlockade($event)"
+      >
+      </app-field>
+    </ng-container>
+  </ng-container>
+</div>
