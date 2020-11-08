@@ -2,14 +2,14 @@
   class="field-container"
   [style.width.px]="CSSsize"
   [style.height.px]="CSSsize"
-  (click)="toggleBlockade()"
+  (click)="toggleSelf()"
 >
   <div class="field" *ngIf="selfDetails$ | async as data; else loading">
     <div
       class="field__content"
       [ngClass]="{
-        'field--is-occupied': data?.blockedBy,
-        'field--is-blocked': data?.blocked
+        'field--is-blocked': data?.blocked === true && !data?.occupyingUnit,
+        'field--is-occupied': data?.occupyingUnit
       }"
     >
       <p class="pos__X" *ngIf="displayPos">{{ data?.pos.x }}</p>

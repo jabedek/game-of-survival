@@ -21,35 +21,73 @@ const authReducer = createReducer(
       fields,
     };
   }),
-  on(appActions.setFieldBlockedBy, (state, { pos, blocker }) => {
-    // const currentField = { ...state.fields[pos.x][pos.y] };
-    // const newField: Field = {
-    //   ...currentField,
-    //   blockedBy: blocker,
-    // };
+  on(appActions.setOccupyingUnit, (state, { unit }) => {
+    console.log(unit);
 
-    // composeFields(newField, [...state.fields]);
-
-    // const fields: Fields = [...state.fields].map((data: Field[]) =>
-    //   data.map((field: Field) => {
-    //     if (field.pos.x === pos.x && field.pos.y === pos.y) {
-    //       field = { ...newField };
-    //     }
-    //     return field;
-    //   })
-    // );
-
-    return {
-      ...state,
-    };
-  }),
-  on(appActions.toggleFieldBlockade, (state, { pos }) => {
-    console.log('toggleFieldBlockade');
+    console.log(appActions.setOccupyingUnit.type);
+    const { pos } = unit;
 
     const currentField = { ...state.fields[pos.x][pos.y] };
     const newField: Field = {
       ...currentField,
-      blocked: !currentField.blocked,
+      blocked: true,
+      occupyingUnit: unit,
+    };
+
+    console.log(newField);
+
+    // composeFields(newField, [...state.fields]);
+
+    const fields: Fields = [...state.fields].map((data: Field[]) =>
+      data.map((field: Field) => {
+        if (field.pos.x === pos.x && field.pos.y === pos.y) {
+          field = { ...newField };
+        }
+        return field;
+      })
+    );
+
+    return {
+      ...state,
+      fields,
+    };
+  }),
+  on(appActions.setFieldOccupyingUnitNull, (state, { pos }) => {
+    console.log(appActions.setFieldOccupyingUnitNull.type);
+
+    const currentField = { ...state.fields[pos.x][pos.y] };
+    const newField: Field = {
+      ...currentField,
+      occupyingUnit: null,
+    };
+
+    // composeFields(newField, [...state.fields]);
+
+    const fields: Fields = [...state.fields].map((data: Field[]) =>
+      data.map((field: Field) => {
+        if (field.pos.x === pos.x && field.pos.y === pos.y) {
+          field = { ...newField };
+        }
+        return field;
+      })
+    );
+
+    return {
+      ...state,
+      fields,
+    };
+  }),
+  on(appActions.toggleFieldBlockade, (state, { pos }) => {
+    console.log(appActions.toggleFieldBlockade.type);
+    const previousField: Field = { ...state.fields[pos.x][pos.y] };
+    let blocked: boolean;
+    if (!!previousField?.occupyingUnit?.pos) {
+      blocked = previousField.blocked;
+    } else blocked = !previousField.blocked;
+
+    const newField: Field = {
+      ...previousField,
+      blocked: blocked,
     };
 
     const fields: Fields = [...state.fields].map((data: Field[]) =>
@@ -60,7 +98,34 @@ const authReducer = createReducer(
         return field;
       })
     );
-    console.log(pos, newField);
+
+    return {
+      ...state,
+      fields,
+    };
+  }),
+  on(appActions.setFieldUnblocked, (state, { pos }) => {
+    console.log(appActions.setFieldUnblocked.type);
+    const previousField: Field = { ...state.fields[pos.x][pos.y] };
+    let blocked: boolean;
+    if (!!previousField?.occupyingUnit?.pos) {
+      blocked = previousField.blocked;
+    } else blocked = !previousField.blocked;
+
+    const newField: Field = {
+      ...previousField,
+      blocked: false,
+      occupyingUnit: null,
+    };
+
+    const fields: Fields = [...state.fields].map((data: Field[]) =>
+      data.map((field: Field) => {
+        if (field.pos.x === pos.x && field.pos.y === pos.y) {
+          field = { ...newField };
+        }
+        return field;
+      })
+    );
 
     return {
       ...state,
@@ -68,6 +133,7 @@ const authReducer = createReducer(
     };
   }),
   on(appActions.setFieldBlockedTrue, (state, { pos }) => {
+    console.log(appActions.setFieldBlockedTrue.type);
     console.log('setFieldBlockedTrue');
 
     const currentField = { ...state.fields[pos.x][pos.y] };
@@ -84,14 +150,16 @@ const authReducer = createReducer(
         return field;
       })
     );
-    console.log(pos, newField);
+    // console.log(pos, newField);
     return {
       ...state,
       fields,
     };
   }),
   on(appActions.setFieldBlockedFalse, (state, { pos }) => {
-    console.log('setFieldBlockedFalse');
+    // console.log('setFieldBlockedFalse');
+
+    console.log(appActions.setFieldBlockedFalse.type);
 
     const currentField = { ...state.fields[pos.x][pos.y] };
     const newField: Field = {

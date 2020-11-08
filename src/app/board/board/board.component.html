@@ -6,9 +6,11 @@
         *ngFor="let row of column; index as y"
         [CSSsize]="fieldSize"
         [pos]="{ x: x, y: y }"
-        [displayPos]="true"
-        [displayDetails]="false"
+        [displayPos]="FIELD_DISPLAY_INFO"
+        [displayDetails]="FIELD_DISPLAY_INFO"
         (toggleFieldBlockade)="handleToggleFieldBlockade($event)"
+        (setFieldOccupyingUnit)="handleSetFieldOccupyingUnit($event)"
+        (setFieldUnblocked)="handleSetFieldUnblocked($event)"
       >
       </app-field>
     </ng-container>

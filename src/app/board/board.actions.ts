@@ -1,4 +1,5 @@
 import { createAction, props } from '@ngrx/store';
+import { Unit } from './board.constants';
 import { Field, Fields } from './board.models';
 import { FieldPos, FieldPropertyUpdateDetails } from './field/field.component';
 
@@ -12,6 +13,11 @@ export const toggleFieldBlockade = createAction(
   props<{ pos: FieldPos }>()
 );
 
+export const setFieldUnblocked = createAction(
+  '[Board/Field] Set Field Unblocked',
+  props<{ pos: FieldPos }>()
+);
+
 export const setFieldBlockedTrue = createAction(
   '[Board/Field] Toggle Field Blocked True',
   props<{ pos: FieldPos }>()
@@ -21,7 +27,12 @@ export const setFieldBlockedFalse = createAction(
   props<{ pos: FieldPos }>()
 );
 
-export const setFieldBlockedBy = createAction(
-  '[Board/Field] Set Field BlockedBy',
-  props<{ pos: FieldPos; blocker: string }>()
+export const setOccupyingUnit = createAction(
+  '[Board/Field] Set Field OccupyingUnit',
+  props<{ unit: Unit }>()
+);
+
+export const setFieldOccupyingUnitNull = createAction(
+  '[Board/Field] Set Field OccupyingUnitNull',
+  props<{ pos: FieldPos }>()
 );
