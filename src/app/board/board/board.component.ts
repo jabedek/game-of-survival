@@ -28,6 +28,7 @@ import {
   setFieldOccupyingUnitNull,
   setOccupyingUnit,
   setFieldUnblocked,
+  setFieldsUnblocked,
 } from '../board.actions';
 import {
   BOARD_DIMENSIONS,
@@ -61,7 +62,6 @@ export class BoardComponent
 
   borderObsticlesUp: boolean = false;
 
-  board: Fields = [];
   board2: string[][] = [];
 
   public getBoardStyles() {
@@ -80,7 +80,6 @@ export class BoardComponent
   }
 
   ngOnInit(): void {
-    // this.borders();
     this.setSomeBlockades();
     this.setSomeUnits();
   }
@@ -91,6 +90,7 @@ export class BoardComponent
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
+
   setupBoard() {
     for (let x = 0; x < BOARD_DIMENSIONS; x++) {
       this.board2[x] = [];
@@ -100,11 +100,19 @@ export class BoardComponent
     }
   }
 
+  reloadFields() {
+    this.store.dispatch(setFieldsUnblocked());
+
+    this.setupBoard();
+    this.setSomeBlockades();
+    this.setSomeUnits();
+  }
+
   setSomeBlockades() {
     let totalBlockades = Math.floor((BOARD_DIMENSIONS * BOARD_DIMENSIONS) / 8);
-    totalBlockades = 6;
+    totalBlockades = 4;
 
-    for (let i = 0; i <= totalBlockades; i++) {
+    for (let i = 0; i < totalBlockades; i++) {
       let rndX = Math.floor(Math.random() * BOARD_DIMENSIONS);
       let rndY = Math.floor(Math.random() * BOARD_DIMENSIONS);
 
@@ -115,51 +123,62 @@ export class BoardComponent
   setSomeUnits() {
     console.log('setSomeUnits');
 
-    // let brood: Brood = [null, null, null, null];
+    let brood: Brood = {
+      broodName: 'froggo-jumper',
+      broodUnits: [null, null, null, null],
+    };
+    let done = false;
 
     this.store.select(selectBoardFields).subscribe((data: Fields) => {
-      // for (let i = 0; i < 4; i++) {
-      //   let field = this.getAvailableField(data);
-      //   console.log('wylosowane', field);
-      //   let unit: Unit = null;
-      //   if (!!field) {
-      //     unit = {
-      //       pos: field.pos,
-      //       unitName: 'moouse-deer-0',
-      //       broodName: 'animalien',
-      //     };
-      //   }
-      //   // brood[i] = unit;
-      //   this.store.dispatch(
-      //     setFieldOccupyingUnit({ pos: unit?.pos, occupyingUnit: unit })
-      //   );
-      // }
-    });
-  }
+      for (let i = 0; i < 4; i++) {
+        const unit: Unit = this.putUnitOnUnblockedField(data);
+        console.log(unit);
 
-  getAvailableField(fields: Fields) {
-    let available = false;
-    let field: Field = null;
-    while (!available) {
-      let x = Math.floor(Math.random() * BOARD_DIMENSIONS);
-      let y = Math.floor(Math.random() * BOARD_DIMENSIONS);
-      let pos: FieldPos = { x, y };
-
-      let result = this.checkIfFieldAvailable(fields, pos);
-
-      if (result !== null) {
-        field = result;
-        available = true;
-        break;
+        brood.broodUnits[i] = unit;
+        if (i === 3) {
+          done = true;
+        }
       }
+    });
 
-      return field;
+    if (done) {
+      brood.broodUnits.forEach((unit) => {
+        this.store.dispatch(setOccupyingUnit({ unit }));
+      });
     }
   }
 
-  checkIfFieldAvailable(fields: Fields, checkedPos: FieldPos): Field | null {
-    const field: Field = fields[checkedPos.x][checkedPos.y];
-    return !field.blocked ? field : null;
+  putUnitOnUnblockedField(board: Fields): null | Unit {
+    let success = false;
+    let newUnit: Unit = null;
+
+    while (!success) {
+      const pos: FieldPos = {
+        x: Math.floor(Math.random() * BOARD_DIMENSIONS),
+        y: Math.floor(Math.random() * BOARD_DIMENSIONS),
+      };
+
+      const isBlocked: boolean = board[pos.x][pos.y].blocked;
+      // froggo'lion
+      // fisho'jumper
+
+      if (!isBlocked) {
+        const unit = {
+          pos,
+          unitName: 'mouse-deer-0',
+          broodName: 'animalien',
+        };
+        newUnit = unit;
+        success = true;
+      } else {
+        success = false;
+      }
+
+      // console.log(success);
+    }
+    // console.log(newUnit);
+
+    return newUnit;
   }
 
   handleToggleFieldBlockade(event: FieldPos) {

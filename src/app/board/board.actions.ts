@@ -12,6 +12,9 @@ export const toggleFieldBlockade = createAction(
   '[Board/Field] Toggle Field Blockade',
   props<{ pos: FieldPos }>()
 );
+export const setFieldsUnblocked = createAction(
+  '[Board] Set All Fields Unblocked'
+);
 
 export const setFieldUnblocked = createAction(
   '[Board/Field] Set Field Unblocked',

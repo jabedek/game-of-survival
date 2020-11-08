@@ -2,6 +2,7 @@ import { Action, createReducer, on } from '@ngrx/store';
 import { BoardState } from '../shared/AppState';
 
 import * as appActions from './board.actions';
+import { BOARD_DIMENSIONS } from './board.constants';
 import { Field, Fields } from './board.models';
 
 export interface PatchProperty {
@@ -19,6 +20,21 @@ const authReducer = createReducer(
     return {
       ...state,
       fields,
+    };
+  }),
+  on(appActions.setFieldsUnblocked, (state) => {
+    const newFields: Fields = [...state.fields].map((fieldsCol) => {
+      return fieldsCol.map((field) => ({
+        ...field,
+        blocked: false,
+        occupyingUnit: null,
+      }));
+    });
+
+    // return {...state}
+    return {
+      ...state,
+      fields: [...newFields],
     };
   }),
   on(appActions.setOccupyingUnit, (state, { unit }) => {
@@ -199,4 +215,18 @@ function composeFields(newField: Field, fields: Field[][]) {
   console.log(newField);
 
   return newFields;
+}
+
+function initFieldsData() {
+  let fields: Fields = [];
+
+  for (let x = 0; x < BOARD_DIMENSIONS; x++) {
+    fields[x] = [];
+
+    for (let y = 0; y < BOARD_DIMENSIONS; y++) {
+      fields[x][y] = new Field({ x, y }, false);
+    }
+  }
+
+  // this.store.dispatch(initFields({ fields }));
 }

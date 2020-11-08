@@ -28,4 +28,9 @@ export interface Unit {
   broodName: string;
 }
 
-export type Brood = [] | [Unit, Unit, Unit, Unit];
+export type BroodUnits = [] | [Unit, Unit, Unit, Unit];
+
+export interface Brood {
+  broodUnits: BroodUnits;
+  broodName: string;
+}
