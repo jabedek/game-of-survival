@@ -74,10 +74,16 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
         } else {
           this.mode = 0;
         }
+
+        if (this.mode === 2) {
+          this.beginTurn();
+        }
       })
     );
   }
-  ngOnChanges(changes: SimpleChanges) {}
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('changes');
+  }
   ngAfterViewInit() {}
 
   toggleBlockade() {
@@ -86,69 +92,91 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
     this.toggleFieldBlockade.emit(this.pos);
   }
 
+  beginTurn() {
+    this.subscriptionNeighbors.add(
+      this.subscribeNeighbors().subscribe((data: NeighborField[]) => {
+        const neighborsData = this.getNeighborsData(data);
+        // console.log(neighborsData);
+
+        console.log(
+          `${this.pos.x}:${this.pos.y} here.\n`,
+          `I have got ${neighborsData.availableFields.length} available fields to move to.`,
+          `I have got ${neighborsData.neighborBlockades.length} blockades around me, including ${neighborsData.neighborUnits.length} other creatures.`
+        );
+      })
+    );
+  }
+
   fieldUnblock() {
     this.mode = 0;
+    this.subscriptionNeighbors.unsubscribe();
     this.setFieldUnblocked.emit(this.pos);
   }
 
   setOccupyingUnit(unitName: string) {
     this.mode = 2;
+    this.beginTurn();
 
     const unit: Unit = {
       pos: this.pos,
       unitName,
       broodName: 'idk',
     };
-    console.log(unit);
+    // console.log(unit);
 
     this.setFieldOccupyingUnit.emit(unit);
   }
 
   subscribeNeighbors() {
     const switchedPos = { x: this.pos.y, y: this.pos.x };
-    this.subscriptionNeighbors.add(
-      this.store
-        .select(selectUnitNeighborFieldsData, switchedPos)
-        .subscribe((data: NeighborField[]) => {
-          let neighborBlockades = [];
-          let neighborUnits = [];
-          let availableFields = [];
 
-          [...data].forEach((neighbor) => {
-            if (neighbor.field !== null) {
-              if (neighbor.field.blocked === true) {
-                neighborBlockades.push(neighbor);
+    return this.store.select(selectUnitNeighborFieldsData, switchedPos);
+  }
 
-                if (neighbor.field.occupyingUnit) {
-                  // console.log(neighbor.field.occupyingUnit.unitName);
+  private getNeighborsData(data: NeighborField[]) {
+    let neighborBlockades = [];
+    let neighborUnits = [];
+    let availableFields = [];
 
-                  neighborUnits.push(neighbor);
-                }
-              } else {
-                availableFields.push(neighbor);
-              }
-            }
-          });
+    [...data].forEach((neighbor) => {
+      if (neighbor.field !== null) {
+        if (neighbor.field.blocked === true) {
+          neighborBlockades.push(neighbor);
 
-          // console.log(
-          //   'all blockades:',
-          //   neighborBlockades.length,
-          //   'units:',
-          //   neighborUnits.length,
-          //   'available spots:',
-          //   availableFields.length
-          // );
-        })
-    );
+          if (neighbor.field.occupyingUnit) {
+            neighborUnits.push(neighbor);
+          }
+        } else {
+          availableFields.push(neighbor);
+        }
+      }
+    });
+
+    let stringData =
+      '[all blockades]: ' +
+      neighborBlockades.length +
+      ' [units]: ' +
+      neighborUnits.length +
+      ' [available spots]: ' +
+      availableFields.length;
+
+    // console.log(stringData);
+    return { neighborBlockades, neighborUnits, availableFields };
   }
 
   toggleSelf(): boolean {
     // console.log('x:', this.pos.y, 'y:', this.pos.x);
 
-    if (!this.firstToggled) this.subscribeNeighbors();
-
-    {
+    if (!this.firstToggled) {
       this.firstToggled = true;
+      // this.subscribeNeighbors();
+
+      this.subscriptionNeighbors.add(
+        this.subscribeNeighbors().subscribe((data: NeighborField[]) => {
+          const neighborsData = this.getNeighborsData(data);
+          // console.log(neighborsData);
+        })
+      );
     }
 
     if (this.mode === 0) {
@@ -165,6 +193,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
 
     if (this.mode === 2) {
       // this.subscriptionNeighbors.unsubscribe();
+      // this.subscription.unsubscribe();
       this.fieldUnblock();
 
       return true;
