@@ -15,10 +15,11 @@ import {
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { AppState } from 'src/app/shared/AppState';
-import { selectBoardField } from '..';
+import { selectBoardField, selectUnitNeighborFieldsData } from '..';
 import { Unit } from '../board.constants';
 // import {  } from '../board.actions';
 import { Field } from '../board.models';
+import { NeighborField } from '../index';
 
 export interface FieldPos {
   x: number | string;
@@ -41,21 +42,26 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
 
   mode: 0 | 1 | 2 = 0;
 
+  firstToggled = false;
+
   @Input() displayPos = true;
   @Input() displayDetails = false;
   selfDetails$: Observable<Field>;
+  neighbors$: Observable<Field[]>;
 
   @Output() toggleFieldBlockade: EventEmitter<FieldPos> = new EventEmitter();
   @Output() setFieldUnblocked: EventEmitter<FieldPos> = new EventEmitter();
   @Output() setFieldOccupyingUnit: EventEmitter<Unit> = new EventEmitter();
 
   subscription: Subscription = new Subscription();
+  subscriptionNeighbors: Subscription = new Subscription();
 
   @ViewChild('details', { read: TemplateRef }) details: TemplateRef<any>;
   constructor(public store: Store<AppState>) {}
 
   ngOnInit(): void {
     this.selfDetails$ = this.store.select(selectBoardField, this.pos);
+    // this.neighbors$ = this.store.select(selectUnitNeighborFieldsData, this.pos);
 
     this.subscription.add(
       this.selfDetails$.subscribe((data: Field) => {
@@ -93,20 +99,58 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
       unitName,
       broodName: 'idk',
     };
+    console.log(unit);
+
     this.setFieldOccupyingUnit.emit(unit);
   }
 
+  subscribeNeighbors() {
+    const switchedPos = { x: this.pos.y, y: this.pos.x };
+    this.subscriptionNeighbors.add(
+      this.store
+        .select(selectUnitNeighborFieldsData, switchedPos)
+        .subscribe((data: NeighborField[]) => {
+          let totalNeighborBlockades = 0;
+          let totalNeighborUnits = 0;
+          let totalAvailableFields = 0;
+
+          // console.log('neighbors', data);
+
+          [...data].forEach((neighbor) => {
+            if (neighbor.field !== null) {
+              if (neighbor.field.blocked === true) {
+                // console.log(neighbor);
+                totalNeighborBlockades += 1;
+
+                if (neighbor.field.occupyingUnit) {
+                  console.log(neighbor.field.occupyingUnit.unitName);
+
+                  totalNeighborUnits += 1;
+                }
+              } else totalAvailableFields += 1;
+            }
+          });
+
+          console.log(
+            'all blockades:',
+            totalNeighborBlockades,
+            'units:',
+            totalNeighborUnits,
+            'available spots:',
+            totalAvailableFields
+          );
+        })
+    );
+  }
+
   toggleSelf(): boolean {
-    // 0 no click: field is set to mode 0 = [not blocked by anything]
+    // console.log('x:', this.pos.y, 'y:', this.pos.x);
 
-    // 1st click: previous/input mode 0 = [not blocked by anything].
-    //Action: toggleBlockade and set mode to 1 = [blocked].
+    if (!this.firstToggled) this.subscribeNeighbors();
 
-    // 2st click: previous/input mode 1 = [blocked].
-    // Action: toggleBlockade and set mode to 2  = [blocked by unit].
-
-    // 3rd click: previous/input mode 2 = [blocked by unit].
-    // Action: toggleBlockade and set mode to 0 = [not blocked by anything]
+    {
+      this.firstToggled = true;
+    }
 
     if (this.mode === 0) {
       this.toggleBlockade();
@@ -121,6 +165,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     if (this.mode === 2) {
+      // this.subscriptionNeighbors.unsubscribe();
       this.fieldUnblock();
 
       return true;

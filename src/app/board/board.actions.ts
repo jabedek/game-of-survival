@@ -30,6 +30,11 @@ export const setFieldBlockedFalse = createAction(
   props<{ pos: FieldPos }>()
 );
 
+// export const getUnitNeighborFieldsData = createAction(
+//   '[Board/Unit] Get Unit Neigbhbors',
+//   props<{ pos: FieldPos }>()
+// );
+
 export const setOccupyingUnit = createAction(
   '[Board/Field] Set Field OccupyingUnit',
   props<{ unit: Unit }>()

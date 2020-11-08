@@ -22,6 +22,7 @@ const authReducer = createReducer(
       fields,
     };
   }),
+
   on(appActions.setFieldsUnblocked, (state) => {
     const newFields: Fields = [...state.fields].map((fieldsCol) => {
       return fieldsCol.map((field) => ({
@@ -37,7 +38,7 @@ const authReducer = createReducer(
     };
   }),
   on(appActions.setOccupyingUnit, (state, { unit }) => {
-    console.log(unit);
+    // console.log(unit);
 
     console.log(appActions.setOccupyingUnit.type);
     const { pos } = unit;
@@ -189,6 +190,38 @@ const authReducer = createReducer(
       fields,
     };
   })
+  // on(appActions.getUnitNeighborFieldsData, (state, { pos }) => {
+  //   console.log(pos);
+
+  //   const { fields } = state;
+
+  //   const posNum = {
+  //     x: +pos.x,
+  //     y: +pos.y,
+  //   };
+
+  //   let neighborFields: Field[] = [];
+  //   console.log(+posNum.x);
+
+  //   if (fields[+posNum.x - 1][+posNum.y - 1]) {
+  //     console.log(fields[+posNum.x - 1][+posNum.y - 1]);
+  //   }
+  //   if (fields) {
+  //     neighborFields.push(fields[+posNum.x - 1][+posNum.y - 1] || null);
+  //     neighborFields.push(fields[+posNum.x - 1][+posNum.y] || null);
+  //     neighborFields.push(fields[+posNum.x - 1][+posNum.y + 1] || null);
+  //     neighborFields.push(fields[+posNum.x][+posNum.y - 1] || null);
+  //     neighborFields.push(fields[+posNum.x][+posNum.y + 1] || null);
+  //     neighborFields.push(fields[+posNum.x + 1][+posNum.y - 1] || null);
+  //     neighborFields.push(fields[+posNum.x + 1][+posNum.y] || null);
+  //     neighborFields.push(fields[+posNum.x + 1][+posNum.y + 1] || null);
+  //   }
+  //   console.log(neighborFields);
+
+  //   return {
+  //     ...state,
+  //   };
+  // })
 );
 
 export function reducer(state: BoardState | undefined, action: Action) {

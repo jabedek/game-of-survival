@@ -13,13 +13,8 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { dispatch } from 'rxjs/internal/observable/pairs';
 import { AppState } from 'src/app/shared/AppState';
-import {
-  NOselectAvailableFields,
-  selectBoardFields,
-  selectFieldBlocked,
-} from '..';
+import { selectBoardFields } from '..';
 import {
   initFields,
   setFieldBlockedTrue,
@@ -32,15 +27,13 @@ import {
 } from '../board.actions';
 import {
   BOARD_DIMENSIONS,
-  BOARD_DIMENSIONS_X,
-  BOARD_DIMENSIONS_Y,
   BOARD_FIELD_SIZE,
   Brood,
   FIELD_DISPLAY_INFO,
   Unit,
 } from '../board.constants';
 import { Field, Fields } from '../board.models';
-import { FieldPos, FieldPropertyUpdateDetails } from '../field/field.component';
+import { FieldPos } from '../field/field.component';
 
 @Component({
   selector: 'app-board',
@@ -74,14 +67,12 @@ export class BoardComponent
     };
   }
 
-  constructor(public store: Store<AppState>) {
-    // this.subscription.add(this.fields$.subscribe((data) => console.log(data)));
-    this.setupBoard();
-  }
+  constructor(public store: Store<AppState>) {}
 
   ngOnInit(): void {
-    this.setSomeBlockades();
-    this.setSomeUnits();
+    this.setupBoard();
+    // this.setSomeBlockades();
+    // this.setSomeUnits();
   }
 
   ngOnChanges(changes: SimpleChanges) {}
@@ -102,7 +93,6 @@ export class BoardComponent
 
   reloadFields() {
     this.store.dispatch(setFieldsUnblocked());
-
     this.setupBoard();
     this.setSomeBlockades();
     this.setSomeUnits();
