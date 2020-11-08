@@ -1,7 +1,7 @@
 import { Field } from './board.models';
 import { FieldPos } from './field/field.component';
 
-export const BOARD_DIMENSIONS = 6;
+export const BOARD_DIMENSIONS = 10;
 export const BOARD_DIMENSIONS_X = 60;
 export const BOARD_DIMENSIONS_Y = 60;
 

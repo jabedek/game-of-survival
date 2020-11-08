@@ -86,7 +86,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
     );
   }
   ngOnChanges(changes: SimpleChanges) {
-    console.log('changes');
+    // console.log('changes');
   }
   ngAfterViewInit() {}
 
@@ -153,11 +153,11 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
                 field?.occupyingUnit.broodName ===
                   fieldData.occupyingUnit.broodName
               ) {
-                console.log('friend');
+                // console.log('friend');
                 neighborBroodMembers.push(neighbor);
               } else {
+                // console.log('enemy');
                 neighborAliens.push(neighbor);
-                console.log('enemy');
               }
             } else {
               neighborObsticles.push(neighbor);
