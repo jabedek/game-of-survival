@@ -42,6 +42,10 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
 
   mode: 0 | 1 | 2 = 0;
 
+  // 0 - available to move
+  // 1 - blocked by some kind of permanent obsticle
+  // 2 - occupied by creature
+
   firstToggled = false;
 
   @Input() displayPos = true;
@@ -93,110 +97,123 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   beginTurn() {
+    const switchedPos = { x: this.pos.y, y: this.pos.x };
     this.subscriptionNeighbors.add(
-      this.subscribeNeighbors().subscribe((data: NeighborField[]) => {
-        const neighborsData = this.getNeighborsData(data);
-        // console.log(neighborsData);
+      this.store
+        .select(selectUnitNeighborFieldsData, switchedPos)
+        .subscribe((data: NeighborField[]) => {
+          const neighborsData = this.getNeighborsData(data, this.pos);
 
-        console.log(
-          `${this.pos.x}:${this.pos.y} here.\n`,
-          `I have got ${neighborsData.availableFields.length} available fields to move to.`,
-          `I have got ${neighborsData.neighborBlockades.length} blockades around me, including ${neighborsData.neighborUnits.length} other creatures.`
-        );
-      })
+          // console.log(
+          //   `${this.pos.x}:${this.pos.y} here.\n`,
+          //   `I have got ${neighborsData.neighborBlockades.length} blockades around me, including ${neighborsData.neighborUnits.length} other creatures.`,
+          //   `I have got ${neighborsData.availableFields.length} available fields to move to.`
+          // );
+        })
     );
   }
 
   fieldUnblock() {
-    this.mode = 0;
     this.subscriptionNeighbors.unsubscribe();
+    this.mode = 0;
     this.setFieldUnblocked.emit(this.pos);
   }
 
-  setOccupyingUnit(unitName: string) {
-    this.mode = 2;
+  addOccupyingUnit(unitName: string, broodName?: string) {
+    // this.mode = 2;
     this.beginTurn();
 
     const unit: Unit = {
       pos: this.pos,
       unitName,
-      broodName: 'idk',
+      broodName: broodName || 'dunnos',
     };
-    // console.log(unit);
 
     this.setFieldOccupyingUnit.emit(unit);
   }
 
-  subscribeNeighbors() {
-    const switchedPos = { x: this.pos.y, y: this.pos.x };
-
-    return this.store.select(selectUnitNeighborFieldsData, switchedPos);
-  }
-
-  private getNeighborsData(data: NeighborField[]) {
-    let neighborBlockades = [];
+  private getNeighborsData(data: NeighborField[], pos: FieldPos) {
+    let neighborObsticles = [];
     let neighborUnits = [];
     let availableFields = [];
 
-    [...data].forEach((neighbor) => {
-      if (neighbor.field !== null) {
-        if (neighbor.field.blocked === true) {
-          neighborBlockades.push(neighbor);
+    let neighborBroodMembers = [];
+    let neighborAliens = [];
 
-          if (neighbor.field.occupyingUnit) {
-            neighborUnits.push(neighbor);
+    this.selfDetails$.subscribe((fieldData) => {
+      [...data].forEach((neighbor) => {
+        const { field } = neighbor;
+
+        if (neighbor.field !== null) {
+          if (field.blocked === true) {
+            if (field?.occupyingUnit) {
+              neighborUnits.push(neighbor);
+              if (
+                fieldData.occupyingUnit &&
+                field?.occupyingUnit.broodName ===
+                  fieldData.occupyingUnit.broodName
+              ) {
+                console.log('friend');
+                neighborBroodMembers.push(neighbor);
+              } else {
+                neighborAliens.push(neighbor);
+                console.log('enemy');
+              }
+            } else {
+              neighborObsticles.push(neighbor);
+            }
+          } else {
+            availableFields.push(neighbor);
           }
-        } else {
-          availableFields.push(neighbor);
         }
-      }
+      });
     });
 
     let stringData =
-      '[all blockades]: ' +
-      neighborBlockades.length +
-      ' [units]: ' +
-      neighborUnits.length +
-      ' [available spots]: ' +
-      availableFields.length;
-
-    // console.log(stringData);
-    return { neighborBlockades, neighborUnits, availableFields };
+      '[pos]: ' +
+      pos.x +
+      ':' +
+      pos.y +
+      '\n[available spots]: ' +
+      availableFields.length +
+      '\n[all blockades]: ' +
+      (neighborAliens.length +
+        neighborBroodMembers.length +
+        neighborObsticles.length) +
+      '\n - obsticles: ' +
+      neighborObsticles.length +
+      '\n - friendly units: ' +
+      neighborBroodMembers.length +
+      '\n - enemy units: ' +
+      neighborAliens.length;
+    console.log(stringData);
+    return { neighborObsticles, neighborUnits, availableFields };
   }
 
   toggleSelf(): boolean {
-    // console.log('x:', this.pos.y, 'y:', this.pos.x);
+    // if (!this.firstToggled) {
+    //   this.firstToggled = true;
 
-    if (!this.firstToggled) {
-      this.firstToggled = true;
-      // this.subscribeNeighbors();
-
-      this.subscriptionNeighbors.add(
-        this.subscribeNeighbors().subscribe((data: NeighborField[]) => {
-          const neighborsData = this.getNeighborsData(data);
-          // console.log(neighborsData);
-        })
-      );
-    }
+    //   this.subscriptionNeighbors.add(
+    //     this.subscribeNeighbors().subscribe((data: NeighborField[]) => {
+    //       const neighborsData = this.getNeighborsData(data);
+    //     })
+    //   );
+    // }
 
     if (this.mode === 0) {
       this.toggleBlockade();
-
       return true;
     }
 
     if (this.mode === 1) {
-      this.setOccupyingUnit('mouse-jumper');
-
+      this.addOccupyingUnit('mouse-jumper', 'pappals');
       return true;
     }
 
     if (this.mode === 2) {
-      // this.subscriptionNeighbors.unsubscribe();
-      // this.subscription.unsubscribe();
       this.fieldUnblock();
-
-      return true;
+      return false;
     }
   }
 }

@@ -41,6 +41,6 @@ export const setOccupyingUnit = createAction(
 );
 
 export const setFieldOccupyingUnitNull = createAction(
-  '[Board/Field] Set Field OccupyingUnitNull',
+  '[Board/Field] Set Field OccupyingUnit to Null',
   props<{ pos: FieldPos }>()
 );
