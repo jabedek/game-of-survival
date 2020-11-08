@@ -15,7 +15,7 @@ export const BOARD_DIMENSIONS_ALWAYS_EVEN = Math.ceil(BOARD_DIMENSIONS / 2) * 2;
  * BOARD_FIELD_SIZE's value is passed down to Field component
  * as a number of pixels for each Field's height and width.
  */
-export const BOARD_FIELD_SIZE = 6 * 6; // 6 * x
+export const BOARD_FIELD_SIZE = 6 * 5; // 6 * x
 
 export const FIELD_DISPLAY_INFO = false;
 

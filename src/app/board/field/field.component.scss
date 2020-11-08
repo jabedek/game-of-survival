@@ -5,10 +5,6 @@
   padding: 0.15em;
   margin: 0;
 
-  // align-items: center;
-  // align-content: center;
-  // text-align: center;
-
   &:hover {
     filter: brightness(125%);
   }
@@ -33,6 +29,8 @@
 
   &--is-occupied {
     background: rgba(150, 50, 255, 1);
+
+    border-radius: 100%;
   }
 
   &--is-blocked {
@@ -47,20 +45,6 @@
     justify-content: space-between;
     user-select: none;
     padding: 0.15em;
-  }
-}
-
-.availability {
-  position: relative;
-  height: 100%;
-  width: 100%;
-
-  &--occupied {
-    background: rgba(150, 50, 255, 1);
-  }
-
-  &--blocked {
-    background: rgba(255, 65, 65, 1);
   }
 }
 
