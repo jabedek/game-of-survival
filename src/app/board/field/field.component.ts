@@ -1,7 +1,6 @@
 import {
   AfterViewInit,
   Component,
-  ComponentFactoryResolver,
   EventEmitter,
   Input,
   OnChanges,
@@ -10,26 +9,18 @@ import {
   SimpleChanges,
   TemplateRef,
   ViewChild,
-  ViewContainerRef,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { AppState } from 'src/app/shared/AppState';
+import {
+  AppState,
+  Field,
+  FieldMode,
+  FieldPos,
+  Unit,
+} from 'src/app/shared/types-interfaces';
 import { selectBoardField, selectUnitNeighborFieldsData } from '..';
-import { Unit } from '../board.constants';
-// import {  } from '../board.actions';
-import { Field } from '../board.models';
 import { NeighborField } from '../index';
-
-export interface FieldPos {
-  x: number | string;
-  y: number | string;
-}
-
-export interface FieldPropertyUpdateDetails {
-  pos: FieldPos;
-  property: { [key: string]: any };
-}
 
 @Component({
   selector: 'app-field',
@@ -40,11 +31,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() CSSsize: string;
   @Input() pos: FieldPos;
 
-  mode: 0 | 1 | 2 = 0;
-
-  // 0 - available to move
-  // 1 - blocked by some kind of permanent obsticle
-  // 2 - occupied by creature
+  mode: FieldMode = 0;
 
   firstToggled = false;
 

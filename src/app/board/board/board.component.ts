@@ -13,7 +13,15 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { AppState } from 'src/app/shared/AppState';
+import { concatMap, mergeMap, switchMap } from 'rxjs/operators';
+import {
+  AppState,
+  Brood,
+  BroodSpace,
+  FieldPos,
+  Fields,
+  Unit,
+} from 'src/app/shared/types-interfaces';
 import { selectBoardFields, selectBroodSpaces } from '..';
 import {
   initFields,
@@ -28,12 +36,8 @@ import {
 import {
   BOARD_DIMENSIONS,
   BOARD_FIELD_SIZE,
-  Brood,
   FIELD_DISPLAY_INFO,
-  Unit,
 } from '../board.constants';
-import { Field, Fields } from '../board.models';
-import { FieldPos } from '../field/field.component';
 
 @Component({
   selector: 'app-board',
@@ -207,7 +211,14 @@ export class BoardComponent
   findBroodSpaces() {
     let spaces: BroodSpace[] = [];
 
-    // let ids = [...this.board2]
+    // this.fields$
+    //   .pipe(
+    //     concatMap((data) => {
+    //       return data;
+    //     })
+    //   )
+    //   .subscribe((data) => console.log(data));
+
     this.fields$.subscribe((data) => {
       this.store
         .select(selectBroodSpaces)
@@ -220,5 +231,3 @@ export class BoardComponent
     });
   }
 }
-
-export type BroodSpace = [Field, Field, Field, Field];

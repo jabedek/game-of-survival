@@ -2,8 +2,7 @@ import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { initFields } from './board/board.actions';
 import { BOARD_DIMENSIONS, BOARD_DIMENSIONS_X } from './board/board.constants';
-import { Field, Fields } from './board/board.models';
-import { AppState } from './shared/AppState';
+import { AppState, Field, Fields } from './shared/types-interfaces';
 
 @Component({
   selector: 'app-root',

@@ -1,7 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { Unit } from './board.constants';
-import { Field, Fields } from './board.models';
-import { FieldPos, FieldPropertyUpdateDetails } from './field/field.component';
+import { FieldPos, Fields, Unit } from '../shared/types-interfaces';
 
 export const initFields = createAction(
   '[Board] Load Fields',
@@ -29,11 +27,6 @@ export const setFieldBlockedFalse = createAction(
   '[Board/Field] Toggle Field Blocked False',
   props<{ pos: FieldPos }>()
 );
-
-// export const getUnitNeighborFieldsData = createAction(
-//   '[Board/Unit] Get Unit Neigbhbors',
-//   props<{ pos: FieldPos }>()
-// );
 
 export const setOccupyingUnit = createAction(
   '[Board/Field] Set Field OccupyingUnit',

@@ -1,9 +1,13 @@
 import { createSelector, props } from '@ngrx/store';
-import { AppState, BoardState } from '../shared/AppState';
+import {
+  AppState,
+  BoardState,
+  BroodSpace,
+  Field,
+  FieldPos,
+  Fields,
+} from '../shared/types-interfaces';
 import { BOARD_DIMENSIONS } from './board.constants';
-import { BroodSpace } from './board/board.component';
-import { Field, Fields } from './board.models';
-import { FieldPos } from './field/field.component';
 
 export const selectBoard = (state: AppState) => state.board;
 

@@ -1,13 +1,9 @@
 import { Action, createReducer, on } from '@ngrx/store';
-import { BoardState } from '../shared/AppState';
+import { BoardState, Field, Fields } from '../shared/types-interfaces';
 
 import * as appActions from './board.actions';
 import { BOARD_DIMENSIONS } from './board.constants';
-import { Field, Fields } from './board.models';
 
-export interface PatchProperty {
-  [key: string]: any;
-}
 export const featureKey = 'board';
 
 export const initialBoardState: BoardState = {

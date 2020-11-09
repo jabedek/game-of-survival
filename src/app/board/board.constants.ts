@@ -1,7 +1,4 @@
-import { Field } from './board.models';
-import { FieldPos } from './field/field.component';
-
-export const BOARD_DIMENSIONS = 10;
+export const BOARD_DIMENSIONS = 5;
 export const BOARD_DIMENSIONS_X = 60;
 export const BOARD_DIMENSIONS_Y = 60;
 
@@ -18,18 +15,3 @@ export const BOARD_DIMENSIONS_ALWAYS_EVEN = Math.ceil(BOARD_DIMENSIONS / 2) * 2;
 export const BOARD_FIELD_SIZE = 6 * 6; // 6 * x
 
 export const FIELD_DISPLAY_INFO = false;
-
-// export const BROOD_SIZE = 4;
-// export type Brood
-
-export interface Unit {
-  pos: FieldPos;
-  unitName: string;
-  broodName: string;
-}
-
-export interface Brood {
-  broodUnits: Unit[];
-  broodName: string;
-  broodColor: string;
-}
