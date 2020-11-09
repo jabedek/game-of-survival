@@ -22,7 +22,11 @@ import {
   Fields,
   Unit,
 } from 'src/app/shared/types-interfaces';
-import { selectBoardFields, selectBroodSpaces } from '..';
+import {
+  selectAvailableFieldsTotal,
+  selectBoardFields,
+  selectBroodSpaces,
+} from '..';
 import {
   initFields,
   setFieldBlockedTrue,
@@ -47,8 +51,15 @@ import {
 export class BoardComponent
   implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
   fields$: Observable<Fields> = this.store.select(selectBoardFields);
-
+  availableFieldsTotal$: Observable<number> = this.store.select(
+    selectAvailableFieldsTotal
+  );
+  broodSpaces$: Observable<Fields> = this.store.select(selectBroodSpaces);
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
+
+  loadedFields = 0;
+  boardMode = true;
+  // true: 'admin'; false: 'play''
 
   boardDimension = BOARD_DIMENSIONS;
   fieldSize = BOARD_FIELD_SIZE;
@@ -60,7 +71,11 @@ export class BoardComponent
   borderObsticlesUp: boolean = false;
 
   board2: string[][] = [];
+  toggleSwitch() {
+    console.log('elo');
 
+    this.boardMode = !this.boardMode;
+  }
   public getBoardStyles() {
     return {
       display: 'grid',
@@ -74,6 +89,15 @@ export class BoardComponent
   constructor(public store: Store<AppState>) {}
 
   ngOnInit(): void {
+    this.subscription.add(
+      this.store
+        .select(selectBroodSpaces)
+        .subscribe((data) => console.log(data))
+    );
+
+    this.subscription.add(
+      this.availableFieldsTotal$.subscribe((data) => console.log(data))
+    );
     this.setupBoard();
     this.borders();
     // this.setSomeBlockades();
@@ -219,15 +243,15 @@ export class BoardComponent
     //   )
     //   .subscribe((data) => console.log(data));
 
-    this.fields$.subscribe((data) => {
-      this.store
-        .select(selectBroodSpaces)
-        .subscribe((data) => console.log(data));
-      // data.forEach((fieldsCol) => {
-      //   fieldsCol.forEach((field) => {
+    // this.fields$.subscribe((data) => {
+    //   this.store
+    //     .select(selectBroodSpaces)
+    //     .subscribe((data) => console.log(data));
+    //   // data.forEach((fieldsCol) => {
+    //   //   fieldsCol.forEach((field) => {
 
-      //   });
-      // });
-    });
+    //   //   });
+    //   // });
+    // });
   }
 }

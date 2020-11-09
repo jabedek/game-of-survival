@@ -1,8 +1,35 @@
-<button (click)="reloadFields()" type="button">Reload</button>
-<button (click)="borders()" type="button">Obsticle borders</button>
-<div class="board" [ngStyle]="getBoardStyles()">
-  <ng-container *ngIf="board2">
-    <ng-container *ngFor="let column of board2; index as x">
+<div class="onoffswitch">
+  <input
+    type="checkbox"
+    name="onoffswitch"
+    class="onoffswitch-checkbox"
+    id="myonoffswitch"
+    tabindex="0"
+    checked
+    (click)="toggleSwitch()"
+  />
+  <label class="onoffswitch-label" for="myonoffswitch">
+    <span class="onoffswitch-inner"></span>
+    <span class="onoffswitch-switch"></span>
+  </label>
+</div>
+
+<div class="board" *ngIf="board2" [ngStyle]="getBoardStyles()">
+  <ng-container *ngFor="let column of board2; index as x">
+    <ng-container *ngIf="boardMode">
+      <app-field
+        *ngFor="let row of column; index as y"
+        [CSSsize]="fieldSize"
+        [pos]="{ x: x, y: y }"
+        [displayPos]="FIELD_DISPLAY_INFO"
+        [displayDetails]="FIELD_DISPLAY_INFO"
+        (toggleFieldBlockade)="handleToggleFieldBlockade($event)"
+        (setFieldOccupyingUnit)="handleSetFieldOccupyingUnit($event)"
+        (setFieldUnblocked)="handleSetFieldUnblocked($event)"
+      >
+      </app-field>
+    </ng-container>
+    <ng-container *ngIf="!boardMode">
       <app-field
         *ngFor="let row of column; index as y"
         [CSSsize]="fieldSize"
@@ -17,3 +44,25 @@
     </ng-container>
   </ng-container>
 </div>
+
+<ng-container *ngIf="boardMode">
+  <button (click)="reloadFields()" type="button">Reload</button>
+  <button (click)="borders()" type="button">Obsticle borders</button>
+</ng-container>
+<!-- <ng-container *ngIf="!boardMode">
+  <div class="board" *ngIf="board2" [ngStyle]="getBoardStyles()">
+    <ng-container *ngFor="let column of board2; index as x">
+      <app-field
+        *ngFor="let row of column; index as y"
+        [CSSsize]="fieldSize"
+        [pos]="{ x: x, y: y }"
+        [displayPos]="FIELD_DISPLAY_INFO"
+        [displayDetails]="FIELD_DISPLAY_INFO"
+        (toggleFieldBlockade)="handleToggleFieldBlockade($event)"
+        (setFieldOccupyingUnit)="handleSetFieldOccupyingUnit($event)"
+        (setFieldUnblocked)="handleSetFieldUnblocked($event)"
+      >
+      </app-field>
+    </ng-container>
+  </div>
+</ng-container> -->

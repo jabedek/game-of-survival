@@ -13,6 +13,7 @@ const components = [BoardComponent, FieldComponent];
   declarations: components,
   imports: [
     CommonModule,
+    BrowserModule,
     BoardRoutingModule,
     StoreModule.forFeature(
       fromBoardReducer.featureKey,

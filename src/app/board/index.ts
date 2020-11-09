@@ -16,6 +16,22 @@ export const selectBoardFields = createSelector(
   (state: BoardState) => state.fields
 );
 
+export const selectAvailableFieldsTotal = createSelector(
+  selectBoardFields,
+  (fields: Fields) => {
+    let counter0 = 0;
+    fields.forEach((fieldCol: Field[]) => {
+      return fieldCol.forEach((field) => {
+        if (!field.blocked && !field.occupyingUnit) {
+          counter0++;
+        }
+      });
+    });
+
+    return counter0;
+  }
+);
+
 export const selectBoardField = createSelector(
   selectBoard,
   (state: BoardState, props) => {
