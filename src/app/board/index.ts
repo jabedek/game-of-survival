@@ -1,6 +1,7 @@
 import { createSelector, props } from '@ngrx/store';
 import { AppState, BoardState } from '../shared/AppState';
 import { BOARD_DIMENSIONS } from './board.constants';
+import { BroodSpace } from './board/board.component';
 import { Field, Fields } from './board.models';
 import { FieldPos } from './field/field.component';
 
@@ -46,6 +47,34 @@ export const selectUnitNeighborFieldsData = createSelector(
   }
 );
 
+export const selectBroodSpaces = createSelector(
+  selectBoardFields,
+  (fields: Fields) => {
+    // console.log(fields);
+
+    console.log('selectBroodSpaces');
+
+    let bss: BroodSpace[] = [];
+
+    [...fields].forEach((fieldsCol) => {
+      [...fieldsCol].forEach((field) => {
+        // if (field.blocked) console.log('blocked field:', field.pos);
+
+        let result = checkIfBroodSpaceRoot([...fields], field.pos);
+        if (result !== null) {
+          bss.push(result);
+        }
+      });
+    });
+
+    // checkIfBroodSpaceRoot([...fields], props);
+    // console.log('selectorneighbors', neighbors);
+
+    // return null;
+    return bss;
+  }
+);
+
 export const NOselectAvailableFields = createSelector(
   selectBoardFields,
   (fields: Fields) => {
@@ -70,6 +99,84 @@ export interface NeighborField {
   field: Field;
   at: string;
 }
+
+function checkIfBroodSpaceRoot(
+  fields: Fields,
+  props: FieldPos
+): null | BroodSpace {
+  const x: number = +props.x;
+  const y: number = +props.y;
+
+  let available0: null | Field = null;
+  let available1: null | Field = null;
+  let available2: null | Field = null;
+  let available3: null | Field = null;
+
+  let posA: number;
+  let posB: number;
+  let field: Field;
+  let at = '';
+
+  // 0. root - north-west
+  posA = x;
+  posB = y;
+
+  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
+    available0 = null;
+  } else {
+    available0 = fields[posB][posA].blocked ? null : fields[posB][posA];
+  }
+  // console.log(available0);
+
+  // 1. north-east
+  posA = x + 1;
+  posB = y;
+
+  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
+    available1 = null;
+  } else {
+    available1 = fields[posB][posA].blocked ? null : fields[posB][posA];
+  }
+
+  // 2. south-west
+  posA = x;
+  posB = y + 1;
+
+  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
+    available2 = null;
+  } else {
+    available2 = fields[posB][posA].blocked ? null : fields[posB][posA];
+  }
+
+  // 3. south-east
+  posA = x + 1;
+  posB = y + 1;
+
+  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
+    available3 = null;
+  } else {
+    available3 = fields[posB][posA].blocked ? null : fields[posB][posA];
+  }
+
+  let bs: BroodSpace = [null, null, null, null];
+  bs[0] = available0;
+  bs[1] = available1;
+  bs[2] = available2;
+  bs[3] = available3;
+
+  // = [available0, available1, available2, available3];
+  // console.log(bs);
+
+  if (
+    available0 !== null &&
+    available1 !== null &&
+    available2 !== null &&
+    available3 !== null
+  ) {
+    return bs;
+  } else return null;
+}
+
 function getNeighbors(fields: Fields, props: FieldPos) {
   let neighborFields: Field[] = [];
   let posA: number;

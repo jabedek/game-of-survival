@@ -14,7 +14,7 @@ import {
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { AppState } from 'src/app/shared/AppState';
-import { selectBoardFields } from '..';
+import { selectBoardFields, selectBroodSpaces } from '..';
 import {
   initFields,
   setFieldBlockedTrue,
@@ -74,6 +74,7 @@ export class BoardComponent
     this.borders();
     // this.setSomeBlockades();
     this.setSomeUnits();
+    this.findBroodSpaces();
   }
 
   ngOnChanges(changes: SimpleChanges) {}
@@ -202,4 +203,22 @@ export class BoardComponent
       }
     }
   }
+
+  findBroodSpaces() {
+    let spaces: BroodSpace[] = [];
+
+    // let ids = [...this.board2]
+    this.fields$.subscribe((data) => {
+      this.store
+        .select(selectBroodSpaces)
+        .subscribe((data) => console.log(data));
+      // data.forEach((fieldsCol) => {
+      //   fieldsCol.forEach((field) => {
+
+      //   });
+      // });
+    });
+  }
 }
+
+export type BroodSpace = [Field, Field, Field, Field];
