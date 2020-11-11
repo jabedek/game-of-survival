@@ -9,6 +9,7 @@ import * as fromBoardReducer from './board.reducer';
 import { BrowserModule } from '@angular/platform-browser';
 import { ParticleModule } from '../particle/particle.module';
 import { ObsticleModule } from '../obsticle/obsticle.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const components = [BoardComponent, FieldComponent];
 @NgModule({
@@ -19,6 +20,7 @@ const components = [BoardComponent, FieldComponent];
     BoardRoutingModule,
     ParticleModule,
     ObsticleModule,
+    BrowserAnimationsModule,
     StoreModule.forFeature(
       fromBoardReducer.featureKey,
       fromBoardReducer.reducer

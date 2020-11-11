@@ -8,6 +8,7 @@ import { FIELD_SIZE } from 'src/app/board/board.constants';
 })
 export class ParticleComponent implements OnInit {
   CSSsize = FIELD_SIZE * 0.8;
+
   constructor() {}
 
   ngOnInit(): void {}
