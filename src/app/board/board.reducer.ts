@@ -39,7 +39,7 @@ const authReducer = createReducer(
     // console.log(appActions.setOccupyingUnit.type);
     const { pos } = unit;
 
-    const currentField = { ...state.fields[pos.x][pos.y] };
+    const currentField = { ...state.fields[pos.column][pos.row] };
     const newField: Field = {
       ...currentField,
       blocked: true,
@@ -50,7 +50,7 @@ const authReducer = createReducer(
 
     const fields: Fields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
-        if (field.pos.x === pos.x && field.pos.y === pos.y) {
+        if (field.pos.column === pos.column && field.pos.row === pos.row) {
           field = { ...newField };
         }
         return field;
@@ -65,7 +65,7 @@ const authReducer = createReducer(
   on(appActions.setFieldOccupyingUnitNull, (state, { pos }) => {
     // console.log(appActions.setFieldOccupyingUnitNull.type);
 
-    const currentField = { ...state.fields[pos.x][pos.y] };
+    const currentField = { ...state.fields[pos.column][pos.row] };
     const newField: Field = {
       ...currentField,
       occupyingUnit: null,
@@ -75,7 +75,7 @@ const authReducer = createReducer(
 
     const fields: Fields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
-        if (field.pos.x === pos.x && field.pos.y === pos.y) {
+        if (field.pos.column === pos.column && field.pos.row === pos.row) {
           field = { ...newField };
         }
         return field;
@@ -89,25 +89,28 @@ const authReducer = createReducer(
   }),
   on(appActions.toggleFieldBlockade, (state, { pos }) => {
     console.log(appActions.toggleFieldBlockade.type);
-    const previousField: Field = { ...state.fields[pos.x][pos.y] };
+    const previousField: Field = { ...state.fields[pos.column][pos.row] };
     let blocked: boolean;
     if (!!previousField?.occupyingUnit?.pos) {
       blocked = previousField.blocked;
-    } else blocked = !previousField.blocked;
+    } else {
+      blocked = !previousField.blocked;
+    }
 
     const newField: Field = {
       ...previousField,
-      blocked: blocked,
+      blocked,
     };
 
     const fields: Fields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
-        if (field.pos.x === pos.x && field.pos.y === pos.y) {
+        if (field.pos.column === pos.column && field.pos.row === pos.row) {
           field = { ...newField };
         }
         return field;
       })
     );
+    console.log('blocked');
 
     return {
       ...state,
@@ -116,11 +119,13 @@ const authReducer = createReducer(
   }),
   on(appActions.setFieldUnblocked, (state, { pos }) => {
     console.log(appActions.setFieldUnblocked.type);
-    const previousField: Field = { ...state.fields[pos.x][pos.y] };
+    const previousField: Field = { ...state.fields[pos.column][pos.row] };
     let blocked: boolean;
     if (!!previousField?.occupyingUnit?.pos) {
       blocked = previousField.blocked;
-    } else blocked = !previousField.blocked;
+    } else {
+      blocked = !previousField.blocked;
+    }
 
     const newField: Field = {
       ...previousField,
@@ -130,7 +135,7 @@ const authReducer = createReducer(
 
     const fields: Fields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
-        if (field.pos.x === pos.x && field.pos.y === pos.y) {
+        if (field.pos.column === pos.column && field.pos.row === pos.row) {
           field = { ...newField };
         }
         return field;
@@ -145,7 +150,7 @@ const authReducer = createReducer(
   on(appActions.setFieldBlockedTrue, (state, { pos }) => {
     // console.log(appActions.setFieldBlockedTrue.type);
 
-    const currentField = { ...state.fields[pos.x][pos.y] };
+    const currentField = { ...state.fields[pos.column][pos.row] };
     const newField: Field = {
       ...currentField,
       blocked: true,
@@ -153,7 +158,7 @@ const authReducer = createReducer(
 
     const fields: Fields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
-        if (field.pos.x === pos.x && field.pos.y === pos.y) {
+        if (field.pos.column === pos.column && field.pos.row === pos.row) {
           field = { ...newField };
         }
         return field;
@@ -167,7 +172,7 @@ const authReducer = createReducer(
   on(appActions.setFieldBlockedFalse, (state, { pos }) => {
     console.log(appActions.setFieldBlockedFalse.type);
 
-    const currentField = { ...state.fields[pos.x][pos.y] };
+    const currentField = { ...state.fields[pos.column][pos.row] };
     const newField: Field = {
       ...currentField,
       blocked: false,
@@ -175,7 +180,7 @@ const authReducer = createReducer(
 
     const fields: Fields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
-        if (field.pos.x === pos.x && field.pos.y === pos.y) {
+        if (field.pos.column === pos.column && field.pos.row === pos.row) {
           field = { ...newField };
         }
         return field;
@@ -192,8 +197,8 @@ const authReducer = createReducer(
   //   const { fields } = state;
 
   //   const posNum = {
-  //     x: +pos.x,
-  //     y: +pos.y,
+  //     x: +pos.column,
+  //     y: +pos.row,
   //   };
 
   //   let neighborFields: Field[] = [];

@@ -5,21 +5,16 @@
   (click)="toggleSelf()"
 >
   <div class="field" *ngIf="selfDetails$ | async as data; else loading">
-    <div
-      class="field__content"
-      [ngClass]="{
-        'field--is-blocked': data?.blocked === true && !data?.occupyingUnit,
-        'field--is-occupied': data?.occupyingUnit
-      }"
-    >
-      <p class="pos__X" *ngIf="displayPos">{{ data?.pos.x }}</p>
-      <p class="pos__Y" *ngIf="displayPos">{{ data?.pos.y }}</p>
+    <div class="field__content">
+      <app-particle *ngIf="data?.occupyingUnit"></app-particle>
+      <app-obsticle *ngIf="data?.blocked === true && !data?.occupyingUnit">
+      </app-obsticle>
+
+      <ng-container *ngIf="displayDetails">
+        {{ data?.blocked }}
+      </ng-container>
     </div>
-
-    <ng-container *ngIf="displayDetails">
-      {{ data?.blocked }}
-    </ng-container>
   </div>
-</div>
 
-<ng-template #loading>...</ng-template>
+  <ng-template #loading>...</ng-template>
+</div>

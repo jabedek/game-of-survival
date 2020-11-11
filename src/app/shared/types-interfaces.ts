@@ -32,8 +32,8 @@ export interface PatchProperty {
 export type BroodSpace = [Field, Field, Field, Field];
 
 export interface FieldPos {
-  x: number | string;
-  y: number | string;
+  column: number | string;
+  row: number | string;
 }
 
 export interface FieldPropertyUpdateDetails {

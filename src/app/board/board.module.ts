@@ -7,6 +7,8 @@ import { BoardComponent } from './board/board.component';
 import { FieldComponent } from './field/field.component';
 import * as fromBoardReducer from './board.reducer';
 import { BrowserModule } from '@angular/platform-browser';
+import { ParticleModule } from '../particle/particle.module';
+import { ObsticleModule } from '../obsticle/obsticle.module';
 
 const components = [BoardComponent, FieldComponent];
 @NgModule({
@@ -15,6 +17,8 @@ const components = [BoardComponent, FieldComponent];
     CommonModule,
     BrowserModule,
     BoardRoutingModule,
+    ParticleModule,
+    ObsticleModule,
     StoreModule.forFeature(
       fromBoardReducer.featureKey,
       fromBoardReducer.reducer

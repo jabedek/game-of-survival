@@ -20,22 +20,26 @@ export const selectAvailableFieldsTotal = createSelector(
   selectBoardFields,
   (fields: Fields) => {
     let counter0 = 0;
+    let availableFields: Field[] = [];
+
     fields.forEach((fieldCol: Field[]) => {
       return fieldCol.forEach((field) => {
         if (!field.blocked && !field.occupyingUnit) {
           counter0++;
+
+          availableFields.push(field);
         }
       });
     });
 
-    return counter0;
+    return availableFields;
   }
 );
 
 export const selectBoardField = createSelector(
   selectBoard,
   (state: BoardState, props) => {
-    const fieldDetails = state.fields[props.x][props.y];
+    const fieldDetails = state.fields[props.column][props.row];
     // console.log(props);
     return fieldDetails;
   }
@@ -44,7 +48,7 @@ export const selectBoardField = createSelector(
 export const selectFieldBlocked = createSelector(
   selectBoardFields,
   (fields: Fields, props: FieldPos) => {
-    const field: Field = { ...fields[props.y][props.y] };
+    const field: Field = { ...fields[props.column][props.row] };
 
     return field.blocked;
   }
@@ -100,14 +104,14 @@ export const NOselectAvailableFields = createSelector(
   (fields: Fields) => {
     let newFields: Fields = [];
 
-    for (let x = 0; x < BOARD_DIMENSIONS; x++) {
-      newFields[x] = [];
+    for (let column = 0; column < BOARD_DIMENSIONS; column++) {
+      newFields[column] = [];
 
-      for (let y = 0; y < BOARD_DIMENSIONS; y++) {
-        if (fields[x][y].blocked === false) {
-          newFields[x][y] = fields[x][y];
+      for (let row = 0; row < BOARD_DIMENSIONS; row++) {
+        if (fields[column][row].blocked === false) {
+          newFields[column][row] = fields[column][row];
         } else {
-          newFields[x][y] = null;
+          newFields[column][row] = null;
         }
       }
     }
@@ -124,8 +128,8 @@ function checkIfBroodSpaceRoot(
   fields: Fields,
   props: FieldPos
 ): null | BroodSpace {
-  const x: number = +props.x;
-  const y: number = +props.y;
+  const column: number = +props.column;
+  const row: number = +props.row;
 
   let available0: null | Field = null;
   let available1: null | Field = null;
@@ -138,8 +142,8 @@ function checkIfBroodSpaceRoot(
   let at = '';
 
   // 0. root - north-west
-  posA = x;
-  posB = y;
+  posB = column;
+  posA = row;
 
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     available0 = null;
@@ -149,8 +153,8 @@ function checkIfBroodSpaceRoot(
   // console.log(available0);
 
   // 1. north-east
-  posA = x + 1;
-  posB = y;
+  posB = column + 1;
+  posA = row;
 
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     available1 = null;
@@ -159,8 +163,8 @@ function checkIfBroodSpaceRoot(
   }
 
   // 2. south-west
-  posA = x;
-  posB = y + 1;
+  posB = column;
+  posA = row + 1;
 
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     available2 = null;
@@ -169,8 +173,8 @@ function checkIfBroodSpaceRoot(
   }
 
   // 3. south-east
-  posA = x + 1;
-  posB = y + 1;
+  posB = column + 1;
+  posA = row + 1;
 
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     available3 = null;
@@ -206,12 +210,12 @@ function getNeighbors(fields: Fields, props: FieldPos) {
 
   let neighbors: NeighborField[] = [];
 
-  const x: number = +props.x;
-  const y: number = +props.y;
+  const column: number = +props.column;
+  const row: number = +props.row;
 
   // 0. north west
-  posA = x - 1;
-  posB = y - 1;
+  posB = column - 1;
+  posA = row - 1;
 
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     field = null;
@@ -226,8 +230,8 @@ function getNeighbors(fields: Fields, props: FieldPos) {
   // console.log(posA, posB, field);
 
   // 1. north
-  posA = x;
-  posB = y - 1;
+  posB = column;
+  posA = row - 1;
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     field = null;
   } else {
@@ -241,8 +245,8 @@ function getNeighbors(fields: Fields, props: FieldPos) {
   // console.log(posA, posB, field);
 
   // 2. north east
-  posA = x + 1;
-  posB = y - 1;
+  posB = column + 1;
+  posA = row - 1;
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     field = null;
   } else {
@@ -254,8 +258,8 @@ function getNeighbors(fields: Fields, props: FieldPos) {
   // console.log(posA, posB, field);
 
   // 3. west
-  posA = x - 1;
-  posB = y;
+  posB = column - 1;
+  posA = row;
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     field = null;
   } else {
@@ -268,8 +272,8 @@ function getNeighbors(fields: Fields, props: FieldPos) {
   // console.log(posA, posB, field);
 
   // 4. east
-  posA = x + 1;
-  posB = y;
+  posB = column + 1;
+  posA = row;
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     field = null;
   } else {
@@ -281,8 +285,8 @@ function getNeighbors(fields: Fields, props: FieldPos) {
   // console.log(posA, posB, field);
 
   // 5. south west
-  posA = x - 1;
-  posB = y + 1;
+  posB = column - 1;
+  posA = row + 1;
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     field = null;
   } else {
@@ -294,8 +298,8 @@ function getNeighbors(fields: Fields, props: FieldPos) {
   // console.log(posA, posB, field);
 
   // 6. south
-  posA = x;
-  posB = y + 1;
+  posB = column;
+  posA = row + 1;
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     field = null;
   } else {
@@ -307,8 +311,8 @@ function getNeighbors(fields: Fields, props: FieldPos) {
   // console.log(posA, posB, field);
 
   // 7. south east
-  posA = x + 1;
-  posB = y + 1;
+  posB = column + 1;
+  posA = row + 1;
   if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
     field = null;
   } else {

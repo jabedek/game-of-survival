@@ -1,0 +1,9 @@
+.obsticle {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  user-select: none;
+  cursor: pointer;
+  background: rgba(60, 50, 40, 1);
+}

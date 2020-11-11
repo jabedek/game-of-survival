@@ -20,6 +20,7 @@ import {
   Unit,
 } from 'src/app/shared/types-interfaces';
 import { selectBoardField, selectUnitNeighborFieldsData } from '..';
+import { FIELD_SIZE } from '../board.constants';
 import { NeighborField } from '../index';
 
 @Component({
@@ -28,8 +29,10 @@ import { NeighborField } from '../index';
   styleUrls: ['./field.component.scss'],
 })
 export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
-  @Input() CSSsize: string;
   @Input() pos: FieldPos;
+  // @Input() CSSsize: string;
+
+  CSSsize = FIELD_SIZE;
 
   mode: FieldMode = 0;
 
@@ -67,7 +70,8 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
         }
 
         if (this.mode === 2) {
-          this.beginTurn();
+          // #### IT IS WORKING CODE BUT NOT FOR CONSTANS USE - MEMORY LEAKS
+          // this.beginTurn();
         }
       })
     );
@@ -84,7 +88,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   beginTurn() {
-    const switchedPos = { x: this.pos.y, y: this.pos.x };
+    const switchedPos = { column: this.pos.row, row: this.pos.column };
     this.subscriptionNeighbors.add(
       this.store
         .select(selectUnitNeighborFieldsData, switchedPos)
@@ -92,7 +96,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
           const neighborsData = this.getNeighborsData(data, this.pos);
 
           // console.log(
-          //   `${this.pos.x}:${this.pos.y} here.\n`,
+          //   `${this.pos.column}:${this.pos.row} here.\n`,
           //   `I have got ${neighborsData.neighborBlockades.length} blockades around me, including ${neighborsData.neighborUnits.length} other creatures.`,
           //   `I have got ${neighborsData.availableFields.length} available fields to move to.`
           // );
@@ -108,7 +112,9 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
 
   addOccupyingUnit(unitName: string, broodName?: string) {
     // this.mode = 2;
-    this.beginTurn();
+
+    // #### IT IS WORKING CODE BUT NOT FOR CONSTANS USE - MEMORY LEAKS
+    // this.beginTurn();
 
     const unit: Unit = {
       pos: this.pos,
@@ -158,9 +164,9 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
 
     let stringData =
       '[pos]: ' +
-      pos.x +
+      pos.column +
       ':' +
-      pos.y +
+      pos.row +
       '\n[available spots]: ' +
       availableFields.length +
       '\n[all blockades]: ' +

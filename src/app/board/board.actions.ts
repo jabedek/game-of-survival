@@ -1,11 +1,16 @@
 import { createAction, props } from '@ngrx/store';
 import { FieldPos, Fields, Unit } from '../shared/types-interfaces';
 
+// ########################
+// ### Board and Fields ###
+
+// # Managing fields
 export const initFields = createAction(
   '[Board] Load Fields',
   props<{ fields: Fields }>()
 );
 
+// # Blockade - blocked and optionally blockedBy
 export const toggleFieldBlockade = createAction(
   '[Board/Field] Toggle Field Blockade',
   props<{ pos: FieldPos }>()
@@ -28,6 +33,7 @@ export const setFieldBlockedFalse = createAction(
   props<{ pos: FieldPos }>()
 );
 
+// # Occupying unit
 export const setOccupyingUnit = createAction(
   '[Board/Field] Set Field OccupyingUnit',
   props<{ unit: Unit }>()

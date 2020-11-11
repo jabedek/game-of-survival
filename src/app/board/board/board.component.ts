@@ -4,6 +4,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  HostListener,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -18,6 +19,7 @@ import {
   AppState,
   Brood,
   BroodSpace,
+  Field,
   FieldPos,
   Fields,
   Unit,
@@ -39,7 +41,7 @@ import {
 } from '../board.actions';
 import {
   BOARD_DIMENSIONS,
-  BOARD_FIELD_SIZE,
+  FIELD_SIZE,
   FIELD_DISPLAY_INFO,
 } from '../board.constants';
 
@@ -51,32 +53,37 @@ import {
 export class BoardComponent
   implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
   fields$: Observable<Fields> = this.store.select(selectBoardFields);
-  availableFieldsTotal$: Observable<number> = this.store.select(
+  availableBoardFields$: Observable<Field[]> = this.store.select(
     selectAvailableFieldsTotal
   );
   broodSpaces$: Observable<Fields> = this.store.select(selectBroodSpaces);
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
 
-  loadedFields = 0;
-  boardMode = true;
-  // true: 'admin'; false: 'play''
-
+  private loadedFields = 0;
+  boardMode: 'admin' | 'playing' = 'admin';
   boardDimension = BOARD_DIMENSIONS;
-  fieldSize = BOARD_FIELD_SIZE;
-  boardCSSsizePx: string = this.boardDimension * this.fieldSize + 'px';
-  fieldCSSSizePx: string = this.fieldSize + 'px';
+
+  boardCSSsizePx: string = this.boardDimension * FIELD_SIZE + 'px';
+  fieldCSSSizePx: string = FIELD_SIZE + 'px';
 
   subscription: Subscription = new Subscription();
 
-  borderObsticlesUp: boolean = false;
+  borderObsticlesUp = false;
 
-  board2: string[][] = [];
-  toggleSwitch() {
+  fieldDimensions: FieldPos[][] = [];
+
+  @HostListener('setFieldOccupyingUnit', ['$event.target'])
+  onClick(btn) {
+    console.log('setFieldOccupyingUnit');
+  }
+
+  toggleSwitch(): void {
     console.log('elo');
 
-    this.boardMode = !this.boardMode;
+    this.boardMode = this.boardMode === 'admin' ? 'playing' : 'admin';
   }
-  public getBoardStyles() {
+
+  public getBoardStyles(): any {
     return {
       display: 'grid',
       'grid-template-columns': `repeat(${this.boardDimension}, ${this.fieldCSSSizePx})`,
@@ -89,137 +96,168 @@ export class BoardComponent
   constructor(public store: Store<AppState>) {}
 
   ngOnInit(): void {
-    this.subscription.add(
-      this.store
-        .select(selectBroodSpaces)
-        .subscribe((data) => console.log(data))
-    );
+    // #### IT IS WORKING CODE BUT NOT FOR CONSTANS USE - MEMORY LEAKS
+    // this.subscription.add(
+    //   this.store
+    //     .select(selectBroodSpaces)
+    //     .subscribe((data) => console.log(data))
+    // );
 
     this.subscription.add(
-      this.availableFieldsTotal$.subscribe((data) => console.log(data))
+      this.availableBoardFields$.subscribe((data) => {
+        if (data) {
+          console.log(data.length);
+        }
+      })
     );
     this.setupBoard();
     this.borders();
-    // this.setSomeBlockades();
     this.setSomeUnits();
-    this.findBroodSpaces();
+    // this.setSomeBlockades();
+    // this.findBroodSpaces();
   }
 
-  ngOnChanges(changes: SimpleChanges) {}
+  ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes);
+  }
 
-  ngAfterViewChecked() {}
-  ngOnDestroy() {
+  ngAfterViewChecked(): void {}
+  ngOnDestroy(): void {
+    console.log('destroy');
+
     this.subscription.unsubscribe();
   }
 
-  setupBoard() {
-    for (let x = 0; x < BOARD_DIMENSIONS; x++) {
-      this.board2[x] = [];
-      for (let y = 0; y < BOARD_DIMENSIONS; y++) {
-        this.board2[x][y] = `${x}:${y}`;
+  setupBoard(): void {
+    for (let column = 0; column < BOARD_DIMENSIONS; column++) {
+      this.fieldDimensions[column] = [];
+      for (let row = 0; row < BOARD_DIMENSIONS; row++) {
+        this.fieldDimensions[column][row] = { column, row };
+        // this.fieldDimensions[column][row] = `${column}:${row}`;
       }
     }
   }
 
-  reloadFields() {
+  reloadFields(): void {
     this.borderObsticlesUp = false;
     this.store.dispatch(setFieldsUnblocked());
+
     this.setupBoard();
-    this.setSomeBlockades();
+    this.borders();
     this.setSomeUnits();
   }
 
-  setSomeBlockades() {
+  setSomeBlockades(): void {
     let totalBlockades = Math.floor((BOARD_DIMENSIONS * BOARD_DIMENSIONS) / 8);
     totalBlockades = 4;
 
     for (let i = 0; i < totalBlockades; i++) {
-      let rndX = Math.floor(Math.random() * BOARD_DIMENSIONS);
-      let rndY = Math.floor(Math.random() * BOARD_DIMENSIONS);
+      const column = Math.floor(Math.random() * BOARD_DIMENSIONS);
+      const row = Math.floor(Math.random() * BOARD_DIMENSIONS);
 
-      this.store.dispatch(setFieldBlockedTrue({ pos: { x: rndX, y: rndY } }));
+      this.store.dispatch(setFieldBlockedTrue({ pos: { column, row } }));
     }
   }
 
-  setSomeUnits() {
-    let brood: Brood = {
+  setSomeUnits(): void {
+    const brood: Brood = {
       broodName: 'froggo-jumper',
       broodUnits: [],
       broodColor: 'rgba(0, 0, 0, 0)',
     };
     let done = false;
+    this.putUnitOnUnblockedField();
+    this.putUnitOnUnblockedField();
+    this.putUnitOnUnblockedField();
+    this.putUnitOnUnblockedField();
+    this.putUnitOnUnblockedField();
+    // this.store.select(selectBoardFields).subscribe((data: Fields) => {
+    //   let totalUnits = 1;
+    //   for (let i = 0; i < totalUnits; i++) {
+    //     this.putUnitOnUnblockedField();
 
-    this.store.select(selectBoardFields).subscribe((data: Fields) => {
-      let totalUnits = 1;
-      for (let i = 0; i < totalUnits; i++) {
-        const unit: Unit = this.putUnitOnUnblockedField(data);
+    //     // brood.broodUnits[i] = unit;
 
-        brood.broodUnits[i] = unit;
-        if (i === totalUnits - 1) {
-          done = true;
-        }
-      }
-    });
+    //     if (i === totalUnits - 1) {
+    //       done = true;
+    //       break;
+    //     }
+    //   }
+    // });
 
-    if (done) {
-      brood.broodUnits.forEach((unit) => {
-        this.store.dispatch(setOccupyingUnit({ unit }));
-      });
-    }
+    // if (done) {
+    //   brood.broodUnits.forEach((unit) => {
+    //     this.store.dispatch(setOccupyingUnit({ unit }));
+    //   });
+    // }
   }
 
-  putUnitOnUnblockedField(board: Fields): null | Unit {
+  putUnitOnUnblockedField() {
     let success = false;
     let newUnit: Unit = null;
+    let board: Field[] = [];
 
-    while (!success) {
-      const pos: FieldPos = {
-        x: Math.floor(Math.random() * BOARD_DIMENSIONS),
-        y: Math.floor(Math.random() * BOARD_DIMENSIONS),
-      };
+    this.availableBoardFields$
+      .subscribe((data: Field[]) => {
+        board = data;
 
-      const isBlocked: boolean = board[pos.x][pos.y].blocked;
+        if (board.length) {
+          while (!success) {
+            const rndmlySelectedField =
+              board[Math.floor(Math.random() * board.length)];
 
-      if (!isBlocked) {
-        const unit = {
-          pos,
-          unitName: 'mouse-deer-0',
-          broodName: 'animalien',
-        };
-        newUnit = unit;
-        success = true;
-      } else {
-        success = false;
-      }
-    }
+            console.log(rndmlySelectedField);
 
-    return newUnit;
+            if (!rndmlySelectedField.blocked) {
+              const unit = {
+                pos: rndmlySelectedField.pos,
+                unitName: 'mouse-deer-0',
+                broodName: 'animalien',
+              };
+              newUnit = unit;
+              success = true;
+              this.store.dispatch(setOccupyingUnit({ unit: newUnit }));
+            } else {
+              success = false;
+            }
+          }
+        } else {
+          console.log('no available fields');
+        }
+        // if (success && newUnit) {
+        //   console.log(newUnit);
+
+        //   this.store.dispatch(setOccupyingUnit({ unit: newUnit }));
+        // }
+        // return newUnit;
+      })
+      .unsubscribe();
   }
 
-  handleToggleFieldBlockade(event: FieldPos) {
+  handleToggleFieldBlockade(event: FieldPos): void {
     this.store.dispatch(toggleFieldBlockade({ pos: event }));
   }
 
-  handleSetFieldOccupyingUnit(event: Unit) {
+  handleSetFieldOccupyingUnit(event: Unit): void {
     this.store.dispatch(setOccupyingUnit({ unit: event }));
   }
 
-  handleSetFieldUnblocked(event: FieldPos) {
+  handleSetFieldUnblocked(event: FieldPos): void {
     this.store.dispatch(setFieldUnblocked({ pos: event }));
   }
 
-  borders() {
+  borders(): void {
     this.borderObsticlesUp = !this.borderObsticlesUp;
 
-    for (let x = 0; x < BOARD_DIMENSIONS; x++) {
-      for (let y = 0; y < BOARD_DIMENSIONS; y++) {
+    for (let column = 0; column < BOARD_DIMENSIONS; column++) {
+      for (let row = 0; row < BOARD_DIMENSIONS; row++) {
         if (
-          x == 0 ||
-          y == 0 ||
-          x == BOARD_DIMENSIONS - 1 ||
-          y == BOARD_DIMENSIONS - 1
+          column == 0 ||
+          row == 0 ||
+          column == BOARD_DIMENSIONS - 1 ||
+          row == BOARD_DIMENSIONS - 1
         ) {
-          const pos: FieldPos = { x, y };
+          const pos: FieldPos = { column, row };
           let actionTrue = setFieldBlockedTrue({ pos });
           let actionFalse = setFieldBlockedFalse({ pos });
 
@@ -232,7 +270,7 @@ export class BoardComponent
     }
   }
 
-  findBroodSpaces() {
+  findBroodSpaces(): void {
     let spaces: BroodSpace[] = [];
 
     // this.fields$

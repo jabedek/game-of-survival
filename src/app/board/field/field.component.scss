@@ -7,7 +7,7 @@
   align-items: center;
   align-content: center;
   // padding: calc(0.2vw + 4px);
-  padding: 0.15vw;
+  // padding: 0.15vw;
   margin: 0;
 
   &:hover {
@@ -27,10 +27,14 @@
   height: 100%;
   width: 100%;
   display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
   font-family: "Roboto Light";
   color: white;
   text-shadow: 0.11em 0.11em 0.1em black;
   font-size: 0.65em;
+  cursor: pointer;
 
   &--is-occupied {
     background: rgba(150, 50, 255, 1);
@@ -48,9 +52,17 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+
     justify-content: space-between;
+
+    position: relative;
     user-select: none;
-    padding: 0.15vw;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    // padding: 0.15vw;
   }
 }
 

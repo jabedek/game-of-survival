@@ -19,11 +19,11 @@ export class AppComponent {
   private initFieldsData() {
     let fields: Fields = [];
 
-    for (let x = 0; x < BOARD_DIMENSIONS; x++) {
-      fields[x] = [];
+    for (let column = 0; column < BOARD_DIMENSIONS; column++) {
+      fields[column] = [];
 
-      for (let y = 0; y < BOARD_DIMENSIONS; y++) {
-        fields[x][y] = new Field({ x, y }, false);
+      for (let row = 0; row < BOARD_DIMENSIONS; row++) {
+        fields[column][row] = new Field({ column, row }, false);
       }
     }
 
