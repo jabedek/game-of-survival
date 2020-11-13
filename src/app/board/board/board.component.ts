@@ -8,12 +8,16 @@ import {
   // ...
 } from '@angular/animations';
 
+import * as uuid from 'uuid';
+
 import {
   AfterViewChecked,
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   HostListener,
+  Input,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -53,11 +57,18 @@ import {
   FIELD_SIZE,
   FIELD_DISPLAY_INFO,
 } from '../board.constants';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('openClose', [
       // ...
@@ -89,6 +100,11 @@ import {
 })
 export class BoardComponent
   implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
+  constructor(public store: Store<AppState>, public fb: FormBuilder) {}
+
+  @Input() boardDimensions;
+  @Input() fieldSize;
+
   fields$: Observable<Fields> = this.store.select(selectBoardFields);
   availableBoardFields$: Observable<Field[]> = this.store.select(
     selectAvailableFieldsTotal
@@ -96,55 +112,59 @@ export class BoardComponent
   broodSpaces$: Observable<Fields> = this.store.select(selectBroodSpaces);
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
 
-  private loadedFields = 0;
-  boardMode: 'admin' | 'playing' = 'admin';
-  boardDimension = BOARD_DIMENSIONS;
+  form: FormGroup;
 
-  boardCSSsizePx: string = this.boardDimension * FIELD_SIZE + 'px';
-  fieldCSSSizePx: string = FIELD_SIZE + 'px';
+  boardMode: 'admin' | 'playing' = 'admin';
+  // boardDimensions = BOARD_DIMENSIONS;
+  dimensions = 0;
+  boardCSSsizePx: string;
+  fieldCSSSizePx: string;
+  fieldDimensions: FieldPos[][] = [];
 
   subscription: Subscription = new Subscription();
 
   borderObsticlesUp = false;
 
-  isOpen = true;
+  initForm() {
+    let group = {};
 
-  toggle() {
-    this.isOpen = !this.isOpen;
+    group['dimensions'] = new FormControl(BOARD_DIMENSIONS || 1, [
+      Validators.min(1),
+      Validators.max(50),
+    ]);
+    group['fieldSize'] = new FormControl(FIELD_SIZE || 1, [
+      Validators.min(1),
+      Validators.max(50),
+    ]);
+
+    this.form = this.fb.group(group);
   }
 
-  fieldDimensions: FieldPos[][] = [];
-
-  @HostListener('setFieldOccupyingUnit', ['$event.target'])
-  onClick(btn) {
-    console.log('setFieldOccupyingUnit');
-  }
-
+  // @HostListener('setFieldOccupyingUnit', ['$event.target'])
   toggleSwitch(): void {
-    console.log('elo');
-
     this.boardMode = this.boardMode === 'admin' ? 'playing' : 'admin';
   }
 
   public getBoardStyles(): any {
     return {
       display: 'grid',
-      'grid-template-columns': `repeat(${this.boardDimension}, ${this.fieldCSSSizePx})`,
-      'grid-template-rows': `repeat(${this.boardDimension}, ${this.fieldCSSSizePx})`,
+      'grid-template-columns': `repeat(${this.boardDimensions}, ${this.fieldCSSSizePx})`,
+      'grid-template-rows': `repeat(${this.boardDimensions}, ${this.fieldCSSSizePx})`,
       width: ` ${this.boardCSSsizePx}`,
       height: ` ${this.boardCSSsizePx}`,
     };
   }
 
-  constructor(public store: Store<AppState>) {}
-
   ngOnInit(): void {
+    this.boardCSSsizePx = this.boardDimensions * this.fieldSize + 'px';
+    this.fieldCSSSizePx = this.fieldSize + 'px';
     // #### IT IS WORKING CODE BUT NOT FOR CONSTANS USE - MEMORY LEAKS
     // this.subscription.add(
     //   this.store
     //     .select(selectBroodSpaces)
     //     .subscribe((data) => console.log(data))
     // );
+    this.initForm();
 
     this.subscription.add(
       this.availableBoardFields$.subscribe((data) => {
@@ -160,9 +180,7 @@ export class BoardComponent
     // this.findBroodSpaces();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
-  }
+  ngOnChanges(changes: SimpleChanges): void {}
 
   ngAfterViewChecked(): void {}
   ngOnDestroy(): void {
@@ -172,11 +190,11 @@ export class BoardComponent
   }
 
   setupBoard(): void {
-    for (let column = 0; column < BOARD_DIMENSIONS; column++) {
-      this.fieldDimensions[column] = [];
-      for (let row = 0; row < BOARD_DIMENSIONS; row++) {
-        this.fieldDimensions[column][row] = { column, row };
-        // this.fieldDimensions[column][row] = `${column}:${row}`;
+    for (let row = 0; row < BOARD_DIMENSIONS; row++) {
+      this.fieldDimensions[row] = [];
+      for (let column = 0; column < BOARD_DIMENSIONS; column++) {
+        this.fieldDimensions[row][column] = { row, column };
+        // this.fieldDimensions[row][column] = `${row}:${column}`;
       }
     }
   }
@@ -198,22 +216,24 @@ export class BoardComponent
       const column = Math.floor(Math.random() * BOARD_DIMENSIONS);
       const row = Math.floor(Math.random() * BOARD_DIMENSIONS);
 
-      this.store.dispatch(setFieldBlockedTrue({ pos: { column, row } }));
+      this.store.dispatch(setFieldBlockedTrue({ pos: { row, column } }));
     }
   }
 
   setSomeUnits(): void {
     const brood: Brood = {
-      broodName: 'froggo-jumper',
-      broodUnits: [],
-      broodColor: 'rgba(0, 0, 0, 0)',
+      id: 's',
+      name: 'froggo-jumper',
+      units: [],
+      color: 'rgba(0, 0, 0, 0)',
     };
     let done = false;
     this.putUnitOnUnblockedField();
-    this.putUnitOnUnblockedField();
-    this.putUnitOnUnblockedField();
-    this.putUnitOnUnblockedField();
-    this.putUnitOnUnblockedField();
+    // this.putUnitOnUnblockedField();
+    // this.putUnitOnUnblockedField();
+    // this.putUnitOnUnblockedField();
+    // this.putUnitOnUnblockedField();
+
     // this.store.select(selectBoardFields).subscribe((data: Fields) => {
     //   let totalUnits = 1;
     //   for (let i = 0; i < totalUnits; i++) {
@@ -249,14 +269,15 @@ export class BoardComponent
             const rndmlySelectedField =
               board[Math.floor(Math.random() * board.length)];
 
-            console.log(rndmlySelectedField);
-
             if (!rndmlySelectedField.blocked) {
-              const unit = {
+              const unit: Unit = {
+                id: uuid.v4(),
                 pos: rndmlySelectedField.pos,
-                unitName: 'mouse-deer-0',
-                broodName: 'animalien',
+                name: 'animalien',
+                broodId: uuid.v4(),
               };
+              console.log(unit);
+
               newUnit = unit;
               success = true;
               this.store.dispatch(setOccupyingUnit({ unit: newUnit }));
@@ -267,12 +288,6 @@ export class BoardComponent
         } else {
           console.log('no available fields');
         }
-        // if (success && newUnit) {
-        //   console.log(newUnit);
-
-        //   this.store.dispatch(setOccupyingUnit({ unit: newUnit }));
-        // }
-        // return newUnit;
       })
       .unsubscribe();
   }
@@ -292,15 +307,15 @@ export class BoardComponent
   borders(): void {
     this.borderObsticlesUp = !this.borderObsticlesUp;
 
-    for (let column = 0; column < BOARD_DIMENSIONS; column++) {
-      for (let row = 0; row < BOARD_DIMENSIONS; row++) {
+    for (let row = 0; row < BOARD_DIMENSIONS; row++) {
+      for (let column = 0; column < BOARD_DIMENSIONS; column++) {
         if (
-          column == 0 ||
           row == 0 ||
-          column == BOARD_DIMENSIONS - 1 ||
-          row == BOARD_DIMENSIONS - 1
+          column == 0 ||
+          row == BOARD_DIMENSIONS - 1 ||
+          column == BOARD_DIMENSIONS - 1
         ) {
-          const pos: FieldPos = { column, row };
+          const pos: FieldPos = { row, column };
           let actionTrue = setFieldBlockedTrue({ pos });
           let actionFalse = setFieldBlockedFalse({ pos });
 

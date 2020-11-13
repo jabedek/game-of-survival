@@ -1,7 +1,7 @@
 <div
   class="field-container"
-  [style.width.px]="CSSsize"
-  [style.height.px]="CSSsize"
+  [style.width.px]="fieldSize"
+  [style.height.px]="fieldSize"
   (click)="toggleSelf()"
 >
   <div class="field" *ngIf="selfDetails$ | async as data; else loading">

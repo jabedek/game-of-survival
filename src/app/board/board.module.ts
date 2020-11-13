@@ -10,6 +10,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { ParticleModule } from '../particle/particle.module';
 import { ObsticleModule } from '../obsticle/obsticle.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 const components = [BoardComponent, FieldComponent];
 @NgModule({
@@ -18,6 +19,8 @@ const components = [BoardComponent, FieldComponent];
     CommonModule,
     BrowserModule,
     BoardRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
     ParticleModule,
     ObsticleModule,
     BrowserAnimationsModule,

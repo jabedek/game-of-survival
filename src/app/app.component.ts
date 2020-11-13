@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { initFields } from './board/board.actions';
-import { BOARD_DIMENSIONS, BOARD_DIMENSIONS_X } from './board/board.constants';
+import {
+  BOARD_DIMENSIONS,
+  BOARD_DIMENSIONS_X,
+  FIELD_SIZE,
+} from './board/board.constants';
 import { AppState, Field, Fields } from './shared/types-interfaces';
 
 @Component({
@@ -12,6 +16,9 @@ import { AppState, Field, Fields } from './shared/types-interfaces';
 export class AppComponent {
   title = 'game-of-survival';
 
+  boardDimensions = BOARD_DIMENSIONS;
+  fieldSize = FIELD_SIZE;
+
   constructor(public store: Store<AppState>) {
     this.initFieldsData();
   }
@@ -19,13 +26,15 @@ export class AppComponent {
   private initFieldsData() {
     let fields: Fields = [];
 
-    for (let column = 0; column < BOARD_DIMENSIONS; column++) {
-      fields[column] = [];
+    for (let row = 0; row < this.boardDimensions; row++) {
+      fields[row] = [];
 
-      for (let row = 0; row < BOARD_DIMENSIONS; row++) {
-        fields[column][row] = new Field({ column, row }, false);
+      for (let column = 0; column < this.boardDimensions; column++) {
+        fields[row][column] = new Field({ column: row, row: column }, false);
       }
     }
+
+    console.log(fields);
 
     this.store.dispatch(initFields({ fields }));
   }

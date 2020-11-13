@@ -1,5 +1,7 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -22,6 +24,7 @@ import {
 import { selectBoardField, selectUnitNeighborFieldsData } from '..';
 import { FIELD_SIZE } from '../board.constants';
 import { NeighborField } from '../index';
+import * as uuid from 'uuid';
 
 @Component({
   selector: 'app-field',
@@ -30,9 +33,10 @@ import { NeighborField } from '../index';
 })
 export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() pos: FieldPos;
+  @Input() fieldSize: FieldPos;
   // @Input() CSSsize: string;
 
-  CSSsize = FIELD_SIZE;
+  CSSsize; //= FIELD_SIZE;
 
   mode: FieldMode = 0;
 
@@ -54,6 +58,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
   constructor(public store: Store<AppState>) {}
 
   ngOnInit(): void {
+    this.CSSsize = this.fieldSize;
     this.selfDetails$ = this.store.select(selectBoardField, this.pos);
     // this.neighbors$ = this.store.select(selectUnitNeighborFieldsData, this.pos);
 
@@ -76,9 +81,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
       })
     );
   }
-  ngOnChanges(changes: SimpleChanges) {
-    // console.log('changes');
-  }
+  ngOnChanges(changes: SimpleChanges) {}
   ngAfterViewInit() {}
 
   toggleBlockade() {
@@ -88,10 +91,9 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   beginTurn() {
-    const switchedPos = { column: this.pos.row, row: this.pos.column };
     this.subscriptionNeighbors.add(
       this.store
-        .select(selectUnitNeighborFieldsData, switchedPos)
+        .select(selectUnitNeighborFieldsData, this.pos)
         .subscribe((data: NeighborField[]) => {
           const neighborsData = this.getNeighborsData(data, this.pos);
 
@@ -110,16 +112,17 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
     this.setFieldUnblocked.emit(this.pos);
   }
 
-  addOccupyingUnit(unitName: string, broodName?: string) {
+  addOccupyingUnit(name: string, broodId?: string) {
     // this.mode = 2;
 
     // #### IT IS WORKING CODE BUT NOT FOR CONSTANS USE - MEMORY LEAKS
     // this.beginTurn();
 
     const unit: Unit = {
+      id: uuid.v4(),
       pos: this.pos,
-      unitName,
-      broodName: broodName || 'dunnos',
+      name,
+      broodId: broodId || 'dunnos',
     };
 
     this.setFieldOccupyingUnit.emit(unit);
@@ -143,8 +146,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
               neighborUnits.push(neighbor);
               if (
                 fieldData.occupyingUnit &&
-                field?.occupyingUnit.broodName ===
-                  fieldData.occupyingUnit.broodName
+                field?.occupyingUnit.broodId === fieldData.occupyingUnit.broodId
               ) {
                 // console.log('friend');
                 neighborBroodMembers.push(neighbor);

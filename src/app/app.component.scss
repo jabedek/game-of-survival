@@ -4,25 +4,27 @@
   // left: 0;
   width: 100vw;
   height: 100vh;
-  background: #000;
+  min-width: 100vw;
+  width: auto;
+  height: auto;
   // background: #121214;
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
   align-content: center;
-
-  -webkit-box-shadow: inset 0 0 6rem 0.125rem rgba(40, 40, 245, 0.2);
-  box-shadow: inset 0 0 6rem 0.125rem rgba(40, 40, 255, 0.2);
+  // background: #000;
+  // -webkit-box-shadow: inset 0 0 6rem 0.125rem rgba(40, 40, 245, 0.25);
+  // box-shadow: inset 0 0 6rem 0.125rem rgba(40, 40, 255, 0.25);
 }
 .bigstar1 {
-  height: 20vh;
-  width: 20vh;
+  height: 30vh;
+  width: 30vh;
   position: absolute;
   z-index: 0;
 
-  top: 30vh;
-  left: 27vh;
+  top: 10vh;
+  left: 33vh;
 
   display: flex;
   justify-content: center;
@@ -31,12 +33,24 @@
   background: radial-gradient(
     circle,
     rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 9%,
-    rgba(255, 236, 248, 1) 13%,
-    rgba(223, 82, 50, 1) 27%,
-    rgba(232, 113, 90, 1) 33%,
-    rgba(255, 186, 186, 1) 42%,
-    rgba(0, 0, 0, 1) 59%,
+    rgba(255, 255, 255, 1) 4%,
+    rgba(255, 213, 213, 1) 6%,
+    rgba(255, 218, 213, 1) 9%,
+    rgba(223, 82, 50, 1) 14%,
+    rgba(255, 96, 62, 1) 19%,
+    rgba(215, 85, 57, 1) 19%,
+    rgba(214, 81, 53, 1) 19%,
+    rgba(227, 97, 70, 1) 20%,
+    rgba(241, 89, 58, 1) 20%,
+    rgba(223, 85, 56, 1) 21%,
+    rgba(236, 92, 62, 1) 22%,
+    rgba(232, 90, 15, 1) 23%,
+    rgba(232, 113, 90, 1) 26%,
+    rgba(232, 102, 53, 1) 28%,
+    rgba(232, 105, 64, 1) 30%,
+    rgba(255, 78, 24, 1) 33%,
+    rgba(0, 0, 0, 1) 45%,
+    rgba(0, 0, 0, 1) 95%,
     rgba(0, 0, 0, 1) 100%
   );
 }
@@ -48,7 +62,7 @@
   z-index: 0;
 
   top: 40vh;
-  right: 20vh;
+  right: 17vh;
 
   display: flex;
   justify-content: center;
@@ -82,14 +96,14 @@
     rgba(61, 61, 61, 1) 50%,
     rgba(0, 0, 0, 1) 63%
   );
-  height: 16vh;
-  width: 16vh;
+  height: 18vh;
+  width: 18vh;
   // border-radius: 50%;
   position: absolute;
   // right: 10%;
   // top: 10%;
-  bottom: 5vw;
-  left: 15vw;
+  bottom: 6vw;
+  left: 8vw;
 
   display: flex;
   justify-content: center;

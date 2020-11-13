@@ -17,12 +17,13 @@
   </label>
 </div> -->
 <div class="board" *ngIf="fieldDimensions" [ngStyle]="getBoardStyles()">
-  <ng-container *ngFor="let column of fieldDimensions; index as x">
+  <ng-container *ngFor="let row of fieldDimensions">
     <ng-container *ngIf="boardMode">
       <app-field
-        *ngFor="let row of column; index as y"
-        [pos]="row"
+        *ngFor="let column of row"
+        [pos]="column"
         [displayPos]="FIELD_DISPLAY_INFO"
+        [fieldSize]="fieldSize"
         [displayDetails]="FIELD_DISPLAY_INFO"
         (toggleFieldBlockade)="handleToggleFieldBlockade($event)"
         (setFieldOccupyingUnit)="handleSetFieldOccupyingUnit($event)"
@@ -32,9 +33,9 @@
     </ng-container>
     <ng-container *ngIf="!boardMode">
       <app-field
-        *ngFor="let row of column; index as y"
+        *ngFor="let column of row; index as y"
         [CSSsize]="fieldSize"
-        [pos]="{ x: x, y: y }"
+        [pos]="column"
         [displayPos]="FIELD_DISPLAY_INFO"
         [displayDetails]="FIELD_DISPLAY_INFO"
         (toggleFieldBlockade)="handleToggleFieldBlockade($event)"
@@ -48,8 +49,12 @@
 <div class="game-panel">
   <p>
     available fields: {{ (availableBoardFields$ | async).length }} /
-    {{ boardDimension * boardDimension }}
+    {{ boardDimensions * boardDimensions }}
   </p>
+
+  <!-- <input type="number" [(ngModel)]="boardDimensions" />
+  {{ boardDimensions }} -->
+
   <ng-container *ngIf="boardMode === 'admin'">
     <p class="board__button" (click)="reloadFields()">Reload</p>
     <p class="board__button" (click)="borders()">Toggle obsticle borders</p>
@@ -58,9 +63,9 @@
 
 <!-- <ng-container *ngIf="!boardMode">
   <div class="board" *ngIf="fieldDimensions" [ngStyle]="getBoardStyles()">
-    <ng-container *ngFor="let column of fieldDimensions; index as x">
+    <ng-container *ngFor="let row of fieldDimensions; index as x">
       <app-field
-        *ngFor="let row of column; index as y"
+        *ngFor="let column of row; index as y"
         [CSSsize]="fieldSize"
         [pos]="{ x: x, y: y }"
         [displayPos]="FIELD_DISPLAY_INFO"

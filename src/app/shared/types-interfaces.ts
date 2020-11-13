@@ -1,13 +1,36 @@
+export interface ParticleUnit {
+  unit: Unit;
+  state: ParticleState;
+  makeTurn(): boolean;
+  setLongTermGoal();
+}
+
+export interface ParticleState {
+  chancesToDieBase: number;
+  chancesToDieThisTurn: number;
+  chancesToReproduceThisTurn: number;
+  neighborsThisTurn: number;
+  neededNeighborsForReproduction: number;
+  availableSpotsThisTurn: number;
+  gainedAbilities: any[];
+  gainedProperties: any[];
+  CSSstylesThisTurn: any[];
+  penaltyTurnsToWait: number;
+  entangledChildrenIds: string[];
+}
+
 export interface Unit {
+  id: string;
   pos: FieldPos;
-  unitName: string;
-  broodName: string;
+  name: string;
+  broodId: string;
 }
 
 export interface Brood {
-  broodUnits: Unit[];
-  broodName: string;
-  broodColor: string;
+  id: string;
+  units: Unit[];
+  name: string;
+  color: string;
 }
 
 export interface Field {
