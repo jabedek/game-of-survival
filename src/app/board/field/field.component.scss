@@ -1,6 +1,10 @@
 .field-container {
-  background: rgb(130, 120, 110);
-  border: 1px solid rgb(110, 100, 90);
+  // border: 1px solid rgb(110, 100, 90);
+
+  // background: rgb(130, 120, 110);
+
+  // background: transparent;
+  box-sizing: border-box;
 
   display: flex;
   justify-content: center;
@@ -9,20 +13,27 @@
   padding: 0;
   margin: 0;
 
-  &:hover {
-    filter: brightness(125%);
-  }
+  // &:hover {
+  //   filter: brightness(125%);
+  // }
 
-  &:active {
-    filter: brightness(150%);
-  }
+  // &:active {
+  //   filter: brightness(150%);
+  // }
 
-  &:focus {
-    filter: brightness((200%));
-  }
+  // &:focus {
+  //   filter: brightness((200%));
+  // }
 }
 
 .field {
+  // opacity: 0.7;
+  background: #382e45;
+  background: black;
+  background: rgba(17, 18, 19, 0.75);
+  background: #222;
+  border: 0.1vw solid rgba(0, 0, 0, 0.75);
+
   height: 100%;
   width: 100%;
   display: flex;
@@ -33,7 +44,6 @@
   color: white;
   text-shadow: 0.11em 0.11em 0.1em black;
   font-size: 0.65em;
-  cursor: pointer;
 
   &__content {
     height: 100%;

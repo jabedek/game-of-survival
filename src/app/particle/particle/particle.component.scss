@@ -1,16 +1,67 @@
 .particle {
-  //   height: 100%;
-  //   width: 100%;
-  //   position: relative;
+  $blue: rgba(5, 50, 220, 1);
+  $red: rgba(200, 50, 5, 1);
+  $purple: rgba(150, 30, 255, 1);
+  $particle-color: $blue;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  user-select: none;
-  //   padding: 1vw;
-  cursor: pointer;
-  background: rgba(150, 50, 255, 1);
-
   border-radius: 100%;
+  user-select: none;
+  cursor: pointer;
+  filter: drop-shadow(0 0 0.75rem $particle-color);
+
+  // Base
+  background: $purple;
+
+  // Blue - neutron ?
+  background: rgb(0, 0, 0);
+  background: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 1) 0%,
+    $blue 65%,
+    rgba(52, 52, 52, 1) 75%,
+    rgba(99, 99, 99, 1) 94%,
+    rgba(139, 139, 139, 1) 100%,
+    rgba(0, 0, 0, 1) 100%
+  );
+
+  // Purple - gluon?
+  background: rgb(0, 0, 0);
+  background: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 1) 0%,
+    $purple 65%,
+    rgba(52, 52, 52, 1) 75%,
+    rgba(99, 99, 99, 1) 94%,
+    rgba(139, 139, 139, 1) 100%,
+    rgba(0, 0, 0, 1) 100%
+  );
+
+  // Red - strange matter
+  background: rgb(0, 0, 0);
+  background: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 1) 0%,
+    $particle-color 65%,
+    rgba(52, 52, 52, 1) 75%,
+    rgba(99, 99, 99, 1) 94%,
+    rgba(139, 139, 139, 1) 100%,
+    rgba(0, 0, 0, 1) 100%
+  );
+
+  &:hover {
+    filter: drop-shadow(0 0 0.75rem $particle-color) brightness(125%);
+  }
+
+  &:active {
+    filter: brightness(150%);
+  }
+
+  &:focus {
+    filter: brightness((200%));
+  }
 }
 
 .animation-blurring {

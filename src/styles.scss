@@ -132,3 +132,12 @@ a {
   box-sizing: border-box;
   user-select: none;
 }
+
+body {
+  // background: #333;
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}

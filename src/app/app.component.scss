@@ -1,4 +1,97 @@
 .main-container {
-  width: 100vh;
+  // position: relative;
+  // top: 0;
+  // left: 0;
+  width: 100vw;
   height: 100vh;
+  background: #000;
+  // background: #121214;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+
+  -webkit-box-shadow: inset 0 0 6rem 0.125rem rgba(40, 40, 245, 0.2);
+  box-shadow: inset 0 0 6rem 0.125rem rgba(40, 40, 255, 0.2);
+}
+.bigstar1 {
+  height: 20vh;
+  width: 20vh;
+  position: absolute;
+  z-index: 0;
+
+  top: 30vh;
+  left: 27vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgb(255, 255, 255);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 9%,
+    rgba(255, 236, 248, 1) 13%,
+    rgba(223, 82, 50, 1) 27%,
+    rgba(232, 113, 90, 1) 33%,
+    rgba(255, 186, 186, 1) 42%,
+    rgba(0, 0, 0, 1) 59%,
+    rgba(0, 0, 0, 1) 100%
+  );
+}
+
+.bigstar {
+  height: 30vh;
+  width: 30vh;
+  position: absolute;
+  z-index: 0;
+
+  top: 40vh;
+  right: 20vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgb(255, 255, 255);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 16%,
+    rgba(236, 255, 254, 1) 30%,
+    rgba(216, 255, 252, 1) 41%,
+    rgba(186, 255, 249, 1) 52%,
+    rgba(0, 0, 0, 1) 57%,
+    rgba(0, 0, 0, 1) 100%
+  );
+}
+
+.blackhole {
+  // padding: 1em;
+  background: rgb(0, 0, 0);
+  background: radial-gradient(
+    circle,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 14%,
+    rgba(36, 36, 36, 1) 17%,
+    rgba(132, 127, 125, 1) 21%,
+    rgba(170, 170, 170, 1) 25%,
+    rgba(56, 60, 56, 1) 29%,
+    rgba(6, 11, 36, 1) 35%,
+    rgba(5, 5, 5, 1) 43%,
+    rgba(61, 61, 61, 1) 50%,
+    rgba(0, 0, 0, 1) 63%
+  );
+  height: 16vh;
+  width: 16vh;
+  // border-radius: 50%;
+  position: absolute;
+  // right: 10%;
+  // top: 10%;
+  bottom: 5vw;
+  left: 15vw;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

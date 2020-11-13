@@ -149,7 +149,7 @@ export class BoardComponent
     this.subscription.add(
       this.availableBoardFields$.subscribe((data) => {
         if (data) {
-          console.log(data.length);
+          // console.log(data.length);
         }
       })
     );

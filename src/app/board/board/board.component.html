@@ -1,7 +1,7 @@
-<div [@openClose]="isOpen ? 'open' : 'closed'" class="open-close-container">
+<!-- <div [@openClose]="isOpen ? 'open' : 'closed'" class="open-close-container">
   <p>The box is now {{ isOpen ? "Open" : "Closed" }}!</p>
-</div>
-<div class="onoffswitch">
+</div> -->
+<!-- <div class="onoffswitch">
   <input
     type="checkbox"
     name="onoffswitch"
@@ -15,8 +15,7 @@
     <span class="onoffswitch-inner"></span>
     <span class="onoffswitch-switch"></span>
   </label>
-</div>
-
+</div> -->
 <div class="board" *ngIf="fieldDimensions" [ngStyle]="getBoardStyles()">
   <ng-container *ngFor="let column of fieldDimensions; index as x">
     <ng-container *ngIf="boardMode">
@@ -46,14 +45,17 @@
     </ng-container>
   </ng-container>
 </div>
-<p>
-  available fields: {{ (availableBoardFields$ | async).length }} /
-  {{ boardDimension * boardDimension }}
-</p>
-<ng-container *ngIf="boardMode === 'admin'">
-  <button (click)="reloadFields()" type="button">Reload</button>
-  <button (click)="borders()" type="button">Toggle obsticle borders</button>
-</ng-container>
+<div class="game-panel">
+  <p>
+    available fields: {{ (availableBoardFields$ | async).length }} /
+    {{ boardDimension * boardDimension }}
+  </p>
+  <ng-container *ngIf="boardMode === 'admin'">
+    <p class="board__button" (click)="reloadFields()">Reload</p>
+    <p class="board__button" (click)="borders()">Toggle obsticle borders</p>
+  </ng-container>
+</div>
+
 <!-- <ng-container *ngIf="!boardMode">
   <div class="board" *ngIf="fieldDimensions" [ngStyle]="getBoardStyles()">
     <ng-container *ngFor="let column of fieldDimensions; index as x">
