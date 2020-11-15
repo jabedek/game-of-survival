@@ -9,9 +9,9 @@
 </div>
 <div class="game-panel">
   <p>
+    potential spaces for a new brood (4x4):
     {{ (game.broodSpaces$ | async).length }} /
-    {{ (boardDimensions - 0) * (boardDimensions - 0) }} potential spaces for a
-    new brood (4x4)
+    {{ (boardDimensions - 0) * (boardDimensions - 0) }}
   </p>
 
   <!-- <input type="number" [(ngModel)]="boardDimensions" />
