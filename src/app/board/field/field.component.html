@@ -6,7 +6,10 @@
 >
   <div class="field" *ngIf="selfDetails$ | async as data; else loading">
     <div class="field__content">
-      <app-particle *ngIf="data?.occupyingUnit"></app-particle>
+      <app-particle
+        *ngIf="data?.occupyingUnit && pos"
+        [fieldPos]="pos"
+      ></app-particle>
       <app-obsticle *ngIf="data?.blocked === true && !data?.occupyingUnit">
       </app-obsticle>
 

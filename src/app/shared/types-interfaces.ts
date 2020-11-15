@@ -1,8 +1,12 @@
+import { AnonymousSubject } from 'rxjs/internal/Subject';
+import { NEIGHBORS_BEST_CHANCES_NOT_DIE } from '../board/board.constants';
+
 export interface ParticleUnit {
   unit: Unit;
   state: ParticleState;
   makeTurn(): boolean;
-  setLongTermGoal();
+  setLongTermGoal(): boolean;
+  getState(): any;
 }
 
 export interface ParticleState {
@@ -10,7 +14,8 @@ export interface ParticleState {
   chancesToDieThisTurn: number;
   chancesToReproduceThisTurn: number;
   neighborsThisTurn: number;
-  neededNeighborsForReproduction: number;
+  neighborsBestChancesRepro: number;
+  neighborsBestChancesNotDie: NEIGHBORS_BEST_CHANCES_NOT_DIE;
   availableSpotsThisTurn: number;
   gainedAbilities: any[];
   gainedProperties: any[];
@@ -65,6 +70,7 @@ export interface FieldPropertyUpdateDetails {
 }
 export interface AppState {
   board: BoardState;
+  particleUnits: ParticleUnit[];
 }
 
 export interface BoardState {

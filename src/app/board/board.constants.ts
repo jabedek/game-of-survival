@@ -1,6 +1,15 @@
-// ### BOARD ###
+// ### IN-GAME COSMIC FLUCTUACTIONS
 
-export const BOARD_DIMENSIONS = 10;
+export const CHANCES_TO_DIE_BASE = 0.95;
+
+// ### IN-GAME CONSTANTS
+export const NEIGHBORS_FOR_REPRO = 3;
+export type NEIGHBORS_BEST_CHANCES_NOT_DIE = 2 | 3;
+// export const neededNeighborsForReproduction = 3;
+// export type neededNeighborsToLowerDeathChances = 2 | 3;
+
+// ### BOARD ###
+export const BOARD_DIMENSIONS = 6;
 export const BOARD_DIMENSIONS_X = 60;
 export const BOARD_DIMENSIONS_Y = 60;
 

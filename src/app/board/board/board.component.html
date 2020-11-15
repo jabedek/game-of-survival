@@ -48,7 +48,7 @@
 </div>
 <div class="game-panel">
   <p>
-    available fields: {{ (availableBoardFields$ | async).length }} /
+    available fields: {{ (game.availableBoardFields$ | async).length }} /
     {{ boardDimensions * boardDimensions }}
   </p>
 
@@ -56,8 +56,10 @@
   {{ boardDimensions }} -->
 
   <ng-container *ngIf="boardMode === 'admin'">
-    <p class="board__button" (click)="reloadFields()">Reload</p>
-    <p class="board__button" (click)="borders()">Toggle obsticle borders</p>
+    <p class="board__button" (click)="reloadBoard()">Reload</p>
+    <p class="board__button" (click)="toggleBorders()">
+      Toggle obsticle borders
+    </p>
   </ng-container>
 </div>
 

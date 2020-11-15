@@ -58,6 +58,8 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
   constructor(public store: Store<AppState>) {}
 
   ngOnInit(): void {
+    // console.log(this.pos);
+
     this.CSSsize = this.fieldSize;
     this.selfDetails$ = this.store.select(selectBoardField, this.pos);
     // this.neighbors$ = this.store.select(selectUnitNeighborFieldsData, this.pos);

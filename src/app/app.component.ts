@@ -1,11 +1,14 @@
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { initFields } from './board/board.actions';
 import {
   BOARD_DIMENSIONS,
   BOARD_DIMENSIONS_X,
   FIELD_SIZE,
 } from './board/board.constants';
+import { GameService } from './game/game.service';
+import { ParticleUnit } from './shared/models';
 import { AppState, Field, Fields } from './shared/types-interfaces';
 
 @Component({
@@ -14,28 +17,29 @@ import { AppState, Field, Fields } from './shared/types-interfaces';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'game-of-survival';
+  boardDimensions: number;
+  fieldSize: number;
 
-  boardDimensions = BOARD_DIMENSIONS;
-  fieldSize = FIELD_SIZE;
+  broodSpaces$: Observable<any[]> = null;
 
-  constructor(public store: Store<AppState>) {
-    this.initFieldsData();
+  particleUnits: ParticleUnit[] = null;
+
+  constructor(public store: Store<AppState>, public game: GameService) {
+    this.initBoard();
+    this.broodSpaces$ = this.game.broodSpaces$;
+    this.startGame();
   }
 
-  private initFieldsData() {
-    let fields: Fields = [];
-
-    for (let row = 0; row < this.boardDimensions; row++) {
-      fields[row] = [];
-
-      for (let column = 0; column < this.boardDimensions; column++) {
-        fields[row][column] = new Field({ column: row, row: column }, false);
-      }
-    }
-
-    console.log(fields);
-
+  initBoard() {
+    this.boardDimensions = this.game.boardDimensions;
+    this.fieldSize = this.game.fieldSize;
+    const fields = this.game.initFieldsData();
     this.store.dispatch(initFields({ fields }));
+  }
+
+  startGame() {
+    if (this.game.fields) {
+      this.game.startGame();
+    }
   }
 }
