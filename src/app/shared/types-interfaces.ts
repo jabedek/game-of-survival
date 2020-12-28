@@ -28,7 +28,7 @@ export interface Unit {
   id: string;
   pos: FieldPos;
   name: string;
-  broodId: string;
+  groupId: string;
 }
 
 export interface Brood {

@@ -25,7 +25,7 @@ const initialParticleState: ParticleState = {
 const particleUnit: ParticleUnit = {
   unit: {
     name: 'unit',
-    broodId: 'darkies',
+    groupId: 'darkies',
     pos: { column: null, row: null },
     id: '123',
   },

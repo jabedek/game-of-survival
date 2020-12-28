@@ -110,7 +110,7 @@ export class GameService {
                 id: uuid.v4(),
                 pos: rndmlySelectedField.pos,
                 name: 'animalien',
-                broodId: uuid.v4(),
+                groupId: uuid.v4(),
               };
 
               newUnit = unit;

@@ -114,7 +114,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
     this.setFieldUnblocked.emit(this.pos);
   }
 
-  addOccupyingUnit(name: string, broodId?: string) {
+  addOccupyingUnit(name: string, groupId?: string) {
     // this.mode = 2;
 
     // #### IT IS WORKING CODE BUT NOT FOR CONSTANS USE - MEMORY LEAKS
@@ -124,7 +124,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
       id: uuid.v4(),
       pos: this.pos,
       name,
-      broodId: broodId || 'dunnos',
+      groupId: groupId || 'dunnos',
     };
 
     this.setFieldOccupyingUnit.emit(unit);
@@ -148,7 +148,7 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
               neighborUnits.push(neighbor);
               if (
                 fieldData.occupyingUnit &&
-                field?.occupyingUnit.broodId === fieldData.occupyingUnit.broodId
+                field?.occupyingUnit.groupId === fieldData.occupyingUnit.groupId
               ) {
                 // console.log('friend');
                 neighborBroodMembers.push(neighbor);
