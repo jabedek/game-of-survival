@@ -16,7 +16,7 @@ import {
   Fields,
   Unit,
 } from 'src/app/shared/types-interfaces';
-import { selectBoardFields, selectBroodSpaces } from '..';
+import { selectBoardFields, selectBroodSpaces, selectEmptyFields } from '..';
 import {
   setFieldParticle,
   setFieldObsticle,
@@ -50,13 +50,17 @@ export class BoardComponent
   borderObsticlesUp = false;
 
   fields$: Observable<Fields> = this.store.select(selectBoardFields);
+  emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
+  emptyFieldsTotal = 0;
 
   broodSpaces$: Observable<Fields> = this.store.select(selectBroodSpaces);
-
+  broodSpacesTotal = 0;
   subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
     this.initBoard();
+    this.checkBoard();
+
     this.toggleBordersDown();
   }
   ngAfterViewInit() {}
@@ -69,6 +73,45 @@ export class BoardComponent
   initBoard() {
     this.borderObsticlesUp = false;
     this.service.initEmptyFields(this.boardDimensions);
+  }
+
+  checkBroodSpaces() {
+    return this.broodSpaces$
+      .subscribe((data) => {
+        this.broodSpacesTotal = data.length;
+      })
+      .unsubscribe();
+  }
+
+  handleClick(type: string) {
+    switch (type) {
+      case 'reloadBoard':
+        this.reloadBoard();
+        break;
+
+      case 'toggleBorders':
+        this.toggleBorders();
+        break;
+
+      case 'scenario1':
+        this.scenario1();
+        break;
+    }
+
+    // this.checkBoard();
+  }
+
+  checkEmptySpaces() {
+    return this.emptyFields$
+      .subscribe((data) => {
+        this.emptyFieldsTotal = data.length;
+      })
+      .unsubscribe();
+  }
+
+  checkBoard() {
+    this.checkBroodSpaces();
+    this.checkEmptySpaces();
   }
 
   reloadBoard() {

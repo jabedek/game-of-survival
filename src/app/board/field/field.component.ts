@@ -32,7 +32,11 @@ import {
 import { FIELD_SIZE } from '../board.constants';
 import { NeighborField } from '../index';
 import * as uuid from 'uuid';
-import { setFieldEmpty } from '../board.actions';
+import {
+  setFieldEmpty,
+  setFieldObsticle,
+  setFieldParticle,
+} from '../board.actions';
 
 @Component({
   selector: 'app-field',
@@ -57,23 +61,21 @@ export class FieldComponent
   @Input() displayPos = true;
   @Input() displayDetails = false;
   selfDetails$: Observable<Field>;
-  neighbors$: Observable<NeighborsRaport>;
+  // neighbors$: Observable<NeighborsRaport>;
 
   @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
   @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
   @Output() setParticleEvent: EventEmitter<Unit> = new EventEmitter();
 
   subscription: Subscription = new Subscription();
-  subscriptionNeighbors: Subscription = new Subscription();
+  // subscriptionNeighbors: Subscription = new Subscription();
 
   @ViewChild('details', { read: TemplateRef }) details: TemplateRef<any>;
   constructor(public store: Store<AppState>, public cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    // console.log(this.pos);
-
     this.CSS.size = this.fieldSize;
-    this.neighbors$ = this.store.select(selectFieldNeighbors, this.pos);
+    // this.neighbors$ = this.store.select(selectFieldNeighbors, this.pos);
 
     this.selfDetails$ = this.store.select(selectBoardField, this.pos);
 
@@ -97,14 +99,10 @@ export class FieldComponent
   ngAfterViewInit() {}
 
   ngOnDestroy() {
-    this.subscriptionNeighbors.unsubscribe();
+    // this.subscriptionNeighbors.unsubscribe();
     this.subscription.unsubscribe();
   }
   toggleSelf(): boolean {
-    console.log('clicked:', this.pos);
-
-    // console.log('from:', this.mode, 'to:', this.mode + 1);
-
     if (this.mode === 0) {
       this.setObsticle();
       return true;
@@ -112,7 +110,6 @@ export class FieldComponent
 
     if (this.mode === 1) {
       this.setParticle('unit-id', 'unit-group-id');
-      this.beginTurn();
       return true;
     }
 
@@ -122,115 +119,34 @@ export class FieldComponent
     }
   }
 
-  private beginTurn() {
-    this.subscriptionNeighbors.add(
-      this.neighbors$.subscribe((data) => {
-        console.log(data);
-      })
-    );
+  // private beginTurn() {
+  //   this.subscriptionNeighbors.add(
+  //     this.neighbors$.subscribe((data) => {
+  //       console.log(data);
+  //     })
+  //   );
+  // }
 
-    // this.fields$.subscribe((data) => {
-    //   // stuff.getNgh2(data, this.pos);
-    // })
-
-    // this.store
-    //   .select(selectFieldNeighbors, this.pos)
-    //   .subscribe((data: NeighborField[]) => {
-    //     console.log(data);
-
-    //     // const neighborsData = this.getNeighborsData(data, this.pos);
-
-    //     // console.info(neighborsData);
-    //     // console.log(stuff.getNgh2());
-
-    //     // console.log(
-    //     //   `${this.pos.column}:${this.pos.row} here.\n`,
-    //     //   `I have got ${neighborsData.neighborBlockades.length} blockades around me, including ${neighborsData.neighborUnits.length} other creatures.`,
-    //     //   `I have got ${neighborsData.availableFields.length} available fields to move to.`
-    //     // );
-    //   })
-  }
-
-  private getNeighborsData(data: NeighborField[], pos: FieldPos) {
-    let neighborObsticles = [];
-    let neighborUnits = [];
-    let availableFields = [];
-
-    let neighborBroodMembers = [];
-    let neighborAliens = [];
-
-    this.selfDetails$.subscribe((fieldData) => {
-      [...data].forEach((neighbor) => {
-        const { field } = neighbor;
-
-        if (neighbor.field !== null) {
-          if (field.blocked === true) {
-            if (field?.occupyingUnit) {
-              neighborUnits.push(neighbor);
-              if (
-                fieldData.occupyingUnit &&
-                field?.occupyingUnit.groupId === fieldData.occupyingUnit.groupId
-              ) {
-                // console.log('friend');
-                neighborBroodMembers.push(neighbor);
-              } else {
-                // console.log('enemy');
-                neighborAliens.push(neighbor);
-              }
-            } else {
-              neighborObsticles.push(neighbor);
-            }
-          } else {
-            availableFields.push(neighbor);
-          }
-        }
-      });
-    });
-
-    let stringData =
-      '[pos]: ' +
-      pos.column +
-      ':' +
-      pos.row +
-      '\n[available spots]: ' +
-      availableFields.length +
-      '\n[all blockades]: ' +
-      (neighborAliens.length +
-        neighborBroodMembers.length +
-        neighborObsticles.length) +
-      '\n - obsticles: ' +
-      neighborObsticles.length +
-      '\n - friendly units: ' +
-      neighborBroodMembers.length +
-      '\n - enemy units: ' +
-      neighborAliens.length;
-    console.log(stringData);
-    return { neighborObsticles, neighborUnits, availableFields };
-  }
-
-  private setParticle(name: string, groupId?: string): void {
+  private setParticle(id: string, groupId?: string): void {
     const unit: Unit = {
-      id: uuid.v4(),
+      id: id || 'uniton-0',
+      groupId: groupId || 'unitons',
       pos: this.pos,
-      name,
-      groupId: groupId || 'dunnos',
     };
 
     this.mode = 2;
 
-    this.setParticleEvent.emit(unit);
+    this.store.dispatch(setFieldParticle({ unit }));
   }
 
   private setObsticle() {
-    console.log(this.pos);
-
     this.mode = 1;
-    this.setObsticleEvent.emit(this.pos);
+    this.store.dispatch(setFieldObsticle({ pos: this.pos }));
   }
 
   private setEmpty(): void {
-    this.subscriptionNeighbors.unsubscribe();
+    // this.subscriptionNeighbors.unsubscribe();
     this.mode = 0;
-    this.setEmptyEvent.emit(this.pos);
+    this.store.dispatch(setFieldEmpty({ pos: this.pos }));
   }
 }

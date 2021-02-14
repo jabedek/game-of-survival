@@ -46,7 +46,6 @@ const authReducer = createReducer(
   on(appActions.setFieldObsticle, (state, { pos }) => {
     const currentField: Field = { ...state.fields[pos.row][pos.column] };
 
-    // console.log('reducer:', currentField.pos);
     const newField: Field = {
       ...currentField,
       blocked: true,
@@ -56,17 +55,11 @@ const authReducer = createReducer(
       data.map((field: Field) => {
         if (field.pos.column === pos.column && field.pos.row === pos.row) {
           field = { ...newField };
-          console.log(field.pos);
         }
 
         return field;
       })
     );
-    console.log(fields[pos.row][pos.column]);
-
-    // console.log(state.fields);
-
-    // console.log(fields);
 
     return {
       ...state,
@@ -75,8 +68,6 @@ const authReducer = createReducer(
   }),
 
   on(appActions.setFieldEmpty, (state, { pos }) => {
-    console.log(pos);
-
     const previousField: Field = { ...state.fields[pos.row][pos.column] };
     let blocked: boolean;
     if (!!previousField?.occupyingUnit?.pos) {

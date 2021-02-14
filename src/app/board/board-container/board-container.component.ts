@@ -61,18 +61,4 @@ export class BoardContainerComponent implements OnInit {
       this.fieldSize
     );
   }
-
-  emitSetParticle(event: Unit): void {
-    this.setParticleEvent.emit(event);
-  }
-
-  emitSetObsticle(event: FieldPos): void {
-    console.log(event);
-
-    this.setObsticleEvent.emit(event);
-  }
-
-  emitSetEmpty(event: FieldPos): void {
-    this.setEmptyEvent.emit(event);
-  }
 }

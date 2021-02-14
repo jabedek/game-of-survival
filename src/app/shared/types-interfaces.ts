@@ -1,4 +1,3 @@
-import { AnonymousSubject } from 'rxjs/internal/Subject';
 import { NEIGHBORS_BEST_CHANCES_NOT_DIE } from '../board/board.constants';
 
 export interface ParticleUnit {
@@ -25,10 +24,9 @@ export interface ParticleState {
 }
 
 export interface Unit {
-  id: string;
+  id: string; // name-like identifier, like 'proton-0'
+  groupId: string; // name-like group identifier like 'protons'
   pos: FieldPos;
-  name: string;
-  groupId: string;
 }
 
 export interface Brood {

@@ -2,26 +2,24 @@
   [boardDimensions]="boardDimensions"
   [fieldSize]="fieldSize"
   [fields]="fields$ | async"
-  (setParticleEvent)="handleSetParticleEvent($event)"
-  (setObsticleEvent)="handleSetObsticleEvent($event)"
-  (setEmptyEvent)="handleSetEmptyEvent($event)"
 >
 </app-board-container>
 
 <div class="game-panel">
-  <p class="available">
-    available fields: {{ (service.emptyBoardFields$ | async).length }} /
-    {{ boardDimensions * boardDimensions }}
+  <p class="board__button" (click)="checkBoard()">
+    Check Empty Fields and Brood Spaces
   </p>
+  <div class="available">
+    <p>Empty Fields: {{ (emptyFields$ | async).length }}</p>
+    <p>Brood Spaces: {{ (broodSpaces$ | async).length }}</p>
+  </div>
 
-  <p class="available">
-    brood spaces (4x4): {{ (service.broodSpaces$ | async).length }}
+  <!-- <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p> -->
+
+  <p class="board__button" (click)="handleClick('toggleBorders')">
+    Toggle obsticle borders
   </p>
-
-  <p class="board__button" (click)="reloadBoard()">Reload</p>
-
-  <p class="board__button" (click)="toggleBorders()">Toggle obsticle borders</p>
-  <p class="board__button" (click)="scenario1()">
-    Reload with particles & obsticles
+  <p class="board__button" (click)="handleClick('scenario1')">
+    Borders & particles & additional obsticles
   </p>
 </div>

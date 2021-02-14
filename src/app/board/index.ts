@@ -204,8 +204,6 @@ function checkIfBroodSpaceRoot(
 }
 
 function isInBoundries(boardDimensions: number, pos: FieldPos) {
-  console.log('checking', pos);
-
   if (
     +pos.row >= 0 &&
     +pos.column >= 0 &&

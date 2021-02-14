@@ -110,7 +110,6 @@ export class BoardService {
   }
 
   toggleBorders2(boardDimensions: number, toggler) {
-    var t0 = performance.now();
     const borderObsticlesUp = !toggler;
 
     let newFields: Fields = [];
@@ -145,12 +144,9 @@ export class BoardService {
     });
 
     this.store.dispatch(loadFields({ fields: newFields }));
-    var t1 = performance.now();
-    console.log('Call to doSomething took ' + (t1 - t0) + ' milliseconds.');
   }
 
   toggleBorders(boardDimensions: number, toggler): void {
-    var t0 = performance.now();
     const borderObsticlesUp = !toggler;
 
     for (let row = 0; row < boardDimensions; row++) {
@@ -171,8 +167,6 @@ export class BoardService {
         }
       }
     }
-    var t1 = performance.now();
-    console.log('Call to doSomething took ' + (t1 - t0) + ' milliseconds.');
   }
 
   setRandomBlockades(boardDimensions: number): void {
@@ -201,7 +195,7 @@ export class BoardService {
     }
   }
 
-  addUnits(particles: number, obsticles = 0) {
+  addUnits(particles = 1, obsticles = 0) {
     this.setSomeUnits(particles, 'particle');
     this.setSomeUnits(obsticles, 'obsticle');
   }
@@ -224,10 +218,9 @@ export class BoardService {
             if (!rndmlySelectedField.blocked) {
               if (type === 'particle') {
                 const unit: Unit = {
-                  id: uuid.v4(),
                   pos: rndmlySelectedField.pos,
-                  name: 'animalien',
-                  groupId: uuid.v4(),
+                  id: 'animalien-0',
+                  groupId: 'animaliens',
                 };
 
                 newUnit = unit;

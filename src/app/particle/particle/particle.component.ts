@@ -1,6 +1,17 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable, Subscription } from 'rxjs';
+import { NeighborsRaport, selectFieldNeighbors } from 'src/app/board';
 import { FIELD_SIZE, NEIGHBORS_FOR_REPRO } from 'src/app/board/board.constants';
 import {
+  AppState,
   FieldPos,
   ParticleState,
   ParticleUnit,
@@ -24,10 +35,9 @@ const initialParticleState: ParticleState = {
 
 const particleUnit: ParticleUnit = {
   unit: {
-    name: 'unit',
     groupId: 'darkies',
     pos: { row: null, column: null },
-    id: '123',
+    id: 'unit-123',
   },
   state: initialParticleState,
   getState: () => {
@@ -47,17 +57,30 @@ const particleUnit: ParticleUnit = {
   selector: 'app-particle',
   templateUrl: './particle.component.html',
   styleUrls: ['./particle.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ParticleComponent implements OnInit, AfterViewInit {
+export class ParticleComponent implements OnInit, AfterViewInit, OnDestroy {
   CSSsize = FIELD_SIZE * 0.8;
 
   @Input() fieldPos: FieldPos;
   particleUnit: ParticleUnit;
 
   turnDone = false;
+  subscriptionNeighbors: Subscription = new Subscription();
+  neighbors$: Observable<NeighborsRaport>;
 
-  constructor() {
+  constructor(public store: Store<AppState>) {
     this.particleUnit = particleUnit;
+  }
+
+  private beginTurn() {
+    this.neighbors$ = this.store.select(selectFieldNeighbors, this.fieldPos);
+
+    this.subscriptionNeighbors.add(
+      this.neighbors$.subscribe((data) => {
+        // console.log(this.fieldPos, data);
+      })
+    );
   }
 
   ngAfterViewInit() {
@@ -66,18 +89,24 @@ export class ParticleComponent implements OnInit, AfterViewInit {
 
   makeUnitTurn() {
     setTimeout(() => {
-      console.log(this.particleUnit.unit.name, 'is doing turn');
+      // console.log(this.particleUnit.unit.name, 'is doing turn');
     }, 0);
 
     setTimeout(() => {
       // this.particleUnit.makeTurn();
-      console.log('done');
+      // console.log('done');
     }, 2000);
 
     this.turnDone = true;
   }
 
   ngOnInit(): void {
-    console.log(this.fieldPos);
+    this.beginTurn();
+
+    // console.log(this.fieldPos);
+  }
+
+  ngOnDestroy() {
+    this.subscriptionNeighbors.unsubscribe();
   }
 }

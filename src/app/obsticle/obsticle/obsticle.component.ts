@@ -21,8 +21,6 @@ export class ObsticleComponent implements OnInit {
   constructor(public store: Store<AppState>, public service: BoardService) {}
 
   ngOnInit(): void {
-    console.log(this.fieldPos);
-
-    this.fields$.subscribe((data) => console.log(data));
+    // this.fields$.subscribe((data) => console.log(data));
   }
 }

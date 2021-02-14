@@ -4,9 +4,6 @@
       *ngFor="let column of row; let colPos = index"
       [pos]="{ row: rowPos, column: colPos }"
       [fieldSize]="fieldSize"
-      (setParticleEvent)="emitSetParticle($event)"
-      (setObsticleEvent)="emitSetObsticle($event)"
-      (setEmptyEvent)="emitSetEmpty($event)"
     >
       <!-- [displayPos]="FIELD_DISPLAY_INFO"
       [displayDetails]="FIELD_DISPLAY_INFO" -->
