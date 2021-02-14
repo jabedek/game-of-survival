@@ -8,9 +8,17 @@
     <div class="field__content">
       <app-particle
         *ngIf="data?.occupyingUnit && pos"
-        [fieldPos]="pos"
-      ></app-particle>
-      <app-obsticle *ngIf="data?.blocked === true && !data?.occupyingUnit">
+        [fieldPos]="{ row: pos.row, column: pos.column }"
+      >
+      </app-particle>
+      <!-- {{ pos.row }}
+      {{ pos.column }} -->
+      <app-obsticle
+        *ngIf="data?.blocked === true && !data?.occupyingUnit"
+        [fieldPos]="{ row: pos.row, column: pos.column }"
+        [row]="pos.column"
+        [column]="pos.row"
+      >
       </app-obsticle>
 
       <ng-container *ngIf="displayDetails">

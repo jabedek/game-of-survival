@@ -6,6 +6,7 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChanges,
@@ -19,50 +20,62 @@ import {
   Field,
   FieldMode,
   FieldPos,
+  Fields,
   Unit,
 } from 'src/app/shared/types-interfaces';
-import { selectBoardField, selectUnitNeighborFieldsData } from '..';
+import {
+  NeighborsRaport,
+  selectBoardField,
+  selectBoardFields,
+  selectFieldNeighbors,
+} from '..';
 import { FIELD_SIZE } from '../board.constants';
 import { NeighborField } from '../index';
 import * as uuid from 'uuid';
+import { setFieldEmpty } from '../board.actions';
 
 @Component({
   selector: 'app-field',
   templateUrl: './field.component.html',
   styleUrls: ['./field.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
+export class FieldComponent
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() pos: FieldPos;
-  @Input() fieldSize: FieldPos;
-  // @Input() CSSsize: string;
+  @Input() fieldSize: number;
 
-  CSSsize; //= FIELD_SIZE;
+  CSS = {
+    size: null,
+  };
 
   mode: FieldMode = 0;
+  fields$: Observable<Fields> = this.store.select(selectBoardFields);
 
   firstToggled = false;
 
   @Input() displayPos = true;
   @Input() displayDetails = false;
   selfDetails$: Observable<Field>;
-  neighbors$: Observable<Field[]>;
+  neighbors$: Observable<NeighborsRaport>;
 
-  @Output() toggleFieldBlockade: EventEmitter<FieldPos> = new EventEmitter();
-  @Output() setFieldUnblocked: EventEmitter<FieldPos> = new EventEmitter();
-  @Output() setFieldOccupyingUnit: EventEmitter<Unit> = new EventEmitter();
+  @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
+  @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
+  @Output() setParticleEvent: EventEmitter<Unit> = new EventEmitter();
 
   subscription: Subscription = new Subscription();
   subscriptionNeighbors: Subscription = new Subscription();
 
   @ViewChild('details', { read: TemplateRef }) details: TemplateRef<any>;
-  constructor(public store: Store<AppState>) {}
+  constructor(public store: Store<AppState>, public cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     // console.log(this.pos);
 
-    this.CSSsize = this.fieldSize;
+    this.CSS.size = this.fieldSize;
+    this.neighbors$ = this.store.select(selectFieldNeighbors, this.pos);
+
     this.selfDetails$ = this.store.select(selectBoardField, this.pos);
-    // this.neighbors$ = this.store.select(selectUnitNeighborFieldsData, this.pos);
 
     this.subscription.add(
       this.selfDetails$.subscribe((data: Field) => {
@@ -75,59 +88,67 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
         } else {
           this.mode = 0;
         }
-
-        if (this.mode === 2) {
-          // #### IT IS WORKING CODE BUT NOT FOR CONSTANS USE - MEMORY LEAKS
-          // this.beginTurn();
-        }
       })
     );
   }
-  ngOnChanges(changes: SimpleChanges) {}
+  ngOnChanges(changes: SimpleChanges) {
+    // console.log(changes);
+  }
   ngAfterViewInit() {}
 
-  toggleBlockade() {
-    this.mode = 1;
-
-    this.toggleFieldBlockade.emit(this.pos);
-  }
-
-  beginTurn() {
-    this.subscriptionNeighbors.add(
-      this.store
-        .select(selectUnitNeighborFieldsData, this.pos)
-        .subscribe((data: NeighborField[]) => {
-          const neighborsData = this.getNeighborsData(data, this.pos);
-
-          // console.log(
-          //   `${this.pos.column}:${this.pos.row} here.\n`,
-          //   `I have got ${neighborsData.neighborBlockades.length} blockades around me, including ${neighborsData.neighborUnits.length} other creatures.`,
-          //   `I have got ${neighborsData.availableFields.length} available fields to move to.`
-          // );
-        })
-    );
-  }
-
-  fieldUnblock() {
+  ngOnDestroy() {
     this.subscriptionNeighbors.unsubscribe();
-    this.mode = 0;
-    this.setFieldUnblocked.emit(this.pos);
+    this.subscription.unsubscribe();
+  }
+  toggleSelf(): boolean {
+    console.log('clicked:', this.pos);
+
+    // console.log('from:', this.mode, 'to:', this.mode + 1);
+
+    if (this.mode === 0) {
+      this.setObsticle();
+      return true;
+    }
+
+    if (this.mode === 1) {
+      this.setParticle('unit-id', 'unit-group-id');
+      this.beginTurn();
+      return true;
+    }
+
+    if (this.mode === 2) {
+      this.setEmpty();
+      return false;
+    }
   }
 
-  addOccupyingUnit(name: string, groupId?: string) {
-    // this.mode = 2;
+  private beginTurn() {
+    this.subscriptionNeighbors.add(
+      this.neighbors$.subscribe((data) => {
+        console.log(data);
+      })
+    );
 
-    // #### IT IS WORKING CODE BUT NOT FOR CONSTANS USE - MEMORY LEAKS
-    // this.beginTurn();
+    // this.fields$.subscribe((data) => {
+    //   // stuff.getNgh2(data, this.pos);
+    // })
 
-    const unit: Unit = {
-      id: uuid.v4(),
-      pos: this.pos,
-      name,
-      groupId: groupId || 'dunnos',
-    };
+    // this.store
+    //   .select(selectFieldNeighbors, this.pos)
+    //   .subscribe((data: NeighborField[]) => {
+    //     console.log(data);
 
-    this.setFieldOccupyingUnit.emit(unit);
+    //     // const neighborsData = this.getNeighborsData(data, this.pos);
+
+    //     // console.info(neighborsData);
+    //     // console.log(stuff.getNgh2());
+
+    //     // console.log(
+    //     //   `${this.pos.column}:${this.pos.row} here.\n`,
+    //     //   `I have got ${neighborsData.neighborBlockades.length} blockades around me, including ${neighborsData.neighborUnits.length} other creatures.`,
+    //     //   `I have got ${neighborsData.availableFields.length} available fields to move to.`
+    //     // );
+    //   })
   }
 
   private getNeighborsData(data: NeighborField[], pos: FieldPos) {
@@ -187,30 +208,29 @@ export class FieldComponent implements OnInit, OnChanges, AfterViewInit {
     return { neighborObsticles, neighborUnits, availableFields };
   }
 
-  toggleSelf(): boolean {
-    // if (!this.firstToggled) {
-    //   this.firstToggled = true;
+  private setParticle(name: string, groupId?: string): void {
+    const unit: Unit = {
+      id: uuid.v4(),
+      pos: this.pos,
+      name,
+      groupId: groupId || 'dunnos',
+    };
 
-    //   this.subscriptionNeighbors.add(
-    //     this.subscribeNeighbors().subscribe((data: NeighborField[]) => {
-    //       const neighborsData = this.getNeighborsData(data);
-    //     })
-    //   );
-    // }
+    this.mode = 2;
 
-    if (this.mode === 0) {
-      this.toggleBlockade();
-      return true;
-    }
+    this.setParticleEvent.emit(unit);
+  }
 
-    if (this.mode === 1) {
-      this.addOccupyingUnit('mouse-jumper', 'pappals');
-      return true;
-    }
+  private setObsticle() {
+    console.log(this.pos);
 
-    if (this.mode === 2) {
-      this.fieldUnblock();
-      return false;
-    }
+    this.mode = 1;
+    this.setObsticleEvent.emit(this.pos);
+  }
+
+  private setEmpty(): void {
+    this.subscriptionNeighbors.unsubscribe();
+    this.mode = 0;
+    this.setEmptyEvent.emit(this.pos);
   }
 }

@@ -1,19 +1,18 @@
 <div class="main-container">
-  <ng-container *ngIf="boardDimensions && fieldSize">
+  <app-board> </app-board>
+  <!-- <ng-container *ngIf="boardDimensions && fieldSize">
     <app-board [boardDimensions]="boardDimensions" [fieldSize]="fieldSize">
     </app-board>
-  </ng-container>
+  </ng-container> -->
   <div class="blackhole"></div>
   <div class="bigstar"></div>
   <div class="bigstar1"></div>
 </div>
-<div class="game-panel">
+
+<!-- <div class="game-panel">
   <p>
     potential spaces for a new brood (4x4):
     {{ (game.broodSpaces$ | async).length }} /
     {{ (boardDimensions - 0) * (boardDimensions - 0) }}
   </p>
-
-  <!-- <input type="number" [(ngModel)]="boardDimensions" />
-  {{ boardDimensions }} -->
-</div>
+</div> -->

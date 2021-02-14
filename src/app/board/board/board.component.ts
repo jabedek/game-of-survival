@@ -1,70 +1,35 @@
-import { trimTrailingNulls } from '@angular/compiler/src/render3/view/util';
 import {
-  trigger,
-  state,
-  style,
-  animate,
-  transition,
-  // ...
-} from '@angular/animations';
-
-import * as uuid from 'uuid';
-
-import {
-  AfterViewChecked,
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  HostListener,
-  Input,
   OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChange,
   SimpleChanges,
-  ViewChild,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { concatMap, mergeMap, switchMap } from 'rxjs/operators';
 import {
   AppState,
-  Brood,
-  BroodSpace,
   Field,
   FieldPos,
   Fields,
   Unit,
 } from 'src/app/shared/types-interfaces';
+import { selectBoardFields, selectBroodSpaces } from '..';
 import {
-  selectAvailableFieldsTotal,
-  selectBoardFields,
-  selectBroodSpaces,
-} from '..';
-import {
-  initFields,
-  setFieldBlockedTrue,
-  setFieldBlockedFalse,
-  toggleFieldBlockade,
-  setFieldOccupyingUnitNull,
-  setOccupyingUnit,
-  setFieldUnblocked,
-  setFieldsUnblocked,
+  setFieldParticle,
+  setFieldObsticle,
+  setFieldEmpty,
+  loadFields,
 } from '../board.actions';
 import {
   BOARD_DIMENSIONS,
   FIELD_SIZE,
   FIELD_DISPLAY_INFO,
 } from '../board.constants';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
-import { GameService } from 'src/app/game/game.service';
-import { defaultThrottleConfig } from 'rxjs/internal/operators/throttle';
+
+import { BoardService } from '../board.service';
 
 @Component({
   selector: 'app-board',
@@ -73,87 +38,83 @@ import { defaultThrottleConfig } from 'rxjs/internal/operators/throttle';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardComponent
-  implements OnInit, OnChanges, AfterViewChecked, OnDestroy {
-  constructor(
-    public store: Store<AppState>,
-    public fb: FormBuilder,
-    public game: GameService
-  ) {}
+  implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+  constructor(public store: Store<AppState>, public service: BoardService) {}
 
-  @Input() boardDimensions;
-  @Input() fieldSize;
+  boardDimensions = BOARD_DIMENSIONS;
 
-  // fields$: Observable<Fields> = this.store.select(selectBoardFields);
-  // availableBoardFields$: Observable<Field[]> = this.store.select(
-  //   selectAvailableFieldsTotal
-  // );
-  broodSpaces$: Observable<Fields> = this.store.select(selectBroodSpaces);
+  fieldSize = FIELD_SIZE;
+
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
 
-  form: FormGroup;
+  borderObsticlesUp = false;
 
-  boardMode: 'admin' | 'playing' = 'admin';
-  // boardDimensions = BOARD_DIMENSIONS;
-  dimensions = 0;
-  boardCSSsizePx: string;
-  fieldCSSSizePx: string;
-  fieldDimensions: FieldPos[][] = [];
+  fields$: Observable<Fields> = this.store.select(selectBoardFields);
+
+  broodSpaces$: Observable<Fields> = this.store.select(selectBroodSpaces);
 
   subscription: Subscription = new Subscription();
 
-  // @HostListener('setFieldOccupyingUnit', ['$event.target'])
-  toggleSwitch(): void {
-    this.boardMode = this.boardMode === 'admin' ? 'playing' : 'admin';
-  }
-
-  public getBoardStyles(): any {
-    return {
-      display: 'grid',
-      'grid-template-columns': `repeat(${this.boardDimensions}, ${this.fieldCSSSizePx})`,
-      'grid-template-rows': `repeat(${this.boardDimensions}, ${this.fieldCSSSizePx})`,
-      width: ` ${this.boardCSSsizePx}`,
-      height: ` ${this.boardCSSsizePx}`,
-    };
-  }
-
   ngOnInit(): void {
-    this.boardCSSsizePx = this.boardDimensions * this.fieldSize + 'px';
-    this.fieldCSSSizePx = this.fieldSize + 'px';
-
-    this.reloadBoard();
+    this.initBoard();
+    this.toggleBordersDown();
   }
+  ngAfterViewInit() {}
+  ngOnChanges(changes: SimpleChanges) {}
 
-  ngOnChanges(changes: SimpleChanges): void {}
-
-  ngAfterViewChecked(): void {}
   ngOnDestroy(): void {
-    console.log('destroy');
-
     this.subscription.unsubscribe();
   }
 
-  private setupBoard(): void {
-    this.fieldDimensions = this.game.initFieldsPositions();
+  initBoard() {
+    this.borderObsticlesUp = false;
+    this.service.initEmptyFields(this.boardDimensions);
   }
 
-  reloadBoard(): void {
-    this.setupBoard();
-    this.game.reloadFields();
+  reloadBoard() {
+    this.initBoard();
+    this.toggleBordersDown();
+  }
+
+  toggleBordersUp() {
+    this.borderObsticlesUp = false;
+    this.service.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
+    this.borderObsticlesUp = true;
+  }
+
+  toggleBordersDown() {
+    this.borderObsticlesUp = true;
+    this.service.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
+    this.borderObsticlesUp = false;
   }
 
   toggleBorders(): void {
-    this.game.toggleBorders();
+    this.service.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
+    this.borderObsticlesUp = !this.borderObsticlesUp;
   }
 
-  handleToggleFieldBlockade(event: FieldPos): void {
-    this.store.dispatch(toggleFieldBlockade({ pos: event }));
+  handleSetParticleEvent(event: Unit): void {
+    this.store.dispatch(setFieldParticle({ unit: event }));
   }
 
-  handleSetFieldOccupyingUnit(event: Unit): void {
-    this.store.dispatch(setOccupyingUnit({ unit: event }));
+  handleSetObsticleEvent(event: FieldPos): void {
+    this.store.dispatch(setFieldObsticle({ pos: event }));
   }
 
-  handleSetFieldUnblocked(event: FieldPos): void {
-    this.store.dispatch(setFieldUnblocked({ pos: event }));
+  handleSetEmptyEvent(event: FieldPos): void {
+    this.store.dispatch(setFieldEmpty({ pos: event }));
+  }
+
+  // ### Composit actions
+
+  // Reinit board fields, then: add borders (obsticles), then: add 2 particles, then: add 2 more obsticles
+  scenario1() {
+    this.initBoard();
+    this.toggleBordersUp();
+    this.addUnits(2, 2);
+  }
+
+  addUnits(particles: number, obsticles = 0) {
+    this.service.addUnits(particles, obsticles);
   }
 }

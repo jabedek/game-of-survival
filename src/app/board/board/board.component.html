@@ -1,82 +1,27 @@
-<!-- <div [@openClose]="isOpen ? 'open' : 'closed'" class="open-close-container">
-  <p>The box is now {{ isOpen ? "Open" : "Closed" }}!</p>
-</div> -->
-<!-- <div class="onoffswitch">
-  <input
-    type="checkbox"
-    name="onoffswitch"
-    class="onoffswitch-checkbox"
-    id="myonoffswitch"
-    tabindex="0"
-    checked
-    (click)="toggleSwitch()"
-  />
-  <label class="onoffswitch-label" for="myonoffswitch">
-    <span class="onoffswitch-inner"></span>
-    <span class="onoffswitch-switch"></span>
-  </label>
-</div> -->
-<div class="board" *ngIf="fieldDimensions" [ngStyle]="getBoardStyles()">
-  <ng-container *ngFor="let row of fieldDimensions">
-    <ng-container *ngIf="boardMode">
-      <app-field
-        *ngFor="let column of row"
-        [pos]="column"
-        [displayPos]="FIELD_DISPLAY_INFO"
-        [fieldSize]="fieldSize"
-        [displayDetails]="FIELD_DISPLAY_INFO"
-        (toggleFieldBlockade)="handleToggleFieldBlockade($event)"
-        (setFieldOccupyingUnit)="handleSetFieldOccupyingUnit($event)"
-        (setFieldUnblocked)="handleSetFieldUnblocked($event)"
-      >
-      </app-field>
-    </ng-container>
-    <ng-container *ngIf="!boardMode">
-      <app-field
-        *ngFor="let column of row; index as y"
-        [CSSsize]="fieldSize"
-        [pos]="column"
-        [displayPos]="FIELD_DISPLAY_INFO"
-        [displayDetails]="FIELD_DISPLAY_INFO"
-        (toggleFieldBlockade)="handleToggleFieldBlockade($event)"
-        (setFieldOccupyingUnit)="handleSetFieldOccupyingUnit($event)"
-        (setFieldUnblocked)="handleSetFieldUnblocked($event)"
-      >
-      </app-field>
-    </ng-container>
-  </ng-container>
-</div>
+<app-board-container
+  [boardDimensions]="boardDimensions"
+  [fieldSize]="fieldSize"
+  [fields]="fields$ | async"
+  (setParticleEvent)="handleSetParticleEvent($event)"
+  (setObsticleEvent)="handleSetObsticleEvent($event)"
+  (setEmptyEvent)="handleSetEmptyEvent($event)"
+>
+</app-board-container>
+
 <div class="game-panel">
-  <p>
-    available fields: {{ (game.availableBoardFields$ | async).length }} /
+  <p class="available">
+    available fields: {{ (service.emptyBoardFields$ | async).length }} /
     {{ boardDimensions * boardDimensions }}
   </p>
 
-  <!-- <input type="number" [(ngModel)]="boardDimensions" />
-  {{ boardDimensions }} -->
+  <p class="available">
+    brood spaces (4x4): {{ (service.broodSpaces$ | async).length }}
+  </p>
 
-  <ng-container *ngIf="boardMode === 'admin'">
-    <p class="board__button" (click)="reloadBoard()">Reload</p>
-    <p class="board__button" (click)="toggleBorders()">
-      Toggle obsticle borders
-    </p>
-  </ng-container>
+  <p class="board__button" (click)="reloadBoard()">Reload</p>
+
+  <p class="board__button" (click)="toggleBorders()">Toggle obsticle borders</p>
+  <p class="board__button" (click)="scenario1()">
+    Reload with particles & obsticles
+  </p>
 </div>
-
-<!-- <ng-container *ngIf="!boardMode">
-  <div class="board" *ngIf="fieldDimensions" [ngStyle]="getBoardStyles()">
-    <ng-container *ngFor="let row of fieldDimensions; index as x">
-      <app-field
-        *ngFor="let column of row; index as y"
-        [CSSsize]="fieldSize"
-        [pos]="{ x: x, y: y }"
-        [displayPos]="FIELD_DISPLAY_INFO"
-        [displayDetails]="FIELD_DISPLAY_INFO"
-        (toggleFieldBlockade)="handleToggleFieldBlockade($event)"
-        (setFieldOccupyingUnit)="handleSetFieldOccupyingUnit($event)"
-        (setFieldUnblocked)="handleSetFieldUnblocked($event)"
-      >
-      </app-field>
-    </ng-container>
-  </div>
-</ng-container> -->

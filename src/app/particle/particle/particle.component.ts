@@ -26,7 +26,7 @@ const particleUnit: ParticleUnit = {
   unit: {
     name: 'unit',
     groupId: 'darkies',
-    pos: { column: null, row: null },
+    pos: { row: null, column: null },
     id: '123',
   },
   state: initialParticleState,
@@ -77,5 +77,7 @@ export class ParticleComponent implements OnInit, AfterViewInit {
     this.turnDone = true;
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    console.log(this.fieldPos);
+  }
 }

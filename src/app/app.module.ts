@@ -8,7 +8,6 @@ import { StoreModule } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
 import { BoardRoutingModule } from './board/board-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { GameService } from './game/game.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,7 +21,7 @@ import { GameService } from './game/game.service';
     BoardModule,
     StoreModule.forRoot({}),
   ],
-  providers: [GameService],
+  providers: [],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

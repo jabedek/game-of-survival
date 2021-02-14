@@ -83,3 +83,28 @@ export interface BoardState {
  * 2 - occupied by creature
  */
 export type FieldMode = 0 | 1 | 2;
+
+// export enum FieldMode {
+//   EMPTY = 0,
+//   OBSTICLE = 1,
+//   PARTICLE = 2,
+// }
+
+export type FieldReference = string;
+export interface BoardDynamicCSS {
+  sizings: BoardDynamicCSS_sizings;
+  structurings: BoardDynamicCSS_structurings;
+}
+
+export interface BoardDynamicCSS_sizings {
+  boardSize_px: string;
+  fieldSize_px: string;
+}
+
+export interface BoardDynamicCSS_structurings {
+  display: string;
+  'grid-template-columns': string;
+  'grid-template-rows': string;
+  width: string;
+  height: string;
+}

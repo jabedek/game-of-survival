@@ -1,45 +1,22 @@
 import { createAction, props } from '@ngrx/store';
-import { FieldPos, Fields, Unit } from '../shared/types-interfaces';
+import { Field, FieldPos, Fields, Unit } from '../shared/types-interfaces';
 
-// ########################
-// ### Board and Fields ###
-
-// # Managing fields
-export const initFields = createAction(
+export const loadFields = createAction(
   '[Board] Load Fields',
   props<{ fields: Fields }>()
 );
 
-// # Blockade - blocked and optionally blockedBy
-export const toggleFieldBlockade = createAction(
-  '[Board/Field] Toggle Field Blockade',
-  props<{ pos: FieldPos }>()
-);
-export const setFieldsUnblocked = createAction(
-  '[Board] Set All Fields Unblocked'
-);
-
-export const setFieldUnblocked = createAction(
-  '[Board/Field] Set Field Unblocked',
-  props<{ pos: FieldPos }>()
-);
-
-export const setFieldBlockedTrue = createAction(
-  '[Board/Field] Toggle Field Blocked True',
-  props<{ pos: FieldPos }>()
-);
-export const setFieldBlockedFalse = createAction(
-  '[Board/Field] Toggle Field Blocked False',
-  props<{ pos: FieldPos }>()
-);
-
-// # Occupying unit
-export const setOccupyingUnit = createAction(
-  '[Board/Field] Set Field OccupyingUnit',
+export const setFieldParticle = createAction(
+  '[Board/Field] Set Particle on Field ',
   props<{ unit: Unit }>()
 );
 
-export const setFieldOccupyingUnitNull = createAction(
-  '[Board/Field] Set Field OccupyingUnit to Null',
+export const setFieldObsticle = createAction(
+  '[Board/Field] Set Obsticle on Field ',
+  props<{ pos: FieldPos }>()
+);
+
+export const setFieldEmpty = createAction(
+  '[Board/Field] Set Field empty',
   props<{ pos: FieldPos }>()
 );

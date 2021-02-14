@@ -9,6 +9,17 @@ import {
 } from '../shared/types-interfaces';
 import { BOARD_DIMENSIONS } from './board.constants';
 
+export interface NeighborField {
+  at: string;
+  field: Field;
+}
+
+export interface NeighborsRaport {
+  all: NeighborField[];
+  particles: NeighborField[];
+  obsticles: NeighborField[];
+}
+
 export const selectBoard = (state: AppState) => state.board;
 
 export const selectBoardFields = createSelector(
@@ -16,7 +27,7 @@ export const selectBoardFields = createSelector(
   (state: BoardState) => state.fields
 );
 
-export const selectAvailableFieldsTotal = createSelector(
+export const selectEmptyFields = createSelector(
   selectBoardFields,
   (fields: Fields) => {
     let counter0 = 0;
@@ -39,7 +50,7 @@ export const selectAvailableFieldsTotal = createSelector(
 export const selectBoardField = createSelector(
   selectBoard,
   (state: BoardState, props) => {
-    const fieldDetails = state.fields[props.column][props.row];
+    const fieldDetails = state.fields[props.row][props.column];
     // console.log(props);
     return fieldDetails;
   }
@@ -53,19 +64,10 @@ export const selectFieldBlocked = createSelector(
     return field.blocked;
   }
 );
-export const selectUnitNeighborFieldsData = createSelector(
+export const selectFieldNeighbors = createSelector(
   selectBoardFields,
   (fields: Fields, props: FieldPos) => {
-    // console.log(fields);
-
-    // [...fields].forEach((fieldsCol) => {
-    //   [...fieldsCol].forEach((field) => {
-    //     if (field.blocked) console.log('blocked field:', field.pos);
-    //   });
-    // });
-
-    const neighbors: NeighborField[] = getNeighbors([...fields], props);
-    // console.log('selectorneighbors', neighbors);
+    const neighbors: NeighborsRaport = getNeighbors([...fields], props);
 
     return neighbors;
   }
@@ -76,7 +78,7 @@ export const selectBroodSpaces = createSelector(
   (fields: Fields) => {
     // console.log(fields);
 
-    console.log('selectBroodSpaces');
+    // console.log('selectBroodSpaces');
 
     let bss: BroodSpace[] = [];
 
@@ -201,132 +203,140 @@ function checkIfBroodSpaceRoot(
   } else return null;
 }
 
-function getNeighbors(fields: Fields, props: FieldPos) {
-  let neighborFields: Field[] = [];
-  let posA: number;
-  let posB: number;
-  let field: Field;
-  let at = '';
+function isInBoundries(boardDimensions: number, pos: FieldPos) {
+  console.log('checking', pos);
 
-  let neighbors: NeighborField[] = [];
+  if (
+    +pos.row >= 0 &&
+    +pos.column >= 0 &&
+    +pos.row < boardDimensions &&
+    +pos.column < boardDimensions
+  ) {
+    return true;
+  } else return false;
+}
 
-  const column: number = +props.column;
+export function getNeighbors(fields: Fields, props: FieldPos): NeighborsRaport {
+  const col: number = +props.column;
   const row: number = +props.row;
 
-  // 0. north west
-  posB = column - 1;
-  posA = row - 1;
+  let neighbouringFields: NeighborField[] = [];
 
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
-    field = null;
+  let newFields: Field[] = [];
+
+  // DIR: ROW, COL
+
+  // NW: -1, -1
+  if (isInBoundries(fields.length, { row: row - 1, column: col - 1 })) {
+    neighbouringFields.push({
+      field: fields[row - 1][col - 1],
+      at: 'north-west',
+    });
   } else {
-    field = fields[posB][posA];
+    neighbouringFields.push({
+      field: null,
+      at: 'north-west',
+    });
   }
 
-  neighborFields[0] = field;
-  let neighbor0: NeighborField = { at: 'north west', field };
-  neighbors[0] = neighbor0;
-
-  // console.log(posA, posB, field);
-
-  // 1. north
-  posB = column;
-  posA = row - 1;
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
-    field = null;
+  // N: -1, 0
+  if (isInBoundries(fields.length, { row: row - 1, column: col })) {
+    neighbouringFields.push({
+      field: fields[row - 1][col],
+      at: 'north',
+    });
   } else {
-    field = fields[posB][posA];
+    neighbouringFields.push({
+      field: null,
+      at: 'north',
+    });
   }
-  // console.log(field.pos);
 
-  neighborFields[1] = field;
-  let neighbor1: NeighborField = { at: 'north', field };
-  neighbors[1] = neighbor1;
-  // console.log(posA, posB, field);
-
-  // 2. north east
-  posB = column + 1;
-  posA = row - 1;
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
-    field = null;
+  // NE: -1, +1
+  if (isInBoundries(fields.length, { row: row - 1, column: col + 1 })) {
+    neighbouringFields.push({
+      field: fields[row - 1][col + 1],
+      at: 'north-east',
+    });
   } else {
-    field = fields[posB][posA];
+    neighbouringFields.push({
+      field: null,
+      at: 'north-east',
+    });
   }
-  neighborFields[2] = field;
-  let neighbor2: NeighborField = { at: 'north east', field };
-  neighbors[2] = neighbor2;
-  // console.log(posA, posB, field);
 
-  // 3. west
-  posB = column - 1;
-  posA = row;
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
-    field = null;
+  // W: 0, +1
+  if (isInBoundries(fields.length, { row: row, column: col - 1 })) {
+    neighbouringFields.push({
+      field: fields[row][col - 1],
+      at: 'west',
+    });
   } else {
-    field = fields[posB][posA];
+    neighbouringFields.push({
+      field: null,
+      at: 'west',
+    });
   }
-  neighborFields[3] = field;
-  let neighbor3: NeighborField = { at: 'west', field };
-  neighbors[3] = neighbor3;
 
-  // console.log(posA, posB, field);
-
-  // 4. east
-  posB = column + 1;
-  posA = row;
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
-    field = null;
+  // E: 0, +1
+  if (isInBoundries(fields.length, { row: row, column: col + 1 })) {
+    neighbouringFields.push({
+      field: fields[row][col + 1],
+      at: 'east',
+    });
   } else {
-    field = fields[posB][posA];
+    neighbouringFields.push({
+      field: null,
+      at: 'east',
+    });
   }
-  neighborFields[4] = field;
-  let neighbor4: NeighborField = { at: 'east', field };
-  neighbors[4] = neighbor4;
-  // console.log(posA, posB, field);
 
-  // 5. south west
-  posB = column - 1;
-  posA = row + 1;
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
-    field = null;
+  // SW: +1, -1
+  if (isInBoundries(fields.length, { row: row + 1, column: col - 1 })) {
+    neighbouringFields.push({
+      field: fields[row + 1][col - 1],
+      at: 'south-west',
+    });
   } else {
-    field = fields[posB][posA];
+    neighbouringFields.push({
+      field: null,
+      at: 'south-west',
+    });
   }
-  neighborFields[5] = field;
-  let neighbor5: NeighborField = { at: 'south west', field };
-  neighbors[5] = neighbor5;
-  // console.log(posA, posB, field);
 
-  // 6. south
-  posB = column;
-  posA = row + 1;
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
-    field = null;
+  // S: +1, 0
+  if (isInBoundries(fields.length, { row: row + 1, column: col })) {
+    neighbouringFields.push({
+      field: fields[row + 1][col],
+      at: 'south',
+    });
   } else {
-    field = fields[posB][posA];
+    neighbouringFields.push({
+      field: null,
+      at: 'south',
+    });
   }
-  neighborFields[6] = field;
-  let neighbor6: NeighborField = { at: 'south', field };
-  neighbors[6] = neighbor6;
-  // console.log(posA, posB, field);
 
-  // 7. south east
-  posB = column + 1;
-  posA = row + 1;
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
-    field = null;
+  // SE: +1, +1
+  if (isInBoundries(fields.length, { row: row + 1, column: col + 1 })) {
+    neighbouringFields.push({
+      field: fields[row + 1][col + 1],
+      at: 'south-east',
+    });
   } else {
-    field = fields[posB][posA];
+    neighbouringFields.push({
+      field: null,
+      at: 'south-east',
+    });
   }
-  neighborFields[7] = field;
-  let neighbor7: NeighborField = { at: 'south east', field };
-  neighbors[7] = neighbor7;
-  // console.log(posA, posB, field);
-  // console.log(neighbors);
 
-  // console.log(neighborFields);
-  // console.log('getNeighbors', neighborFields);
+  let particles = neighbouringFields.filter(
+    (neighbour) => !!neighbour?.field?.occupyingUnit
+  );
+  let obsticles = neighbouringFields.filter(
+    (neighbour) =>
+      !!neighbour?.field?.blocked && !neighbour?.field?.occupyingUnit
+  );
 
-  // return neighborFields;
-  return neighbors;
+  return { all: neighbouringFields, particles, obsticles };
 }
