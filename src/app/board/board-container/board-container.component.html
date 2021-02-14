@@ -1,7 +1,7 @@
 <div class="board" *ngIf="fields.length > 0" [ngStyle]="CSS.structurings">
   <ng-container *ngFor="let row of fields; let rowPos = index">
     <app-field
-      *ngFor="let column of row; let colPos = index"
+      *ngFor="let column of row; let colPos = index; trackBy: trackByFn"
       [pos]="{ row: rowPos, column: colPos }"
       [fieldSize]="fieldSize"
     >

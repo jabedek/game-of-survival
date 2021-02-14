@@ -6,15 +6,15 @@
 </app-board-container>
 
 <div class="game-panel">
-  <p class="board__button" (click)="checkBoard()">
+  <!-- <p class="board__button" (click)="checkBoard()">
     Check Empty Fields and Brood Spaces
-  </p>
+  </p> -->
   <div class="available">
     <p>Empty Fields: {{ (emptyFields$ | async).length }}</p>
     <p>Brood Spaces: {{ (broodSpaces$ | async).length }}</p>
   </div>
 
-  <!-- <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p> -->
+  <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>
 
   <p class="board__button" (click)="handleClick('toggleBorders')">
     Toggle obsticle borders

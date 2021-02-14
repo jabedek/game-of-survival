@@ -15,6 +15,7 @@ import {
   Fields,
   Unit,
   FieldPos,
+  Field,
 } from 'src/app/shared/types-interfaces';
 import { setFieldObsticle, setFieldParticle } from '../board.actions';
 import { BOARD_DIMENSIONS, FIELD_SIZE } from '../board.constants';
@@ -53,6 +54,10 @@ export class BoardContainerComponent implements OnInit {
     if (changes?.boardDimensions || changes?.fieldSize) {
       this.initBoardWithStylings();
     }
+  }
+
+  trackByFn(index, item: Field) {
+    return `${item.pos.row}${item.pos.column}`;
   }
 
   private initBoardWithStylings() {
