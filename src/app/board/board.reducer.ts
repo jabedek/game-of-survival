@@ -1,5 +1,5 @@
 import { Action, createReducer, on } from '@ngrx/store';
-import { BoardState, Field, Fields } from '../shared/types-interfaces';
+import { BoardState, Brood, Field, Fields } from '../shared/types-interfaces';
 
 import * as appActions from './board.actions';
 

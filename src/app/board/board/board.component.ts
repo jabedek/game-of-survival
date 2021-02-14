@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   OnChanges,
   OnDestroy,
@@ -9,14 +10,20 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
+import { selectBroodsOnBoard, selectBroodSpaces } from 'src/app/broods';
+import { BroodsService } from 'src/app/broods/broods.service';
 import {
   AppState,
+  Brood,
+  BroodSpaceRaport,
   Field,
   FieldPos,
   Fields,
+  ParticleUnit,
+  ParticleUnitSimplified,
   Unit,
 } from 'src/app/shared/types-interfaces';
-import { selectBoardFields, selectBroodSpaces, selectEmptyFields } from '..';
+import { selectBoardFields, selectEmptyFields } from '..';
 import {
   setFieldParticle,
   setFieldObsticle,
@@ -35,11 +42,16 @@ import { BoardService } from '../board.service';
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-  constructor(public store: Store<AppState>, public service: BoardService) {}
+  constructor(
+    public store: Store<AppState>,
+    public boardService: BoardService,
+    public broodService: BroodsService,
+    public cdr: ChangeDetectorRef
+  ) {}
 
   boardDimensions = BOARD_DIMENSIONS;
 
@@ -48,22 +60,61 @@ export class BoardComponent
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
 
   borderObsticlesUp = false;
-
+  broodSpaceRaport$: Observable<BroodSpaceRaport[]> = this.store.select(
+    selectBroodSpaces
+  );
+  broodSpaceRaport: BroodSpaceRaport[] = null;
+  broodsOnBoard: Observable<Brood[]> = this.store.select(selectBroodsOnBoard);
   fields$: Observable<Fields> = this.store.select(selectBoardFields);
   emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
   emptyFieldsTotal = 0;
 
-  broodSpaces$: Observable<Fields> = this.store.select(selectBroodSpaces);
   broodSpacesTotal = 0;
   subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
     this.initBoard();
-    this.checkBoard();
+    this.getAllBroodSpaces();
+    this.broodSpaceRaport$.subscribe((data) => {
+      this.broodSpaceRaport = data;
+    });
 
     this.toggleBordersDown();
+
+    this.addNewBroodBSRRootRandomly();
+
+    // NIE USUWAĆ - TESTY
+    // function getNeighbors() {
+    //   return this.neighborsTotal;
+    // }
+    // const pos: FieldPos = { row: 1, column: 1 };
+    // const unit: ParticleUnitSimplified = {
+    //   id: 'uniton-0',
+    //   groupId: 'unitons',
+    //   pos,
+    //   getNeighbors,
+    // };
+    // this.store.dispatch(setFieldParticle({ unit }));
+
+    // this.addNewBroodBSRRoot()
   }
-  ngAfterViewInit() {}
+
+  addNewBroodBSRRoot() {
+    this.broodService.addNewBroodBSRRoot('uniton', this.broodSpaceRaport[0]);
+  }
+
+  addNewBroodBSRRootRandomly() {
+    let randomBSR = Math.floor(Math.random() * this.broodSpaceRaport.length);
+    // this.broodSpaceRaport;
+    this.broodService.addNewBroodBSRRoot(
+      'uniton',
+      this.broodSpaceRaport[randomBSR]
+    );
+  }
+
+  ngAfterViewInit() {
+    // this.cdr.markForCheck();
+  }
   ngOnChanges(changes: SimpleChanges) {}
 
   ngOnDestroy(): void {
@@ -72,46 +123,30 @@ export class BoardComponent
 
   initBoard() {
     this.borderObsticlesUp = false;
-    this.service.initEmptyFields(this.boardDimensions);
-  }
-
-  checkBroodSpaces() {
-    return this.broodSpaces$
-      .subscribe((data) => {
-        this.broodSpacesTotal = data.length;
-      })
-      .unsubscribe();
+    this.boardService.initEmptyFields(this.boardDimensions);
   }
 
   handleClick(type: string) {
-    switch (type) {
-      case 'reloadBoard':
-        this.reloadBoard();
-        break;
-
-      case 'toggleBorders':
-        this.toggleBorders();
-        break;
-
-      case 'scenario1':
-        this.scenario1();
-        break;
-    }
-
-    // this.checkBoard();
+    this[type]();
   }
 
-  checkEmptySpaces() {
-    return this.emptyFields$
+  getEmptyFields() {
+    this.boardService
+      .getEmptyFields()
       .subscribe((data) => {
         this.emptyFieldsTotal = data.length;
       })
       .unsubscribe();
   }
 
-  checkBoard() {
-    this.checkBroodSpaces();
-    this.checkEmptySpaces();
+  getAllBroodSpaces() {
+    this.broodService
+      .getAllBroodSpaces()
+      .subscribe((data) => {
+        this.broodSpacesTotal = data.length;
+      })
+      .unsubscribe();
+    // this.getEmptyFields();
   }
 
   reloadBoard() {
@@ -121,31 +156,28 @@ export class BoardComponent
 
   toggleBordersUp() {
     this.borderObsticlesUp = false;
-    this.service.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
+    this.boardService.toggleBorders(
+      this.boardDimensions,
+      this.borderObsticlesUp
+    );
     this.borderObsticlesUp = true;
   }
 
   toggleBordersDown() {
     this.borderObsticlesUp = true;
-    this.service.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
+    this.boardService.toggleBorders(
+      this.boardDimensions,
+      this.borderObsticlesUp
+    );
     this.borderObsticlesUp = false;
   }
 
   toggleBorders(): void {
-    this.service.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
+    this.boardService.toggleBorders(
+      this.boardDimensions,
+      this.borderObsticlesUp
+    );
     this.borderObsticlesUp = !this.borderObsticlesUp;
-  }
-
-  handleSetParticleEvent(event: Unit): void {
-    this.store.dispatch(setFieldParticle({ unit: event }));
-  }
-
-  handleSetObsticleEvent(event: FieldPos): void {
-    this.store.dispatch(setFieldObsticle({ pos: event }));
-  }
-
-  handleSetEmptyEvent(event: FieldPos): void {
-    this.store.dispatch(setFieldEmpty({ pos: event }));
   }
 
   // ### Composit actions
@@ -158,6 +190,6 @@ export class BoardComponent
   }
 
   addUnits(particles: number, obsticles = 0) {
-    this.service.addUnits(particles, obsticles);
+    this.boardService.addUnits(particles, obsticles);
   }
 }

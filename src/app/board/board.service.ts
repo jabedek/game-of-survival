@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import * as uuid from 'uuid';
-import { selectEmptyFields, selectBroodSpaces, selectBoardFields } from '.';
+import { selectEmptyFields, selectBoardFields } from '.';
+import { selectBroodSpaces } from '../broods';
 import {
   AppState,
   BoardDynamicCSS,
   BoardDynamicCSS_structurings,
   BroodSpace,
+  BroodSpaceRaport,
   Field,
   FieldPos,
   FieldReference,
@@ -20,6 +22,7 @@ import {
   setFieldObsticle,
   setFieldParticle,
 } from './board.actions';
+import { getBoardLayoutStructurings, getPxSizings } from './board.helpers';
 
 @Injectable({
   providedIn: 'root',
@@ -28,53 +31,22 @@ export class BoardService {
   constructor(public store: Store<AppState>) {}
 
   fields$: Observable<Fields> = this.store.select(selectBoardFields);
+  emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
+  emptyFieldsTotal = 0;
 
   emptyBoardFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
 
-  broodSpaces$: Observable<BroodSpace[]> = this.store.select(selectBroodSpaces);
+  broodSpaces$: Observable<BroodSpaceRaport[]> = this.store.select(
+    selectBroodSpaces
+  );
 
   getStylingsDetails(
     boardDimensions: number,
     fieldSize: number
   ): BoardDynamicCSS {
     return {
-      sizings: this.getPxSizings(boardDimensions, fieldSize),
-      structurings: this.getBoardLayoutStructurings(boardDimensions, fieldSize),
-    };
-  }
-
-  private getBoardSize_CSSpx(
-    boardDimensions: number,
-    fieldSize: number
-  ): string {
-    return `${boardDimensions * fieldSize}px`;
-  }
-
-  private getFieldSize_CSSpx(fieldSize: number): string {
-    return `${fieldSize}px`;
-  }
-
-  private getPxSizings(boardDimensions: number, fieldSize: number) {
-    return {
-      boardSize_px: this.getBoardSize_CSSpx(boardDimensions, fieldSize),
-      fieldSize_px: this.getFieldSize_CSSpx(fieldSize),
-    };
-  }
-
-  private getBoardLayoutStructurings(
-    boardDimensions: number,
-    fieldSize: number
-  ): BoardDynamicCSS_structurings {
-    return {
-      display: 'grid',
-      'grid-template-columns': `repeat(${boardDimensions}, ${this.getFieldSize_CSSpx(
-        fieldSize
-      )})`,
-      'grid-template-rows': `repeat(${boardDimensions}, ${this.getFieldSize_CSSpx(
-        fieldSize
-      )})`,
-      width: ` ${this.getBoardSize_CSSpx(boardDimensions, fieldSize)}`,
-      height: ` ${this.getBoardSize_CSSpx(boardDimensions, fieldSize)}`,
+      sizings: getPxSizings(boardDimensions, fieldSize),
+      structurings: getBoardLayoutStructurings(boardDimensions, fieldSize),
     };
   }
 
@@ -243,5 +215,9 @@ export class BoardService {
         }
       })
       .unsubscribe();
+  }
+
+  getEmptyFields() {
+    return this.emptyFields$;
   }
 }

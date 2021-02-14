@@ -8,11 +8,12 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { NeighborsRaport, selectFieldNeighbors } from 'src/app/board';
+import { selectFieldNeighbors } from 'src/app/board';
 import { FIELD_SIZE, NEIGHBORS_FOR_REPRO } from 'src/app/board/board.constants';
 import {
   AppState,
   FieldPos,
+  NeighborsRaport,
   ParticleState,
   ParticleUnit,
 } from 'src/app/shared/types-interfaces';
@@ -69,6 +70,8 @@ export class ParticleComponent implements OnInit, AfterViewInit, OnDestroy {
   subscriptionNeighbors: Subscription = new Subscription();
   neighbors$: Observable<NeighborsRaport>;
 
+  neighbors: NeighborsRaport = null;
+
   constructor(public store: Store<AppState>) {
     this.particleUnit = particleUnit;
   }
@@ -79,6 +82,8 @@ export class ParticleComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptionNeighbors.add(
       this.neighbors$.subscribe((data) => {
         // console.log(this.fieldPos, data);
+
+        this.neighbors = data;
       })
     );
   }

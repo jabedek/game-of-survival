@@ -10,8 +10,9 @@
     Check Empty Fields and Brood Spaces
   </p> -->
   <div class="available">
-    <p>Empty Fields: {{ (emptyFields$ | async).length }}</p>
-    <p>Brood Spaces: {{ (broodSpaces$ | async).length }}</p>
+    <p>Empty Fields: {{ (boardService.getEmptyFields() | async).length }}</p>
+    <p>Brood Spaces: {{ (broodService.getAllBroodSpaces() | async).length }}</p>
+    <p>Brood so far: {{ (broodService.getBroodsOnBoard() | async)?.length }}</p>
   </div>
 
   <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>
@@ -21,5 +22,8 @@
   </p>
   <p class="board__button" (click)="handleClick('scenario1')">
     Borders & particles & additional obsticles
+  </p>
+  <p class="board__button" (click)="handleClick('addNewBroodBSRRootRandomly')">
+    Add new Brood randomly
   </p>
 </div>

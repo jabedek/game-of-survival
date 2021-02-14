@@ -23,14 +23,8 @@ import {
   Fields,
   Unit,
 } from 'src/app/shared/types-interfaces';
-import {
-  NeighborsRaport,
-  selectBoardField,
-  selectBoardFields,
-  selectFieldNeighbors,
-} from '..';
+import { selectBoardField, selectBoardFields, selectFieldNeighbors } from '..';
 import { FIELD_SIZE } from '../board.constants';
-import { NeighborField } from '../index';
 import * as uuid from 'uuid';
 import {
   setFieldEmpty,

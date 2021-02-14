@@ -4,9 +4,9 @@
       *ngFor="let column of row; let colPos = index; trackBy: trackByFn"
       [pos]="{ row: rowPos, column: colPos }"
       [fieldSize]="fieldSize"
+      [displayPos]="FIELD_DISPLAY_INFO"
+      [displayDetails]="FIELD_DISPLAY_INFO"
     >
-      <!-- [displayPos]="FIELD_DISPLAY_INFO"
-      [displayDetails]="FIELD_DISPLAY_INFO" -->
     </app-field>
   </ng-container>
 </div>

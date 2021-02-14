@@ -1,5 +1,11 @@
 import { createAction, props } from '@ngrx/store';
-import { Field, FieldPos, Fields, Unit } from '../shared/types-interfaces';
+import {
+  Brood,
+  Field,
+  FieldPos,
+  Fields,
+  Unit,
+} from '../shared/types-interfaces';
 
 export const loadFields = createAction(
   '[Board] Load Fields',

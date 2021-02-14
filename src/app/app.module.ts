@@ -8,6 +8,7 @@ import { StoreModule } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
 import { BoardRoutingModule } from './board/board-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BroodsModule } from './broods/broods.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -19,6 +20,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     FormsModule,
     ReactiveFormsModule,
     BoardModule,
+    BroodsModule,
     StoreModule.forRoot({}),
   ],
   providers: [],
