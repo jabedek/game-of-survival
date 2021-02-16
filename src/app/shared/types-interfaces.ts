@@ -103,16 +103,22 @@ export interface FieldPropertyUpdateDetails {
 export interface AppState {
   board: BoardState;
   particleUnits: ParticleUnit[];
-  broods: BroodsState;
+  // broods: BroodsState;
 }
+
+// export interface BoardState {
+//   fields: [] | Fields;
+// }
 
 export interface BoardState {
   fields: [] | Fields;
+  broodsOnBoard: Brood[];
+  raport: BroodSpaceRaport[];
 }
 
 export interface BroodsState {
   broodsOnBoard: Brood[];
-  raport: BroodSpaceRaport;
+  raport: BroodSpaceRaport[];
 }
 
 /**

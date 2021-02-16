@@ -4,6 +4,7 @@ import {
   BoardState,
   BroodSpace,
   BroodSpaceRaport,
+  BroodsState,
   Field,
   FieldPos,
   Fields,
@@ -14,19 +15,51 @@ import { BOARD_DIMENSIONS } from './board.constants';
 import * as HELPERS from './board.helpers';
 
 export const selectBoard = (state: AppState) => state.board;
+export const selectParticleUnits = (state: AppState) => state.particleUnits;
 
-export const featureSelector = createFeatureSelector<BoardState>('board');
+// export const featureSelector = createFeatureSelector<BoardState>('broods');
 
-export const fieldsSelector = createSelector(
-  featureSelector,
-  (state: BoardState) => state.fields
+// export const featureSelector = createFeatureSelector<BoardState>('board');
+
+export const selectBroodsOnBoard = createSelector(
+  selectBoard,
+  (state: BoardState) => {
+    return state.broodsOnBoard;
+  }
+);
+export const selectBroodsRaport = createSelector(
+  selectBoard,
+  (state: BoardState) => state.raport
 );
 
 export const selectBoardFields = createSelector(
-  featureSelector,
+  selectBoard,
   (state: BoardState) => state.fields
 );
 
+export const selectBroodSpaces = createSelector(
+  selectBoardFields,
+  (fields: Fields) => {
+    let bss: BroodSpace[] = [];
+    let bssRootPos: any[] = [];
+
+    let raport: BroodSpaceRaport[] = [];
+
+    [...fields].forEach((fieldsCol) => {
+      [...fieldsCol].forEach((field) => {
+        let result = HELPERS.checkIfBroodSpaceRoot([...fields], field.pos);
+        if (result !== null) {
+          bssRootPos.push(field.pos);
+          bss.push(result);
+
+          raport.push({ startingPos: field.pos, space: result });
+        }
+      });
+    });
+
+    return raport;
+  }
+);
 export const selectEmptyFields = createSelector(
   selectBoardFields,
   (fields: Fields) => {

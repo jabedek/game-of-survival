@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { selectBroodsOnBoard, selectBroodSpaces } from '.';
-import { setFieldParticle } from '../board/board.actions';
-import { BoardService } from '../board/board.service';
+import { addBrood, clearBroods, setFieldParticle } from './board.actions';
+import { BoardService } from './board.service';
 import {
   AppState,
   Brood,
@@ -11,7 +10,8 @@ import {
   BroodSpaceRaport,
   Unit,
 } from '../shared/types-interfaces';
-import { addBrood } from './broods.actions';
+import { selectBroodsOnBoard, selectBroodSpaces } from '.';
+// import { addBrood } from './broods.actions';
 
 @Injectable({
   providedIn: 'root',
@@ -42,27 +42,28 @@ export class BroodsService {
   }
 
   addNewBroodBSRRoot(id: string, bsr: BroodSpaceRaport) {
-    const fallbackId = `${id}s` || `unitons-${this.broods.length}`;
-    const fallbackUnits: Unit[] = bsr.space.map((s, index) => {
-      return new Unit(`${id}-${index}`, fallbackId, s.pos);
-    });
+    if (bsr) {
+      const fallbackId = `${id}s` || `unitons-${this.broods.length}`;
+      const fallbackUnits: Unit[] = bsr.space.map((s, index) => {
+        return new Unit(`${id}-${index}`, fallbackId, s.pos);
+      });
 
-    let brood = new Brood(fallbackId, fallbackUnits);
-    // console.log(brood);
+      let brood = new Brood(fallbackId, fallbackUnits);
 
-    // this.broods.push(brood);
+      brood.units.forEach((unit) => {
+        this.store.dispatch(setFieldParticle({ unit }));
+      });
 
-    this.store.dispatch(addBrood({ brood }));
-
-    brood.units.forEach((unit) => {
-      this.store.dispatch(setFieldParticle({ unit }));
-    });
-
-    // console.log(this.broods);
+      this.store.dispatch(addBrood({ brood }));
+    }
   }
 
   getAllBroodSpaces() {
     return this.broodSpaces$;
+  }
+
+  setBroodsOnBoardEmpty() {
+    this.store.dispatch(clearBroods());
   }
 
   constructor(public store: Store<AppState>, public service: BoardService) {}

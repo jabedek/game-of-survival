@@ -7,10 +7,41 @@ export const featureKey = 'board';
 
 export const initialBoardState: BoardState = {
   fields: [],
+  broodsOnBoard: [],
+  raport: null,
 };
 
 const authReducer = createReducer(
   initialBoardState,
+  on(appActions.removeBrood, (state, { id }) => {
+    let newBroods = [...state.broodsOnBoard.filter((b) => b.id !== id)];
+
+    return {
+      ...state,
+      broodsOnBoard: newBroods,
+    };
+  }),
+
+  on(appActions.addBrood, (state: BoardState, { brood }) => {
+    const broodsOnBoard: Brood[] = [
+      ...[...state.broodsOnBoard].map((data) => data),
+      brood,
+    ];
+    console.log(broodsOnBoard);
+
+    return {
+      ...state,
+      broodsOnBoard: [...state.broodsOnBoard, brood],
+    };
+  }),
+
+  on(appActions.clearBroods, (state) => {
+    return {
+      ...state,
+      broodsOnBoard: [],
+    };
+  }),
+
   on(appActions.loadFields, (state, { fields }) => {
     return {
       ...state,

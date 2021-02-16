@@ -26,3 +26,15 @@ export const setFieldEmpty = createAction(
   '[Board/Field] Set Field empty',
   props<{ pos: FieldPos }>()
 );
+
+export const addBrood = createAction(
+  '[Board/Field] Add Broot on Root',
+  props<{ brood: Brood }>()
+);
+
+export const removeBrood = createAction(
+  '[Board/Field] Remove Brood',
+  props<{ id: string }>()
+);
+
+export const clearBroods = createAction('[Board/Field] Clear Broods');

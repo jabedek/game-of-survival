@@ -8,7 +8,8 @@ import { StoreModule } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
 import { BoardRoutingModule } from './board/board-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BroodsModule } from './broods/broods.module';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [AppComponent],
@@ -20,8 +21,8 @@ import { BroodsModule } from './broods/broods.module';
     FormsModule,
     ReactiveFormsModule,
     BoardModule,
-    BroodsModule,
     StoreModule.forRoot({}),
+    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
   ],
   providers: [],
   bootstrap: [AppComponent],

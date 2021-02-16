@@ -13,8 +13,14 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BoardService } from './board.service';
 import { BoardContainerComponent } from './board-container/board-container.component';
+import { BroodComponent } from './brood/brood.component';
 
-const components = [BoardComponent, FieldComponent, BoardContainerComponent];
+const components = [
+  BoardComponent,
+  FieldComponent,
+  BoardContainerComponent,
+  BroodComponent,
+];
 @NgModule({
   declarations: components,
   imports: [

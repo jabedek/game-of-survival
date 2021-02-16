@@ -10,8 +10,7 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { selectBroodsOnBoard, selectBroodSpaces } from 'src/app/broods';
-import { BroodsService } from 'src/app/broods/broods.service';
+import { BroodsService } from 'src/app/board/broods.service';
 import {
   AppState,
   Brood,
@@ -23,7 +22,12 @@ import {
   ParticleUnitSimplified,
   Unit,
 } from 'src/app/shared/types-interfaces';
-import { selectBoardFields, selectEmptyFields } from '..';
+import {
+  selectBoardFields,
+  selectBroodsOnBoard,
+  selectBroodSpaces,
+  selectEmptyFields,
+} from '..';
 import {
   setFieldParticle,
   setFieldObsticle,
@@ -73,6 +77,8 @@ export class BoardComponent
   subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
+    // this.store.select(selectBroodsOnBoard).subscribe((data) => console.log(''));
+
     this.initBoard();
     this.getAllBroodSpaces();
     this.broodSpaceRaport$.subscribe((data) => {
@@ -124,6 +130,7 @@ export class BoardComponent
   initBoard() {
     this.borderObsticlesUp = false;
     this.boardService.initEmptyFields(this.boardDimensions);
+    this.broodService.setBroodsOnBoardEmpty();
   }
 
   handleClick(type: string) {

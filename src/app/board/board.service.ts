@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import * as uuid from 'uuid';
-import { selectEmptyFields, selectBoardFields } from '.';
-import { selectBroodSpaces } from '../broods';
+import { selectEmptyFields, selectBoardFields, selectBroodSpaces } from '.';
 import {
   AppState,
   BoardDynamicCSS,
