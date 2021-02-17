@@ -81,14 +81,29 @@ export class BoardComponent
   subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
-    this.particlesOnBoard$
-      .pipe(
-        mergeMap(() => {
-          return this.store.select(selectBroodsOnBoard);
+    this.subscription.add(
+      this.particlesOnBoard$
+        .pipe(
+          mergeMap(() => {
+            return this.store.select(selectBroodsOnBoard);
+          })
+        )
+        .subscribe((data: Brood[]) => {
+          if (data.length) {
+            data.forEach((brood) => {
+              if (!brood.units.length) {
+                this.store.dispatch(removeBrood({ id: brood.id }));
+              }
+            });
+
+            this.cdr.markForCheck();
+          }
         })
-      )
-      .subscribe((data: Brood[]) => {
-        if (data && data[0]) {
+    );
+
+    this.subscription.add(
+      this.store.select(selectBroodsOnBoard).subscribe((data) => {
+        if (data.length) {
           data.forEach((brood) => {
             if (!brood.units.length) {
               this.store.dispatch(removeBrood({ id: brood.id }));
@@ -97,13 +112,17 @@ export class BoardComponent
 
           this.cdr.markForCheck();
         }
-      });
+      })
+    );
+
+    this.subscription.add(
+      this.validBroodSpaces$.subscribe((data) => {
+        this.validBroodSpaces = data;
+      })
+    );
 
     this.initBoard();
-    this.getAllValidBroodSpaces();
-    this.validBroodSpaces$.subscribe((data) => {
-      this.validBroodSpaces = data;
-    });
+    // this.getAllValidBroodSpaces();
 
     this.toggleBordersDown();
 
@@ -157,23 +176,24 @@ export class BoardComponent
     });
   }
 
-  getEmptyFields() {
-    this.boardService
-      .getEmptyFields$()
-      .subscribe((data) => {
-        this.emptyFieldsTotal = data.length;
-      })
-      .unsubscribe();
-  }
+  // getEmptyFields() {
 
-  getAllValidBroodSpaces() {
-    this.broodService
-      .getAllValidBroodSpaces$()
-      .subscribe((data) => {
-        this.broodSpacesTotal = data.length;
-      })
-      .unsubscribe();
-  }
+  //   this.boardService
+  //     .getEmptyFields$()
+  //     .subscribe((data) => {
+  //       this.emptyFieldsTotal = data.length;
+  //     })
+  //     .unsubscribe();
+  // }
+
+  // getAllValidBroodSpaces() {
+  //   this.broodService
+  //     .getAllValidBroodSpaces$()
+  //     .subscribe((data) => {
+  //       this.broodSpacesTotal = data.length;
+  //     })
+  //     .unsubscribe();
+  // }
 
   reloadBoard() {
     this.initBoard();

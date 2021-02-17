@@ -121,7 +121,7 @@ export class FieldComponent
 
   addBrood(event) {
     event.preventDefault();
-    this.broodsService.addNewBroodOnContextmenu('eriton', this.pos, 'red');
+    this.broodsService.addNewBroodOnContextmenu('eritons', this.pos, 'red');
     this.cdr.markForCheck();
   }
 

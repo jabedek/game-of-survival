@@ -53,7 +53,7 @@ export class BroodsService {
     color: ParticleColor
   ) {
     if (bsr) {
-      const fallbackId = `nuniton-${this.broodsOnBoard.length}`;
+      const fallbackId = `nunitons-${this.broodsOnBoard.length}`;
       const fallbackUnits: ParticleUnit[] = bsr.space.map((s, index) => {
         return new ParticleUnit(fallbackId, s.pos, color, `nunitons`);
       });
@@ -73,7 +73,7 @@ export class BroodsService {
     pos: FieldPos,
     color: ParticleColor = 'red'
   ) {
-    const fallbackId = `${id}s` || `unitons-${this.broodsOnBoard.length}`;
+    const fallbackId = 'eritons' || `unitons-${this.broodsOnBoard.length}`;
 
     const fallbackUnits = [
       new ParticleUnit(
@@ -83,7 +83,7 @@ export class BroodsService {
           column: pos.column,
         },
         color,
-        `${id}-${0}`
+        'eritons'
       ),
       new ParticleUnit(
         fallbackId,
@@ -92,7 +92,7 @@ export class BroodsService {
           column: pos.column + 1,
         },
         color,
-        `${id}-${1}`
+        'eritons'
       ),
       new ParticleUnit(
         fallbackId,
@@ -101,7 +101,7 @@ export class BroodsService {
           column: pos.column,
         },
         color,
-        `${id}-${2}`
+        'eritons'
       ),
       new ParticleUnit(
         fallbackId,
@@ -110,7 +110,7 @@ export class BroodsService {
           column: pos.column + 1,
         },
         color,
-        `${id}-${3}`
+        'eritons'
       ),
     ];
 
