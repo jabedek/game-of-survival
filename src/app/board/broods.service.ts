@@ -7,48 +7,59 @@ import {
   AppState,
   Brood,
   BroodSpace,
-  BroodSpaceRaport,
+  ValidPotentialBroodSpace,
+  FieldPos,
   Unit,
+  ParticleUnit,
+  ParticleColor,
 } from '../shared/types-interfaces';
-import { selectBroodsOnBoard, selectBroodSpaces } from '.';
+import { selectBroodsOnBoard, selectValidBroodSpaces } from '.';
 // import { addBrood } from './broods.actions';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BroodsService {
-  public broods: Brood[] = [];
+  public broodsOnBoard: Brood[] = [];
+  constructor(public store: Store<AppState>, public service: BoardService) {
+    this.store
+      .select(selectBroodsOnBoard)
+      .subscribe((data) => (this.broodsOnBoard = data));
+  }
 
-  // broodsOnBoard$: Observable<Brood[]> = this.store.select(selectBroodsOnBoard);
-
-  broodSpaces$: Observable<BroodSpaceRaport[]> = this.store.select(
-    selectBroodSpaces
+  validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(
+    selectValidBroodSpaces
   );
 
   getBroodById(id: string) {
-    return this.broods.find((brood) => brood.id === id);
+    return this.broodsOnBoard.find((brood) => brood.id === id);
   }
 
   getBroodByIndex(index: number) {
-    return this.broods[index];
+    return this.broodsOnBoard[index];
   }
 
   getUnit(id: string) {
-    return this.broods.forEach((b) => b.units.find((u) => u.id === id));
+    return this.broodsOnBoard.forEach((b) => b.units.find((u) => u.id === id));
   }
 
-  getBroodsOnBoard() {
+  getBroodsOnBoard$() {
     return this.store.select(selectBroodsOnBoard);
   }
 
-  addNewBroodBSRRoot(id: string, bsr: BroodSpaceRaport) {
+  addNewBroodBSRRoot(
+    id: string,
+    bsr: ValidPotentialBroodSpace,
+    color: ParticleColor
+  ) {
     if (bsr) {
-      const fallbackId = `${id}s` || `unitons-${this.broods.length}`;
-      const fallbackUnits: Unit[] = bsr.space.map((s, index) => {
-        return new Unit(`${id}-${index}`, fallbackId, s.pos);
+      const fallbackId = `nuniton-${this.broodsOnBoard.length}`;
+      const fallbackUnits: ParticleUnit[] = bsr.space.map((s, index) => {
+        return new ParticleUnit(fallbackId, s.pos, color, `nunitons`);
       });
 
-      let brood = new Brood(fallbackId, fallbackUnits);
+      let brood = new Brood('nunitons', fallbackUnits, color);
+      console.log(brood);
 
       brood.units.forEach((unit) => {
         this.store.dispatch(setFieldParticle({ unit }));
@@ -58,13 +69,68 @@ export class BroodsService {
     }
   }
 
-  getAllBroodSpaces() {
-    return this.broodSpaces$;
+  addNewBroodOnContextmenu(
+    id: string,
+    pos: FieldPos,
+    color: ParticleColor = 'red'
+  ) {
+    const fallbackId = `${id}s` || `unitons-${this.broodsOnBoard.length}`;
+
+    const fallbackUnits = [
+      new ParticleUnit(
+        fallbackId,
+        {
+          row: pos.row,
+          column: pos.column,
+        },
+        color,
+        `${id}-${0}`
+      ),
+      new ParticleUnit(
+        fallbackId,
+        {
+          row: pos.row,
+          column: pos.column + 1,
+        },
+        color,
+        `${id}-${1}`
+      ),
+      new ParticleUnit(
+        fallbackId,
+        {
+          row: pos.row + 1,
+          column: pos.column,
+        },
+        color,
+        `${id}-${2}`
+      ),
+      new ParticleUnit(
+        fallbackId,
+        {
+          row: pos.row + 1,
+          column: pos.column + 1,
+        },
+        color,
+        `${id}-${3}`
+      ),
+    ];
+
+    let brood = new Brood(fallbackId, fallbackUnits, color);
+    console.log(brood);
+
+    brood.units.forEach((unit) => {
+      this.store.dispatch(setFieldParticle({ unit }));
+    });
+
+    this.store.dispatch(addBrood({ brood }));
+    // this.c
   }
 
-  setBroodsOnBoardEmpty() {
+  getAllValidBroodSpaces$() {
+    return this.validBroodSpaces$;
+  }
+
+  clearBroods() {
     this.store.dispatch(clearBroods());
   }
-
-  constructor(public store: Store<AppState>, public service: BoardService) {}
 }

@@ -2,18 +2,23 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import * as uuid from 'uuid';
-import { selectEmptyFields, selectBoardFields, selectBroodSpaces } from '.';
+import {
+  selectEmptyFields,
+  selectBoardFields,
+  selectValidBroodSpaces,
+} from '.';
 import {
   AppState,
   BoardDynamicCSS,
   BoardDynamicCSS_structurings,
   BroodSpace,
-  BroodSpaceRaport,
+  ValidPotentialBroodSpace,
   Field,
   FieldPos,
   FieldReference,
   Fields,
   Unit,
+  ParticleUnit,
 } from '../shared/types-interfaces';
 import {
   loadFields,
@@ -35,8 +40,8 @@ export class BoardService {
 
   emptyBoardFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
 
-  broodSpaces$: Observable<BroodSpaceRaport[]> = this.store.select(
-    selectBroodSpaces
+  validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(
+    selectValidBroodSpaces
   );
 
   getStylingsDetails(
@@ -49,6 +54,10 @@ export class BoardService {
     };
   }
 
+  getAllFields$() {
+    return this.store.select(selectBoardFields);
+  }
+
   getInitialBoard(boardDimensions): FieldReference[][] {
     let board: FieldReference[][] = [];
     for (let x = 0; x < boardDimensions; x++) {
@@ -59,6 +68,10 @@ export class BoardService {
     }
 
     return board;
+  }
+
+  getEmptyFields$() {
+    return this.emptyFields$;
   }
 
   initFields(boardDimensions): Fields {
@@ -173,7 +186,7 @@ export class BoardService {
 
   private putUnitOnEmptyField(type) {
     let success = false;
-    let newUnit: Unit = null;
+    let newUnit: ParticleUnit = null;
     let board: Field[] = [];
 
     this.store
@@ -188,11 +201,12 @@ export class BoardService {
 
             if (!rndmlySelectedField.blocked) {
               if (type === 'particle') {
-                const unit: Unit = {
-                  pos: rndmlySelectedField.pos,
-                  id: 'animalien-0',
-                  groupId: 'animaliens',
-                };
+                const unit: ParticleUnit = new ParticleUnit(
+                  'animalien-0',
+                  rndmlySelectedField.pos,
+                  'blue',
+                  'animaliens'
+                );
 
                 newUnit = unit;
                 success = true;
@@ -214,9 +228,5 @@ export class BoardService {
         }
       })
       .unsubscribe();
-  }
-
-  getEmptyFields() {
-    return this.emptyFields$;
   }
 }

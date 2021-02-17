@@ -6,13 +6,15 @@
 </app-board-container>
 
 <div class="game-panel">
-  <!-- <p class="board__button" (click)="checkBoard()">
-    Check Empty Fields and Brood Spaces
-  </p> -->
   <div class="available">
-    <p>Empty Fields: {{ (boardService.getEmptyFields() | async).length }}</p>
-    <p>Brood Spaces: {{ (broodService.getAllBroodSpaces() | async).length }}</p>
-    <p>Brood so far: {{ (broodService.getBroodsOnBoard() | async)?.length }}</p>
+    <p>Empty Fields: {{ (boardService.getEmptyFields$() | async).length }}</p>
+    <p>
+      Brood Spaces:
+      {{ (broodService.getAllValidBroodSpaces$() | async).length }}
+    </p>
+    <p>
+      Brood so far: {{ (broodService.getBroodsOnBoard$() | async)?.length }}
+    </p>
   </div>
 
   <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>

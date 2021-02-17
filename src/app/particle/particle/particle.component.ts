@@ -10,8 +10,10 @@ import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { selectFieldNeighbors } from 'src/app/board';
 import { FIELD_SIZE, NEIGHBORS_FOR_REPRO } from 'src/app/board/board.constants';
+import { BroodsService } from 'src/app/board/broods.service';
 import {
   AppState,
+  Brood,
   FieldPos,
   NeighborsRaport,
   ParticleState,
@@ -35,11 +37,10 @@ const initialParticleState: ParticleState = {
 };
 
 const particleUnit: ParticleUnit = {
-  unit: {
-    groupId: 'darkies',
-    pos: { row: null, column: null },
-    id: 'unit-123',
-  },
+  groupId: 'darkies',
+  pos: { row: null, column: null },
+  id: 'unit-123',
+  color: 'red',
   state: initialParticleState,
   getState: () => {
     return particleUnit.state;
@@ -62,18 +63,25 @@ const particleUnit: ParticleUnit = {
 })
 export class ParticleComponent implements OnInit, AfterViewInit, OnDestroy {
   CSSsize = FIELD_SIZE * 0.8;
-
   @Input() fieldPos: FieldPos;
-  particleUnit: ParticleUnit;
+  @Input() isBlue = true;
+  @Input() isRed = true;
+  @Input() isPurple = false;
+  @Input() isColor: 'blue' | 'red' | 'purple' = 'blue';
+  @Input() particleUnit: ParticleUnit;
 
   turnDone = false;
   subscriptionNeighbors: Subscription = new Subscription();
   neighbors$: Observable<NeighborsRaport>;
+  broodInfo: Brood = null;
 
   neighbors: NeighborsRaport = null;
 
-  constructor(public store: Store<AppState>) {
-    this.particleUnit = particleUnit;
+  constructor(
+    public store: Store<AppState>,
+    public broodService: BroodsService
+  ) {
+    // this.particleUnit = particleUnit;
   }
 
   private beginTurn() {
@@ -106,6 +114,20 @@ export class ParticleComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    if (this.particleUnit.groupId && this.particleUnit.groupId.length > 0) {
+      this.broodService.getBroodsOnBoard$().subscribe((data) => {
+        this.broodInfo = data.find(
+          (brood) => brood.id === this.particleUnit?.groupId
+        );
+
+        // potem ustawiac wzgledem pola 'colors' w Brood
+        if (this.broodInfo) {
+          this.isBlue = false;
+          this.isPurple = true;
+          console.log(this.broodInfo.color);
+        }
+      });
+    }
     this.beginTurn();
 
     // console.log(this.fieldPos);

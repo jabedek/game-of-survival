@@ -1,5 +1,11 @@
 import { Action, createReducer, on } from '@ngrx/store';
-import { BoardState, Brood, Field, Fields } from '../shared/types-interfaces';
+import {
+  BoardState,
+  Brood,
+  Field,
+  Fields,
+  ParticleUnit,
+} from '../shared/types-interfaces';
 
 import * as appActions from './board.actions';
 
@@ -8,6 +14,7 @@ export const featureKey = 'board';
 export const initialBoardState: BoardState = {
   fields: [],
   broodsOnBoard: [],
+  particlesOnBoard: [],
   raport: null,
 };
 
@@ -27,7 +34,6 @@ const authReducer = createReducer(
       ...[...state.broodsOnBoard].map((data) => data),
       brood,
     ];
-    console.log(broodsOnBoard);
 
     return {
       ...state,
@@ -70,6 +76,7 @@ const authReducer = createReducer(
 
     return {
       ...state,
+      particlesOnBoard: [...state.particlesOnBoard, unit],
       fields,
     };
   }),
@@ -122,8 +129,43 @@ const authReducer = createReducer(
       })
     );
 
+    let particlesOnBoard: any[] = [
+      ...[...state.particlesOnBoard].map((p) => p),
+    ];
+
+    // BROODS
+    let broodsOnBoard: Brood[] = [...[...state.broodsOnBoard].map((p) => p)];
+    // Check if it was particle and if was in brood then delete it from there
+
+    if (!!previousField.occupyingUnit && previousField.occupyingUnit?.groupId) {
+      const { occupyingUnit } = previousField;
+
+      particlesOnBoard = [
+        ...state.particlesOnBoard.filter((p) => p.id !== occupyingUnit.id),
+      ];
+
+      // brzydki syntax ale ngrx nie przepuści bez skopiowania obiektu / tablicy
+      let indexToUpdate = -1;
+      let broodToUpdate: Brood = {
+        ...[...state.broodsOnBoard].find((br: Brood, index) => {
+          indexToUpdate = index;
+          return br.id === occupyingUnit.groupId;
+        }),
+      };
+
+      if (broodToUpdate && broodToUpdate.units) {
+        broodToUpdate.units = broodToUpdate.units?.filter(
+          (u) => u.pos !== occupyingUnit.pos
+        );
+
+        broodsOnBoard[indexToUpdate] = broodToUpdate;
+      }
+    }
+
     return {
       ...state,
+      particlesOnBoard,
+      broodsOnBoard,
       fields,
     };
   })

@@ -9,12 +9,14 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
+import { concatMap, map, mergeMap } from 'rxjs/operators';
 import { BroodsService } from 'src/app/board/broods.service';
+import { GameService } from 'src/app/game.service';
 import {
   AppState,
   Brood,
-  BroodSpaceRaport,
+  ValidPotentialBroodSpace,
   Field,
   FieldPos,
   Fields,
@@ -25,15 +27,11 @@ import {
 import {
   selectBoardFields,
   selectBroodsOnBoard,
-  selectBroodSpaces,
+  selectValidBroodSpaces,
   selectEmptyFields,
+  selectParticlesOnBoard,
 } from '..';
-import {
-  setFieldParticle,
-  setFieldObsticle,
-  setFieldEmpty,
-  loadFields,
-} from '../board.actions';
+import { removeBrood } from '../board.actions';
 import {
   BOARD_DIMENSIONS,
   FIELD_SIZE,
@@ -54,6 +52,7 @@ export class BoardComponent
     public store: Store<AppState>,
     public boardService: BoardService,
     public broodService: BroodsService,
+    public gameService: GameService,
     public cdr: ChangeDetectorRef
   ) {}
 
@@ -64,11 +63,14 @@ export class BoardComponent
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
 
   borderObsticlesUp = false;
-  broodSpaceRaport$: Observable<BroodSpaceRaport[]> = this.store.select(
-    selectBroodSpaces
+  validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(
+    selectValidBroodSpaces
   );
-  broodSpaceRaport: BroodSpaceRaport[] = null;
+  validBroodSpaces: ValidPotentialBroodSpace[] = null;
   broodsOnBoard: Observable<Brood[]> = this.store.select(selectBroodsOnBoard);
+  particlesOnBoard$: Observable<ParticleUnit[]> = this.store.select(
+    selectParticlesOnBoard
+  );
   fields$: Observable<Fields> = this.store.select(selectBoardFields);
   emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
   emptyFieldsTotal = 0;
@@ -77,50 +79,54 @@ export class BoardComponent
   subscription: Subscription = new Subscription();
 
   ngOnInit(): void {
-    // this.store.select(selectBroodsOnBoard).subscribe((data) => console.log(''));
+    this.particlesOnBoard$
+      .pipe(
+        mergeMap(() => {
+          return this.store.select(selectBroodsOnBoard);
+        })
+      )
+      .subscribe((data: Brood[]) => {
+        if (data && data[0]) {
+          data.forEach((brood) => {
+            if (!brood.units.length) {
+              this.store.dispatch(removeBrood({ id: brood.id }));
+            }
+          });
+
+          this.cdr.markForCheck();
+        }
+      });
 
     this.initBoard();
-    this.getAllBroodSpaces();
-    this.broodSpaceRaport$.subscribe((data) => {
-      this.broodSpaceRaport = data;
+    this.getAllValidBroodSpaces();
+    this.validBroodSpaces$.subscribe((data) => {
+      this.validBroodSpaces = data;
     });
 
     this.toggleBordersDown();
 
     this.addNewBroodBSRRootRandomly();
-
-    // NIE USUWAĆ - TESTY
-    // function getNeighbors() {
-    //   return this.neighborsTotal;
-    // }
-    // const pos: FieldPos = { row: 1, column: 1 };
-    // const unit: ParticleUnitSimplified = {
-    //   id: 'uniton-0',
-    //   groupId: 'unitons',
-    //   pos,
-    //   getNeighbors,
-    // };
-    // this.store.dispatch(setFieldParticle({ unit }));
-
-    // this.addNewBroodBSRRoot()
   }
 
   addNewBroodBSRRoot() {
-    this.broodService.addNewBroodBSRRoot('uniton', this.broodSpaceRaport[0]);
-  }
-
-  addNewBroodBSRRootRandomly() {
-    let randomBSR = Math.floor(Math.random() * this.broodSpaceRaport.length);
-    // this.broodSpaceRaport;
     this.broodService.addNewBroodBSRRoot(
       'uniton',
-      this.broodSpaceRaport[randomBSR]
+      this.validBroodSpaces[0],
+      'red'
     );
   }
 
-  ngAfterViewInit() {
-    // this.cdr.markForCheck();
+  addNewBroodBSRRootRandomly() {
+    let randomBSR = Math.floor(Math.random() * this.validBroodSpaces.length);
+
+    this.broodService.addNewBroodBSRRoot(
+      'uniton',
+      this.validBroodSpaces[randomBSR],
+      'purple'
+    );
   }
+
+  ngAfterViewInit() {}
   ngOnChanges(changes: SimpleChanges) {}
 
   ngOnDestroy(): void {
@@ -130,30 +136,37 @@ export class BoardComponent
   initBoard() {
     this.borderObsticlesUp = false;
     this.boardService.initEmptyFields(this.boardDimensions);
-    this.broodService.setBroodsOnBoardEmpty();
+    this.broodService.clearBroods();
   }
 
   handleClick(type: string) {
     this[type]();
   }
 
+  private checkThenDeleteEmptyBroods(data: Brood[]) {
+    data.forEach((brood) => {
+      if (!brood.units) {
+        this.store.dispatch(removeBrood({ id: brood.id }));
+      }
+    });
+  }
+
   getEmptyFields() {
     this.boardService
-      .getEmptyFields()
+      .getEmptyFields$()
       .subscribe((data) => {
         this.emptyFieldsTotal = data.length;
       })
       .unsubscribe();
   }
 
-  getAllBroodSpaces() {
+  getAllValidBroodSpaces() {
     this.broodService
-      .getAllBroodSpaces()
+      .getAllValidBroodSpaces$()
       .subscribe((data) => {
         this.broodSpacesTotal = data.length;
       })
       .unsubscribe();
-    // this.getEmptyFields();
   }
 
   reloadBoard() {

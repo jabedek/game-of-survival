@@ -1,8 +1,16 @@
 import { NEIGHBORS_BEST_CHANCES_NOT_DIE } from '../board/board.constants';
 
-export interface ParticleUnit {
-  unit: Unit;
+// export interface ParticleUnit {
+//   unit: Unit;
+//   state: ParticleState;
+//   makeTurn(): boolean;
+//   setLongTermGoal(): boolean;
+//   getState(): any;
+// }
+
+export interface ParticleUnit extends Unit {
   state: ParticleState;
+  color: ParticleColor;
   makeTurn(): boolean;
   setLongTermGoal(): boolean;
   getState(): any;
@@ -41,10 +49,28 @@ export class Unit implements Unit {
   }
 }
 
+export class ParticleUnit implements ParticleUnit {
+  constructor(
+    id: string,
+    pos: FieldPos,
+    color: ParticleColor,
+    groupId?: string,
+    state?: ParticleState
+  ) {
+    this.id = id;
+    this.groupId = groupId || null;
+    this.pos = pos;
+    this.color = color;
+    this.state = state;
+  }
+}
+
 export interface Brood {
   id: string;
-  units: Unit[];
+  units: ParticleUnit[];
   color: string;
+  turnState: 'to do' | 'moving' | 'done';
+  beginTurn(cb: Function);
 }
 export interface NeighborField {
   field: Field;
@@ -57,11 +83,14 @@ export interface NeighborsRaport {
   obsticles: NeighborField[];
 }
 
+export type ParticleColor = 'red' | 'blue' | 'purple';
+
 export class Brood implements Brood {
-  constructor(id: string, units: Unit[], color?: string) {
+  constructor(id: string, units: ParticleUnit[], color: string) {
     this.id = id;
     this.units = units || null;
     this.color = color;
+    this.turnState = 'to do';
   }
 }
 
@@ -86,14 +115,14 @@ export interface PatchProperty {
 }
 export type BroodSpace = [Field, Field, Field, Field];
 
-export interface BroodSpaceRaport {
+export interface ValidPotentialBroodSpace {
   startingPos: FieldPos;
   space: BroodSpace;
 }
 
 export interface FieldPos {
-  column: number | string;
-  row: number | string;
+  column: number;
+  row: number;
 }
 
 export interface FieldPropertyUpdateDetails {
@@ -113,12 +142,13 @@ export interface AppState {
 export interface BoardState {
   fields: [] | Fields;
   broodsOnBoard: Brood[];
-  raport: BroodSpaceRaport[];
+  particlesOnBoard: ParticleUnit[];
+  raport: ValidPotentialBroodSpace[];
 }
 
 export interface BroodsState {
   broodsOnBoard: Brood[];
-  raport: BroodSpaceRaport[];
+  raport: ValidPotentialBroodSpace[];
 }
 
 /**

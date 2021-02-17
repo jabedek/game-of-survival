@@ -3,7 +3,7 @@ import {
   AppState,
   BoardState,
   BroodSpace,
-  BroodSpaceRaport,
+  ValidPotentialBroodSpace,
   BroodsState,
   Field,
   FieldPos,
@@ -27,6 +27,15 @@ export const selectBroodsOnBoard = createSelector(
     return state.broodsOnBoard;
   }
 );
+
+export const selectParticlesOnBoard = createSelector(
+  selectBoard,
+  (state: BoardState) => {
+    // console.log(state.particlesOnBoard);
+
+    return state.particlesOnBoard;
+  }
+);
 export const selectBroodsRaport = createSelector(
   selectBoard,
   (state: BoardState) => state.raport
@@ -37,17 +46,17 @@ export const selectBoardFields = createSelector(
   (state: BoardState) => state.fields
 );
 
-export const selectBroodSpaces = createSelector(
+export const selectValidBroodSpaces = createSelector(
   selectBoardFields,
   (fields: Fields) => {
     let bss: BroodSpace[] = [];
-    let bssRootPos: any[] = [];
+    let bssRootPos: FieldPos[] = [];
 
-    let raport: BroodSpaceRaport[] = [];
+    let raport: ValidPotentialBroodSpace[] = [];
 
     [...fields].forEach((fieldsCol) => {
       [...fieldsCol].forEach((field) => {
-        let result = HELPERS.checkIfBroodSpaceRoot([...fields], field.pos);
+        const result = HELPERS.checkIfBroodSpaceRoot([...fields], field.pos);
         if (result !== null) {
           bssRootPos.push(field.pos);
           bss.push(result);

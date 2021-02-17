@@ -10,6 +10,9 @@ import { BoardRoutingModule } from './board/board-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
+import { GameService } from './game.service';
+import { BroodsService } from './board/broods.service';
+import { BoardService } from './board/board.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,9 +25,12 @@ import { environment } from '../environments/environment';
     ReactiveFormsModule,
     BoardModule,
     StoreModule.forRoot({}),
-    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25,
+      logOnly: environment.production,
+    }),
   ],
-  providers: [],
+  providers: [GameService, BroodsService, BoardService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

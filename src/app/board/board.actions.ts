@@ -4,6 +4,7 @@ import {
   Field,
   FieldPos,
   Fields,
+  ParticleUnit,
   Unit,
 } from '../shared/types-interfaces';
 
@@ -14,7 +15,7 @@ export const loadFields = createAction(
 
 export const setFieldParticle = createAction(
   '[Board/Field] Set Particle on Field ',
-  props<{ unit: Unit }>()
+  props<{ unit: ParticleUnit }>()
 );
 
 export const setFieldObsticle = createAction(

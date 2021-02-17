@@ -1,9 +1,9 @@
-<div
-  class="particle animation-blurring"
-  [style.width.px]="CSSsize"
-  [style.height.px]="CSSsize"
-></div>
+<div [style.width.px]="CSSsize" [style.height.px]="CSSsize">
+  <p class="particle {{ 'particle-' + particleUnit.color }}"></p>
+</div>
 
+<!-- [class.particle-purple]="isPurple"
+  [class.particle-blue]="isBlue" -->
 <!-- elo -->
 <p class="pos__X" *ngIf="fieldPos">{{ fieldPos.x }}</p>
 <p class="pos__Y" *ngIf="fieldPos">{{ fieldPos.y }}</p>

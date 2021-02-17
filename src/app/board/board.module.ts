@@ -38,6 +38,6 @@ const components = [
     ),
   ],
   exports: components,
-  providers: [BoardService],
+  providers: [],
 })
 export class BoardModule {}

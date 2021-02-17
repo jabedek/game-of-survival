@@ -21,6 +21,7 @@ import {
   FieldMode,
   FieldPos,
   Fields,
+  ParticleUnit,
   Unit,
 } from 'src/app/shared/types-interfaces';
 import { selectBoardField, selectBoardFields, selectFieldNeighbors } from '..';
@@ -31,6 +32,8 @@ import {
   setFieldObsticle,
   setFieldParticle,
 } from '../board.actions';
+import { BroodsService } from '../broods.service';
+import { Event } from '@angular/router';
 
 @Component({
   selector: 'app-field',
@@ -42,6 +45,7 @@ export class FieldComponent
   implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() pos: FieldPos;
   @Input() fieldSize: number;
+  @Input() groupId?: string;
 
   CSS = {
     size: null,
@@ -65,7 +69,11 @@ export class FieldComponent
   // subscriptionNeighbors: Subscription = new Subscription();
 
   @ViewChild('details', { read: TemplateRef }) details: TemplateRef<any>;
-  constructor(public store: Store<AppState>, public cdr: ChangeDetectorRef) {}
+  constructor(
+    public store: Store<AppState>,
+    public cdr: ChangeDetectorRef,
+    public broodsService: BroodsService
+  ) {}
 
   ngOnInit(): void {
     this.CSS.size = this.fieldSize;
@@ -87,9 +95,7 @@ export class FieldComponent
       })
     );
   }
-  ngOnChanges(changes: SimpleChanges) {
-    // console.log(changes);
-  }
+  ngOnChanges(changes: SimpleChanges) {}
   ngAfterViewInit() {}
 
   ngOnDestroy() {
@@ -103,7 +109,7 @@ export class FieldComponent
     }
 
     if (this.mode === 1) {
-      this.setParticle('unit-id', 'unit-group-id');
+      this.setParticle('unit-id');
       return true;
     }
 
@@ -111,6 +117,12 @@ export class FieldComponent
       this.setEmpty();
       return false;
     }
+  }
+
+  addBrood(event) {
+    event.preventDefault();
+    this.broodsService.addNewBroodOnContextmenu('eriton', this.pos, 'red');
+    this.cdr.markForCheck();
   }
 
   // private beginTurn() {
@@ -122,11 +134,14 @@ export class FieldComponent
   // }
 
   private setParticle(id: string, groupId?: string): void {
-    const unit: Unit = {
-      id: id || 'uniton-0',
-      groupId: groupId || 'unitons',
-      pos: this.pos,
-    };
+    const unit: ParticleUnit = new ParticleUnit(
+      id || 'puniton-0',
+      this.pos,
+      'blue',
+      groupId || this.groupId || 'punitons'
+    );
+
+    console.log(unit);
 
     this.mode = 2;
 
@@ -139,7 +154,6 @@ export class FieldComponent
   }
 
   private setEmpty(): void {
-    // this.subscriptionNeighbors.unsubscribe();
     this.mode = 0;
     this.store.dispatch(setFieldEmpty({ pos: this.pos }));
   }

@@ -3,16 +3,18 @@
   [style.width.px]="fieldSize"
   [style.height.px]="fieldSize"
   (click)="toggleSelf()"
+  (contextmenu)="addBrood($event)"
 >
   <div class="field" *ngIf="selfDetails$ | async as data; else loading">
     <div class="field__content">
       <app-particle
         *ngIf="data?.occupyingUnit && pos"
         [fieldPos]="{ row: pos.row, column: pos.column }"
+        [particleUnit]="data?.occupyingUnit"
+        [isColor]="'blue'"
       >
       </app-particle>
-      <!-- {{ pos.row }}
-      {{ pos.column }} -->
+
       <app-obsticle
         *ngIf="data?.blocked === true && !data?.occupyingUnit"
         [fieldPos]="{ row: pos.row, column: pos.column }"
