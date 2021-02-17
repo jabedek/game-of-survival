@@ -141,8 +141,6 @@ export class FieldComponent
       groupId || this.groupId || 'punitons'
     );
 
-    console.log(unit);
-
     this.mode = 2;
 
     this.store.dispatch(setFieldParticle({ unit }));

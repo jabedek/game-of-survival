@@ -119,18 +119,9 @@ export class ParticleComponent implements OnInit, AfterViewInit, OnDestroy {
         this.broodInfo = data.find(
           (brood) => brood.id === this.particleUnit?.groupId
         );
-
-        // potem ustawiac wzgledem pola 'colors' w Brood
-        if (this.broodInfo) {
-          this.isBlue = false;
-          this.isPurple = true;
-          console.log(this.broodInfo.color);
-        }
       });
     }
     this.beginTurn();
-
-    // console.log(this.fieldPos);
   }
 
   ngOnDestroy() {

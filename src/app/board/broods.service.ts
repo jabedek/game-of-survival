@@ -59,7 +59,6 @@ export class BroodsService {
       });
 
       let brood = new Brood('nunitons', fallbackUnits, color);
-      console.log(brood);
 
       brood.units.forEach((unit) => {
         this.store.dispatch(setFieldParticle({ unit }));
@@ -116,14 +115,12 @@ export class BroodsService {
     ];
 
     let brood = new Brood(fallbackId, fallbackUnits, color);
-    console.log(brood);
 
     brood.units.forEach((unit) => {
       this.store.dispatch(setFieldParticle({ unit }));
     });
 
     this.store.dispatch(addBrood({ brood }));
-    // this.c
   }
 
   getAllValidBroodSpaces$() {
