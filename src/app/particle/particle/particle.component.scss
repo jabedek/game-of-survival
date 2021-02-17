@@ -18,22 +18,12 @@ $brightness-focus: 200%;
   user-select: none;
   cursor: pointer;
 
-  &:hover {
-    filter: drop-shadow(0 0 0.75rem $blue) brightness($brightness-hover);
-  }
-
   &:active {
     filter: brightness($brightness-active);
   }
 
   &:focus {
     filter: brightness(($brightness-focus));
-  }
-
-  &--mixed {
-    &:hover {
-      filter: drop-shadow(0 0 0.75rem $red) brightness($brightness-hover);
-    }
   }
 
   &--red {
@@ -51,6 +41,10 @@ $brightness-focus: 200%;
       rgba(139, 139, 139, 1) 100%,
       rgba(0, 0, 0, 1) 100%
     );
+
+    &:hover {
+      filter: drop-shadow(0 0 0.75rem $red) brightness($brightness-hover);
+    }
   }
   &--blue {
     filter: drop-shadow(0 0 0.75rem $blue);
@@ -78,6 +72,31 @@ $brightness-focus: 200%;
       circle,
       rgba(0, 0, 0, 1) 0%,
       $purple 65%,
+      rgba(52, 52, 52, 1) 75%,
+      rgba(99, 99, 99, 1) 94%,
+      rgba(139, 139, 139, 1) 100%,
+      rgba(0, 0, 0, 1) 100%
+    );
+
+    &:hover {
+      filter: drop-shadow(0 0 0.75rem $purple) brightness($brightness-hover);
+    }
+  }
+
+  &--mixed {
+    &:hover {
+      filter: drop-shadow(0 0 0.75rem $red) brightness($brightness-hover);
+    }
+
+    background: $blue;
+
+    background: rgb(0, 0, 0);
+
+    background: rgb(0, 0, 0);
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 1) 0%,
+      $blue 65%,
       rgba(52, 52, 52, 1) 75%,
       rgba(99, 99, 99, 1) 94%,
       rgba(139, 139, 139, 1) 100%,

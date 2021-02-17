@@ -204,7 +204,7 @@ export class BoardService {
                 const unit: ParticleUnit = new ParticleUnit(
                   'animalien-0',
                   rndmlySelectedField.pos,
-                  'blue',
+                  'mixed',
                   'animaliens'
                 );
 
