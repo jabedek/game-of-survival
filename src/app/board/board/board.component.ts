@@ -60,6 +60,8 @@ export class BoardComponent
 
   fieldSize = FIELD_SIZE;
 
+  panelShowing = false;
+
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
 
   borderObsticlesUp = false;
@@ -106,6 +108,10 @@ export class BoardComponent
     this.toggleBordersDown();
 
     this.addNewBroodBSRRootRandomly();
+  }
+
+  showPanel() {
+    this.panelShowing = !this.panelShowing;
   }
 
   addNewBroodBSRRoot() {

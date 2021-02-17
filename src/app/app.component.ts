@@ -7,9 +7,14 @@ import { GameService } from './game.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
+  decorShowing = false;
   constructor(private game: GameService) {}
 
   ngOnInit() {
     this.game.launchBroodTurns();
+  }
+
+  showDecor() {
+    this.decorShowing = !this.decorShowing;
   }
 }

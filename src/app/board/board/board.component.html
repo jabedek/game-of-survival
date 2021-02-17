@@ -5,7 +5,10 @@
 >
 </app-board-container>
 
-<div class="game-panel">
+<ng-content></ng-content>
+<button (click)="showPanel()" class="global-button">Pokaż panel</button>
+
+<div *ngIf="panelShowing" class="game-panel">
   <div class="available">
     <p>Empty Fields: {{ (boardService.getEmptyFields$() | async).length }}</p>
     <p>
