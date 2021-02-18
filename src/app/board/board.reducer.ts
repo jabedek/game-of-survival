@@ -57,26 +57,31 @@ const authReducer = createReducer(
 
   on(appActions.setFieldParticle, (state, { unit }) => {
     const { pos } = unit;
-
-    const currentField = { ...state.fields[pos.row][pos.column] };
-    const newField: Field = {
-      ...currentField,
-      blocked: true,
-      occupyingUnit: unit,
-    };
-
-    const fields: Fields = [...state.fields].map((data: Field[]) =>
-      data.map((field: Field) => {
-        if (field.pos.column === pos.column && field.pos.row === pos.row) {
-          field = { ...newField };
-        }
-        return field;
-      })
+    let particlesOnBoard: ParticleUnit[] = [...state.particlesOnBoard].map(
+      (f) => f
     );
+    let fields: Fields = [...state.fields].map((f) => f);
+    if (state.fields[pos.row] && state.fields[pos.row][pos.column]) {
+      particlesOnBoard = [...state.particlesOnBoard, unit];
+      const currentField = { ...state.fields[pos.row][pos.column] };
+      const newField: Field = {
+        ...currentField,
+        blocked: true,
+        occupyingUnit: unit,
+      };
 
+      fields = [...state.fields].map((data: Field[]) =>
+        data.map((field: Field) => {
+          if (field.pos.column === pos.column && field.pos.row === pos.row) {
+            field = { ...newField };
+          }
+          return field;
+        })
+      );
+    }
     return {
       ...state,
-      particlesOnBoard: [...state.particlesOnBoard, unit],
+      particlesOnBoard,
       fields,
     };
   }),

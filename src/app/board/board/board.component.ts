@@ -44,7 +44,7 @@ import { BoardService } from '../board.service';
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit {
