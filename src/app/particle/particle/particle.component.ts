@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   Input,
   OnDestroy,
@@ -79,7 +80,8 @@ export class ParticleComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     public store: Store<AppState>,
-    public broodService: BroodsService
+    public broodService: BroodsService,
+    public cdr: ChangeDetectorRef
   ) {
     // this.particleUnit = particleUnit;
   }

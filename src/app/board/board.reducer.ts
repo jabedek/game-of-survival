@@ -41,6 +41,44 @@ const authReducer = createReducer(
     };
   }),
 
+  on(appActions.removeUnitFromBrood, (state: BoardState, { pos }) => {
+    let particle: ParticleUnit = null;
+    const particlesOnBoard: ParticleUnit[] = [...state.particlesOnBoard].map(
+      (p) => {
+        if (p.pos !== pos) {
+          return p;
+        } else {
+          particle = { ...p };
+        }
+      }
+    );
+
+    let newBrood: Brood;
+    let broodsOnBoard: Brood[] = [...state.broodsOnBoard].map((b) => b);
+    if (particle) {
+      broodsOnBoard = [
+        ...[...state.broodsOnBoard].map((data) => {
+          if (data?.id === particle.id) {
+            console.log(particle);
+            newBrood = {
+              ...data,
+              units: [...data.units].filter((u) => u.id !== particle.id),
+            };
+            return data;
+          } else return data;
+        }),
+      ];
+
+      console.log(particle, newBrood);
+    }
+
+    return {
+      ...state,
+      broodsOnBoard,
+      particlesOnBoard,
+    };
+  }),
+
   on(appActions.clearBroods, (state) => {
     return {
       ...state,

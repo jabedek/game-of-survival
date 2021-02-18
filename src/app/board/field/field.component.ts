@@ -28,6 +28,7 @@ import { selectBoardField, selectBoardFields, selectFieldNeighbors } from '..';
 import { FIELD_SIZE } from '../board.constants';
 import * as uuid from 'uuid';
 import {
+  removeUnitFromBrood,
   setFieldEmpty,
   setFieldObsticle,
   setFieldParticle,
@@ -76,6 +77,8 @@ export class FieldComponent
   ) {}
 
   ngOnInit(): void {
+    // this.cdr.detach();
+    // this.cdr.detectChanges();
     this.CSS.size = this.fieldSize;
     // this.neighbors$ = this.store.select(selectFieldNeighbors, this.pos);
 
@@ -154,5 +157,6 @@ export class FieldComponent
   private setEmpty(): void {
     this.mode = 0;
     this.store.dispatch(setFieldEmpty({ pos: this.pos }));
+    this.store.dispatch(removeUnitFromBrood({ pos: this.pos }));
   }
 }

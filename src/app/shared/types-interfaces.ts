@@ -83,7 +83,7 @@ export interface NeighborsRaport {
   obsticles: NeighborField[];
 }
 
-export type ParticleColor = 'red' | 'blue' | 'purple' | 'mixed';
+export type ParticleColor = 'red' | 'blue' | 'purple' | 'black' | 'mixed';
 
 export class Brood implements Brood {
   constructor(id: string, units: ParticleUnit[], color: string) {

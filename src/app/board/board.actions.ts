@@ -28,6 +28,11 @@ export const setFieldEmpty = createAction(
   props<{ pos: FieldPos }>()
 );
 
+export const removeUnitFromBrood = createAction(
+  '[Board/Field] Remove Unit From Brood',
+  props<{ pos: FieldPos }>()
+);
+
 export const addBrood = createAction(
   '[Board/Field] Add Broot on Root',
   props<{ brood: Brood }>()

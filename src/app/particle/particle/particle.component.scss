@@ -26,9 +26,32 @@ $brightness-focus: 200%;
     filter: brightness(($brightness-focus));
   }
 
+  &--black {
+    filter: drop-shadow(0 0 0.75rem $purple);
+    background: $red;
+
+    background: rgb(0, 0, 0);
+    // background: radial-gradient(
+    //   circle,
+    //   rgba(0, 0, 0, 1) 0%,
+    //   $red 65%,
+    //   rgba(52, 52, 52, 1) 75%,
+    //   rgba(99, 99, 99, 1) 94%,
+    //   rgba(139, 139, 139, 1) 100%,
+    //   rgba(0, 0, 0, 1) 100%
+    // );
+
+    &:hover {
+      filter: drop-shadow(0 0 0.75rem $purple) brightness($brightness-hover);
+    }
+
+    &:active {
+      filter: drop-shadow(0 0 0.75rem $red) brightness($brightness-active);
+    }
+  }
+
   &--red {
     filter: drop-shadow(0 0 0.75rem $red);
-    // Base
     background: $red;
 
     background: rgb(0, 0, 0);
@@ -105,67 +128,6 @@ $brightness-focus: 200%;
   }
 }
 
-// .particle {
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: space-between;
-//   border-radius: 100%;
-//   user-select: none;
-//   cursor: pointer;
-//   filter: drop-shadow(0 0 0.75rem $red);
-
-//   // Base
-//   background: $purple;
-
-//   // Blue - neutron ?
-//   background: rgb(0, 0, 0);
-//   background: radial-gradient(
-//     circle,
-//     rgba(0, 0, 0, 1) 0%,
-//     $blue 65%,
-//     rgba(52, 52, 52, 1) 75%,
-//     rgba(99, 99, 99, 1) 94%,
-//     rgba(139, 139, 139, 1) 100%,
-//     rgba(0, 0, 0, 1) 100%
-//   );
-
-//   // Purple - gluon?
-//   background: rgb(0, 0, 0);
-//   background: radial-gradient(
-//     circle,
-//     rgba(0, 0, 0, 1) 0%,
-//     $purple 65%,
-//     rgba(52, 52, 52, 1) 75%,
-//     rgba(99, 99, 99, 1) 94%,
-//     rgba(139, 139, 139, 1) 100%,
-//     rgba(0, 0, 0, 1) 100%
-//   );
-
-//   // Red - strange matter
-//   background: rgb(0, 0, 0);
-//   background: radial-gradient(
-//     circle,
-//     rgba(0, 0, 0, 1) 0%,
-//     $red 65%,
-//     rgba(52, 52, 52, 1) 75%,
-//     rgba(99, 99, 99, 1) 94%,
-//     rgba(139, 139, 139, 1) 100%,
-//     rgba(0, 0, 0, 1) 100%
-//   );
-
-//   &:hover {
-//     filter: drop-shadow(0 0 0.75rem $red) brightness(125%);
-//   }
-
-//   &:active {
-//     filter: brightness(150%);
-//   }
-
-//   &:focus {
-//     filter: brightness((200%));
-//   }
-// }
-
 .animation-blurring {
   animation: animation-blurring 4s linear infinite;
 }
@@ -182,45 +144,4 @@ $brightness-focus: 200%;
   51% {
     color: rgba(255, 255, 0, 0.8);
   }
-}
-
-.particle-purple {
-  background: rgb(0, 0, 0);
-  background: radial-gradient(
-    circle,
-    rgba(0, 0, 0, 1) 0%,
-    $purple 65%,
-    rgba(52, 52, 52, 1) 75%,
-    rgba(99, 99, 99, 1) 94%,
-    rgba(139, 139, 139, 1) 100%,
-    rgba(0, 0, 0, 1) 100%
-  );
-}
-
-.particle-blue {
-  // Blue - neutron ?
-  background: rgb(0, 0, 0);
-  background: radial-gradient(
-    circle,
-    rgba(0, 0, 0, 1) 0%,
-    $blue 65%,
-    rgba(52, 52, 52, 1) 75%,
-    rgba(99, 99, 99, 1) 94%,
-    rgba(139, 139, 139, 1) 100%,
-    rgba(0, 0, 0, 1) 100%
-  );
-}
-
-.particle-red {
-  // Red - strange matter
-  background: rgb(0, 0, 0);
-  background: radial-gradient(
-    circle,
-    rgba(0, 0, 0, 1) 0%,
-    $red 65%,
-    rgba(52, 52, 52, 1) 75%,
-    rgba(99, 99, 99, 1) 94%,
-    rgba(139, 139, 139, 1) 100%,
-    rgba(0, 0, 0, 1) 100%
-  );
 }
