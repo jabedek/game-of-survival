@@ -165,23 +165,20 @@ export class BoardService {
     }
   }
 
-  setSomeUnits(amount: number, type: 'particle' | 'obsticle'): void {
-    if (type === 'particle') {
-      for (let i = 0; i < amount; i++) {
+  setSomeUnits(amount: number, type: 'particle' | 'obsticle'): void {}
+
+  addUnits(particles = 1, obsticles = 0) {
+    if (particles > 0) {
+      for (let i = 0; i < particles; i++) {
         this.putUnitOnEmptyField('particle');
       }
     }
 
-    if (type === 'obsticle') {
-      for (let i = 0; i < amount; i++) {
+    if (obsticles > 0) {
+      for (let i = 0; i < obsticles; i++) {
         this.putUnitOnEmptyField('obsticle');
       }
     }
-  }
-
-  addUnits(particles = 1, obsticles = 0) {
-    this.setSomeUnits(particles, 'particle');
-    this.setSomeUnits(obsticles, 'obsticle');
   }
 
   private putUnitOnEmptyField(type) {

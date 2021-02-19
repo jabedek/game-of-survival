@@ -1,6 +1,7 @@
-$blue: rgba(5, 50, 220, 1);
+$blue: rgba(5, 50, 230, 1);
 $red: rgba(200, 50, 5, 1);
-$purple: rgba(150, 30, 255, 1);
+$green: rgba(50, 200, 5, 1);
+$purple: rgba(100, 30, 255, 1);
 
 $brightness-hover: 125%;
 $brightness-active: 150%;
@@ -27,7 +28,7 @@ $brightness-focus: 200%;
   }
 
   &--black {
-    filter: drop-shadow(0 0 0.75rem $purple);
+    filter: drop-shadow(0 0 0.75rem $green);
     background: $red;
 
     background: rgb(0, 0, 0);
@@ -42,7 +43,7 @@ $brightness-focus: 200%;
     // );
 
     &:hover {
-      filter: drop-shadow(0 0 0.75rem $purple) brightness($brightness-hover);
+      filter: drop-shadow(0 0 0.75rem $green) brightness($brightness-hover);
     }
 
     &:active {

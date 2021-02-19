@@ -44,7 +44,7 @@ import { BoardService } from '../board.service';
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardComponent
   implements OnInit, OnChanges, OnDestroy, AfterViewInit {
@@ -60,7 +60,7 @@ export class BoardComponent
 
   fieldSize = FIELD_SIZE;
 
-  panelShowing = false;
+  panelShowing = true;
 
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
 
@@ -93,24 +93,25 @@ export class BoardComponent
             data.forEach((brood) => {
               if (!brood.units.length) {
                 this.store.dispatch(removeBrood({ id: brood.id }));
+
+                this.cdr.markForCheck();
               }
             });
-
-            this.cdr.markForCheck();
           }
         })
     );
 
     this.subscription.add(
       this.store.select(selectBroodsOnBoard).subscribe((data) => {
+        console.log('##', data);
+
         if (data.length) {
           data.forEach((brood) => {
             if (!brood.units.length) {
               this.store.dispatch(removeBrood({ id: brood.id }));
+              this.cdr.markForCheck();
             }
           });
-
-          this.cdr.markForCheck();
         }
       })
     );
@@ -144,11 +145,18 @@ export class BoardComponent
   addNewBroodBSRRootRandomly() {
     let randomBSR = Math.floor(Math.random() * this.validBroodSpaces.length);
 
-    this.broodService.addNewBroodBSRRoot(
+    this.broodService.addNewBroodOnContextmenu(
       'uniton',
-      this.validBroodSpaces[randomBSR],
+      this.validBroodSpaces[randomBSR].startingPos,
       'purple'
     );
+    this.cdr.markForCheck();
+
+    // this.broodService.addNewBroodBSRRoot(
+    //   'unitons',
+    //   this.validBroodSpaces[randomBSR],
+    //   'purple'
+    // );
   }
 
   ngAfterViewInit() {}

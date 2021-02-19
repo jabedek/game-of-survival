@@ -53,12 +53,12 @@ export class BroodsService {
     color: ParticleColor
   ) {
     if (bsr) {
-      const fallbackId = `nunitons-${this.broodsOnBoard.length}`;
+      const broodId = `${id || 'fallbiton'}-${this.broodsOnBoard.length || 0}`;
       const fallbackUnits: ParticleUnit[] = bsr.space.map((s, index) => {
-        return new ParticleUnit(fallbackId, s.pos, color, `nunitons`);
+        return new ParticleUnit(`${id}-${index}`, s.pos, color, broodId);
       });
 
-      let brood = new Brood('nunitons', fallbackUnits, color);
+      let brood = new Brood(broodId, fallbackUnits, color);
 
       brood.units.forEach((unit) => {
         this.store.dispatch(setFieldParticle({ unit }));
@@ -73,48 +73,48 @@ export class BroodsService {
     pos: FieldPos,
     color: ParticleColor = 'red'
   ) {
-    const fallbackId = 'eritons' || `unitons-${this.broodsOnBoard.length}`;
+    const broodId = `${id || 'fallbiton'}-${this.broodsOnBoard.length || 0}`;
 
     const fallbackUnits = [
       new ParticleUnit(
-        fallbackId,
+        `${broodId}-0`,
         {
           row: pos.row,
           column: pos.column,
         },
         color,
-        'eritons'
+        broodId
       ),
       new ParticleUnit(
-        fallbackId,
+        `${broodId}-1`,
         {
           row: pos.row,
           column: pos.column + 1,
         },
         color,
-        'eritons'
+        broodId
       ),
       new ParticleUnit(
-        fallbackId,
+        `${broodId}-2`,
         {
           row: pos.row + 1,
           column: pos.column,
         },
         color,
-        'eritons'
+        broodId
       ),
       new ParticleUnit(
-        fallbackId,
+        `${broodId}-3`,
         {
           row: pos.row + 1,
           column: pos.column + 1,
         },
         color,
-        'eritons'
+        broodId
       ),
     ];
 
-    let brood = new Brood(fallbackId, fallbackUnits, color);
+    let brood = new Brood(broodId, fallbackUnits, color);
 
     brood.units.forEach((unit) => {
       this.store.dispatch(setFieldParticle({ unit }));

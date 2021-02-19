@@ -124,7 +124,7 @@ export class FieldComponent
 
   addBrood(event) {
     event.preventDefault();
-    this.broodsService.addNewBroodOnContextmenu('eritons', this.pos, 'red');
+    this.broodsService.addNewBroodOnContextmenu('eriton', this.pos, 'red');
     this.cdr.markForCheck();
   }
 
@@ -141,7 +141,7 @@ export class FieldComponent
       id || 'puniton-0',
       this.pos,
       'blue',
-      groupId || this.groupId || 'punitons'
+      groupId || this.groupId || 'puniton'
     );
 
     this.mode = 2;

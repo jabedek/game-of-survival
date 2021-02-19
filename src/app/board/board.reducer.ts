@@ -21,20 +21,13 @@ export const initialBoardState: BoardState = {
 const authReducer = createReducer(
   initialBoardState,
   on(appActions.removeBrood, (state, { id }) => {
-    let newBroods = [...state.broodsOnBoard.filter((b) => b.id !== id)];
-
     return {
       ...state,
-      broodsOnBoard: newBroods,
+      broodsOnBoard: [...state.broodsOnBoard].filter((b) => b.id !== id),
     };
   }),
 
   on(appActions.addBrood, (state: BoardState, { brood }) => {
-    const broodsOnBoard: Brood[] = [
-      ...[...state.broodsOnBoard].map((data) => data),
-      brood,
-    ];
-
     return {
       ...state,
       broodsOnBoard: [...state.broodsOnBoard, brood],
@@ -42,16 +35,23 @@ const authReducer = createReducer(
   }),
 
   on(appActions.removeUnitFromBrood, (state: BoardState, { pos }) => {
+    console.log(pos);
+    console.log(state.particlesOnBoard);
+
     let particle: ParticleUnit = null;
-    const particlesOnBoard: ParticleUnit[] = [...state.particlesOnBoard].map(
-      (p) => {
-        if (p.pos !== pos) {
-          return p;
-        } else {
-          particle = { ...p };
-        }
-      }
+    let particlesOnBoard: ParticleUnit[] = [...state.particlesOnBoard].map(
+      (p) => p
     );
+    // console.log(p);
+
+    particlesOnBoard.forEach((p) => {
+      if (p.pos !== pos) {
+        return p;
+      } else {
+        particle = { ...p };
+      }
+    });
+    console.log(particlesOnBoard);
 
     let newBrood: Brood;
     let broodsOnBoard: Brood[] = [...state.broodsOnBoard].map((b) => b);
