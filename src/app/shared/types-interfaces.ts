@@ -113,11 +113,11 @@ export type Fields = Field[][];
 export interface PatchProperty {
   [key: string]: any;
 }
-export type BroodSpace = [Field, Field, Field, Field];
+export type BasicInitialBroodFields = [Field, Field, Field, Field];
 
 export interface ValidPotentialBroodSpace {
   startingPos: FieldPos;
-  space: BroodSpace;
+  space: BasicInitialBroodFields;
 }
 
 export interface FieldPos {

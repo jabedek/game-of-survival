@@ -1,19 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { addBrood, clearBroods, setFieldParticle } from './board.actions';
+import { clearBroods } from './board.actions';
 import { BoardService } from './board.service';
 import {
   AppState,
   Brood,
-  BroodSpace,
   ValidPotentialBroodSpace,
   FieldPos,
-  Unit,
   ParticleUnit,
   ParticleColor,
 } from '../shared/types-interfaces';
 import { selectBroodsOnBoard, selectValidBroodSpaces } from '.';
+import { BOARD_DIMENSIONS } from './board.constants';
+import { isInBoundries } from './board.helpers';
 // import { addBrood } from './broods.actions';
 
 @Injectable({
@@ -47,24 +47,27 @@ export class BroodsService {
     return this.store.select(selectBroodsOnBoard);
   }
 
+  // addNewFieldsOverwrite(unit:ParticleUnit) {
+  //   this.store.dispatch(removeUnitFromBrood({pos:unit.pos}))
+  //   this.store.dispatch(setFieldParticle({unit}));
+  // }
+
   addNewBroodBSRRoot(
     id: string,
-    bsr: ValidPotentialBroodSpace,
+    potentialSpaces: ValidPotentialBroodSpace,
     color: ParticleColor
   ) {
-    if (bsr) {
-      const broodId = `${id || 'fallbiton'}-${this.broodsOnBoard.length || 0}`;
-      const fallbackUnits: ParticleUnit[] = bsr.space.map((s, index) => {
-        return new ParticleUnit(`${id}-${index}`, s.pos, color, broodId);
-      });
+    if (potentialSpaces) {
+      const broodId = id;
+      const fallbackUnits: ParticleUnit[] = potentialSpaces.space.map(
+        (s, index) => {
+          return new ParticleUnit(`${index}`, s.pos, color, broodId);
+        }
+      );
 
       let brood = new Brood(broodId, fallbackUnits, color);
 
-      brood.units.forEach((unit) => {
-        this.store.dispatch(setFieldParticle({ unit }));
-      });
-
-      this.store.dispatch(addBrood({ brood }));
+      this.service.addBrood(brood);
     }
   }
 
@@ -73,11 +76,11 @@ export class BroodsService {
     pos: FieldPos,
     color: ParticleColor = 'red'
   ) {
-    const broodId = `${id || 'fallbiton'}-${this.broodsOnBoard.length || 0}`;
-
+    const broodId = id;
+    const dimensions = BOARD_DIMENSIONS;
     const fallbackUnits = [
       new ParticleUnit(
-        `${broodId}-0`,
+        `0`,
         {
           row: pos.row,
           column: pos.column,
@@ -86,7 +89,7 @@ export class BroodsService {
         broodId
       ),
       new ParticleUnit(
-        `${broodId}-1`,
+        `1`,
         {
           row: pos.row,
           column: pos.column + 1,
@@ -95,7 +98,7 @@ export class BroodsService {
         broodId
       ),
       new ParticleUnit(
-        `${broodId}-2`,
+        `2`,
         {
           row: pos.row + 1,
           column: pos.column,
@@ -104,7 +107,7 @@ export class BroodsService {
         broodId
       ),
       new ParticleUnit(
-        `${broodId}-3`,
+        `3`,
         {
           row: pos.row + 1,
           column: pos.column + 1,
@@ -114,13 +117,11 @@ export class BroodsService {
       ),
     ];
 
-    let brood = new Brood(broodId, fallbackUnits, color);
+    let units = fallbackUnits.filter((u) => isInBoundries(dimensions, u.pos));
 
-    brood.units.forEach((unit) => {
-      this.store.dispatch(setFieldParticle({ unit }));
-    });
+    let brood = new Brood(broodId, units, color);
 
-    this.store.dispatch(addBrood({ brood }));
+    this.service.addBrood(brood);
   }
 
   getAllValidBroodSpaces$() {

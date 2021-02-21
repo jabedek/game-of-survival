@@ -1,8 +1,9 @@
 import {
   BoardDynamicCSS_structurings,
-  BroodSpace,
+  BasicInitialBroodFields,
   Field,
   FieldPos,
+  FieldReference,
   Fields,
   NeighborField,
   NeighborsRaport,
@@ -43,10 +44,35 @@ export function getBoardLayoutStructurings(
   };
 }
 
-export function checkIfBroodSpaceRoot(
+export function getInitialBoard(boardDimensions: number): FieldReference[][] {
+  let board: FieldReference[][] = [];
+  for (let x = 0; x < boardDimensions; x++) {
+    board[x] = [];
+    for (let y = 0; y < boardDimensions; y++) {
+      board[x][y] = `${x}:${y}`;
+    }
+  }
+
+  return board;
+}
+
+export function getInitialFields(boardDimensions: number): Fields {
+  let fields: Fields = [];
+
+  for (let row = 0; row < boardDimensions; row++) {
+    fields[row] = [];
+    for (let column = 0; column < boardDimensions; column++) {
+      fields[row][column] = new Field({ row, column }, false);
+    }
+  }
+
+  return fields;
+}
+
+export function isValidBroodRoot(
   fields: Fields,
   props: FieldPos
-): null | BroodSpace {
+): null | BasicInitialBroodFields {
   const column: number = +props.column;
   const row: number = +props.row;
 
@@ -62,10 +88,10 @@ export function checkIfBroodSpaceRoot(
   posB = column;
   posA = row;
 
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
+  if (posA < 0 || posB < 0 || posA >= fields.length || posB >= fields.length) {
     available0 = null;
   } else {
-    available0 = fields[posB][posA].blocked ? null : fields[posB][posA];
+    available0 = fields[posA][posB].blocked ? null : fields[posA][posB];
   }
   // console.log(available0);
 
@@ -73,40 +99,40 @@ export function checkIfBroodSpaceRoot(
   posB = column + 1;
   posA = row;
 
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
+  if (posA < 0 || posB < 0 || posA >= fields.length || posB >= fields.length) {
     available1 = null;
   } else {
-    available1 = fields[posB][posA].blocked ? null : fields[posB][posA];
+    available1 = fields[posA][posB].blocked ? null : fields[posA][posB];
   }
 
   // 2. south-west
   posB = column;
   posA = row + 1;
 
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
+  if (posA < 0 || posB < 0 || posA >= fields.length || posB >= fields.length) {
     available2 = null;
   } else {
-    available2 = fields[posB][posA].blocked ? null : fields[posB][posA];
+    available2 = fields[posA][posB].blocked ? null : fields[posA][posB];
   }
 
   // 3. south-east
   posB = column + 1;
   posA = row + 1;
 
-  if (posA < 0 || posB < 0 || posA == fields.length || posB == fields.length) {
+  if (posA < 0 || posB < 0 || posA >= fields.length || posB >= fields.length) {
     available3 = null;
   } else {
-    available3 = fields[posB][posA].blocked ? null : fields[posB][posA];
+    available3 = fields[posA][posB].blocked ? null : fields[posA][posB];
   }
 
-  let bs: BroodSpace = [null, null, null, null];
-  bs[0] = available0;
-  bs[1] = available1;
-  bs[2] = available2;
-  bs[3] = available3;
+  let broodFields: BasicInitialBroodFields = [null, null, null, null];
+  broodFields[0] = available0;
+  broodFields[1] = available1;
+  broodFields[2] = available2;
+  broodFields[3] = available3;
 
   // = [available0, available1, available2, available3];
-  // console.log(bs);
+  // console.log('##', bs);
 
   if (
     available0 !== null &&
@@ -114,7 +140,7 @@ export function checkIfBroodSpaceRoot(
     available2 !== null &&
     available3 !== null
   ) {
-    return bs;
+    return broodFields;
   } else return null;
 }
 

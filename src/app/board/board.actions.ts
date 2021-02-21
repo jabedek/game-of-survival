@@ -28,8 +28,25 @@ export const setFieldEmpty = createAction(
   props<{ pos: FieldPos }>()
 );
 
+export const removeBroodMember = createAction(
+  '[Board/Field] Remove  Brood member',
+  props<{ pos: FieldPos }>()
+);
+export const addBroodMember = createAction(
+  '[Board/Field] Add Brood mmber',
+  props<{ unit: ParticleUnit }>()
+);
+export const setBroodMemberOnPos = createAction(
+  '[Board/Field] Set Brood member on position',
+  props<{ unit: ParticleUnit }>()
+);
+
+export const setParticleBroodBelonging = createAction(
+  '[Board/Field] Set Particle Brood belonging ',
+  props<{ unit: ParticleUnit }>()
+);
 export const removeUnitFromBrood = createAction(
-  '[Board/Field] Remove Unit From Brood',
+  '[Board/Field] Remove Unit from Brood',
   props<{ pos: FieldPos }>()
 );
 

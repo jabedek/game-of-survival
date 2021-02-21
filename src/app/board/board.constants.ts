@@ -9,7 +9,7 @@ export type NEIGHBORS_BEST_CHANCES_NOT_DIE = 2 | 3;
 // export type neededNeighborsToLowerDeathChances = 2 | 3;
 
 // ### BOARD ###
-export const BOARD_DIMENSIONS = 20;
+export const BOARD_DIMENSIONS = 4;
 export const BOARD_DIMENSIONS_X = 60;
 export const BOARD_DIMENSIONS_Y = 60;
 

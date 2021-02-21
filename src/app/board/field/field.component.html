@@ -3,7 +3,7 @@
   [style.width.px]="fieldSize"
   [style.height.px]="fieldSize"
   (mousedown)="toggleSelf()"
-  (contextmenu)="addBrood($event)"
+  (contextmenu)="addBroodOnContextmenu($event)"
 >
   <div class="field" *ngIf="selfDetails$ | async as data; else loading">
     <div class="field__content">

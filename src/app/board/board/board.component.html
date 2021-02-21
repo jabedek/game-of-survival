@@ -1,34 +1,39 @@
-<app-board-container
-  [boardDimensions]="boardDimensions"
-  [fieldSize]="fieldSize"
-  [fields]="fields$ | async"
->
-</app-board-container>
+<div>
+  <app-board-container
+    [boardDimensions]="boardDimensions"
+    [fieldSize]="fieldSize"
+    [fields]="fields$ | async"
+  >
+  </app-board-container>
 
-<ng-content></ng-content>
-<button (click)="showPanel()" class="global-button">Pokaż panel</button>
+  <ng-content></ng-content>
+  <button (click)="showPanel()" class="global-button">Pokaż panel</button>
 
-<div *ngIf="panelShowing" class="game-panel">
-  <div class="available">
-    <p>Empty Fields: {{ (boardService.getEmptyFields$() | async).length }}</p>
-    <p>
-      Brood Spaces:
-      {{ (broodService.getAllValidBroodSpaces$() | async).length }}
+  <div *ngIf="panelShowing" class="game-panel">
+    <div class="available">
+      <p>Empty Fields: {{ (boardService.getEmptyFields$() | async).length }}</p>
+      <p>
+        Brood Spaces:
+        {{ (broodService.getAllValidBroodSpaces$() | async).length }}
+      </p>
+      <p>
+        Brood so far: {{ (broodService.getBroodsOnBoard$() | async)?.length }}
+      </p>
+    </div>
+
+    <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>
+
+    <p class="board__button" (click)="handleClick('toggleBorders')">
+      Toggle obsticle borders
     </p>
-    <p>
-      Brood so far: {{ (broodService.getBroodsOnBoard$() | async)?.length }}
+    <p class="board__button" (click)="handleClick('scenario1')">
+      Borders & particles & additional obsticles
+    </p>
+    <p
+      class="board__button"
+      (click)="handleClick('addNewBroodValidRootRandomly')"
+    >
+      Add new Brood randomly
     </p>
   </div>
-
-  <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>
-
-  <p class="board__button" (click)="handleClick('toggleBorders')">
-    Toggle obsticle borders
-  </p>
-  <p class="board__button" (click)="handleClick('scenario1')">
-    Borders & particles & additional obsticles
-  </p>
-  <p class="board__button" (click)="handleClick('addNewBroodBSRRootRandomly')">
-    Add new Brood randomly
-  </p>
 </div>

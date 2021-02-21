@@ -126,6 +126,12 @@ export class ParticleComponent implements OnInit, AfterViewInit, OnDestroy {
     this.beginTurn();
   }
 
+  settings(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    console.log('edit unit group');
+  }
+
   ngOnDestroy() {
     this.subscriptionNeighbors.unsubscribe();
   }

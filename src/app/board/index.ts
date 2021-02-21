@@ -2,7 +2,7 @@ import { createFeatureSelector, createSelector, props } from '@ngrx/store';
 import {
   AppState,
   BoardState,
-  BroodSpace,
+  BasicInitialBroodFields,
   ValidPotentialBroodSpace,
   BroodsState,
   Field,
@@ -36,6 +36,16 @@ export const selectParticlesOnBoard = createSelector(
     return state.particlesOnBoard;
   }
 );
+
+export const selectParticlesAndBroods = createSelector(
+  selectBoard,
+  selectParticleUnits,
+  (state) => {
+    // console.log(state);
+    return state;
+  }
+);
+
 export const selectBroodsRaport = createSelector(
   selectBoard,
   (state: BoardState) => state.raport
@@ -46,25 +56,28 @@ export const selectBoardFields = createSelector(
   (state: BoardState) => state.fields
 );
 
+export interface TEST {
+  settlement: BasicInitialBroodFields;
+}
 export const selectValidBroodSpaces = createSelector(
   selectBoardFields,
   (fields: Fields) => {
-    let bss: BroodSpace[] = [];
-    let bssRootPos: FieldPos[] = [];
-
+    let settlements: BasicInitialBroodFields[] = [];
+    let validBroodRoots: FieldPos[] = [];
     let raport: ValidPotentialBroodSpace[] = [];
 
     [...fields].forEach((fieldsCol) => {
       [...fieldsCol].forEach((field) => {
-        const result = HELPERS.checkIfBroodSpaceRoot([...fields], field.pos);
+        const result = HELPERS.isValidBroodRoot([...fields], field.pos);
         if (result !== null) {
-          bssRootPos.push(field.pos);
-          bss.push(result);
-
+          validBroodRoots.push(field.pos);
+          settlements.push(result);
           raport.push({ startingPos: field.pos, space: result });
         }
       });
     });
+
+    // console.log(raport);
 
     return raport;
   }
@@ -92,7 +105,7 @@ export const selectEmptyFields = createSelector(
 export const selectBoardField = createSelector(
   selectBoard,
   (state: BoardState, props) => {
-    const fieldDetails = state.fields[props.row][props.column];
+    const fieldDetails = state?.fields[props.row][props.column];
     // console.log(props);
     return fieldDetails;
   }
