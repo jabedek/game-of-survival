@@ -6,25 +6,11 @@
   (contextmenu)="addBroodOnContextmenu($event)"
 >
   <div class="field" *ngIf="selfDetails$ | async as data; else loading">
-    <div class="field__content">
+    <div class="field__content" *ngIf="data?.blocked">
       <ng-container
-        *ngIf="data?.occupyingUnit; then particleUnit"
-      ></ng-container>
-      <!-- <app-particle
-        *ngIf="data?.occupyingUnit && pos"
-        [fieldPos]="{ row: pos.row, column: pos.column }"
-        [particleUnit]="data?.occupyingUnit"
-        [isColor]="'blue'"
+        *ngIf="data?.occupyingUnit; then particleUnit; else obsticleUnit"
       >
-      </app-particle> -->
-
-      <app-obsticle
-        *ngIf="data?.blocked === true && !data?.occupyingUnit"
-        [fieldPos]="{ row: pos.row, column: pos.column }"
-        [row]="pos.column"
-        [column]="pos.row"
-      >
-      </app-obsticle>
+      </ng-container>
 
       <ng-container *ngIf="displayDetails">
         {{ data?.blocked }}
@@ -39,8 +25,13 @@
       <!-- <p class="particle particle--test"></p> -->
       <p class="particle {{ 'particle--' + item.color }}"></p>
     </div>
-    <!-- class="particle particle--test {{ '!particle--' + particleUnit.color }}" -->
-    <!-- <p class="pos__X" *ngIf="fieldPos">{{ fieldPos.x }}</p>
-<p class="pos__Y" *ngIf="fieldPos">{{ fieldPos.y }}</p> -->
+  </ng-template>
+
+  <ng-template #obsticleUnit let-item>
+    <div
+      class="obsticle"
+      [style.width.px]="CSSsize"
+      [style.height.px]="CSSsize"
+    ></div>
   </ng-template>
 </div>
