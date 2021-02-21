@@ -10,16 +10,6 @@
   <button (click)="showPanel()" class="global-button">Pokaż panel</button>
 
   <div *ngIf="panelShowing" class="game-panel">
-    <div class="available">
-      <p>Empty Fields: {{ emptyFields.length }}</p>
-      <p>
-        VALID BROOD ROOTS:
-        {{ validBroodSpaces.length }}
-      </p>
-      <p>Brood so far: {{ broodsList.length }}</p>
-      <p>All particles: {{ particlesList.length }}</p>
-    </div>
-
     <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>
 
     <p class="board__button" (click)="handleClick('toggleBorders')">

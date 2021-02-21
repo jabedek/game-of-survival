@@ -2,31 +2,51 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { BoardService } from './board/board.service';
 import { BroodsService } from './board/broods.service';
-import { AppState, Brood, Field, Fields } from './shared/types-interfaces';
+import {
+  AppState,
+  Brood,
+  Field,
+  Fields,
+  ParticleUnit,
+  ValidPotentialBroodSpace,
+} from './shared/types-interfaces';
 
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
+import {
+  selectAvailableFieldsAndSpaces,
+  selectBoard,
+  selectBoardFields,
+  selectBoardSnapshot,
+  selectParticlesAndBroods,
+} from './board';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
-  broodsList$: Observable<Brood[]> = this.broodsService.getBroodsOnBoard$();
-  emptyFields$: Observable<Field[]> = this.boardService.getEmptyFields$();
-  allFields$: Observable<Fields> = this.boardService.getAllFields$();
+  // Observables
+  fields$: Observable<Fields> = this.store.select(selectBoardFields);
+  particlesAndBroods$ = this.store.select(selectParticlesAndBroods);
+  availableFieldsAndSpaces$ = this.store.select(selectAvailableFieldsAndSpaces);
+  boardSnapshot$ = this.store.select(selectBoardSnapshot);
+  boardState$ = this.store.select(selectBoard);
+  // Observable data
+  particlesList: ParticleUnit[] = [];
+  broodsList: Brood[] = [];
+  emptyFields: Field[] = [];
+  validBroodSpaces: ValidPotentialBroodSpace[] = null;
+
+  // Subscriptions
+  subscription: Subscription = new Subscription();
 
   constructor(
     public store: Store<AppState>,
     public boardService: BoardService,
     public broodsService: BroodsService
-  ) {}
-
-  launchBroodTurns() {
-    Promise.all([
-      this.broodsList$.toPromise(),
-      this.emptyFields$.toPromise(),
-      this.allFields$.toPromise(),
-    ]).then((value) => {
-      // console.log(value);
-    });
+  ) {
+    this.boardSnapshot$.subscribe((data) => console.log());
+    // this.boardState$.subscribe((data) => console.log(data));
   }
+
+  launchBroodTurns() {}
 }

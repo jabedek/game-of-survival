@@ -41,6 +41,7 @@ export const swapBroodMemberOnPos = createAction(
   props<{ unit: ParticleUnit }>()
 );
 
+export const clearParticles = createAction('[Board/Field] Clear Particles');
 export const addParticleToList = createAction(
   '[Board/Field] Add Particle to list',
   props<{ unit: ParticleUnit }>()

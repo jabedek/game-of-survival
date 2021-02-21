@@ -28,6 +28,7 @@ import {
   swapBroodMemberOnPos,
   addParticleToList,
   deleteParticleFromList,
+  clearParticles,
 } from './board.actions';
 import * as HELPERS from './board.helpers';
 
@@ -224,6 +225,10 @@ export class BoardService {
     action === 'add'
       ? this.store.dispatch(addParticleToList({ unit }))
       : this.store.dispatch(deleteParticleFromList({ pos: unit.pos }));
+  }
+
+  clearParticles() {
+    this.store.dispatch(clearParticles());
   }
 
   /**

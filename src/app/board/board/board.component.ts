@@ -55,17 +55,9 @@ export class BoardComponent
   ) {}
 
   // Observables
-  fields$: Observable<Fields> = this.store.select(selectBoardFields);
-  particlesAndBroods$ = this.store.select(selectParticlesAndBroods);
-  availableFieldsAndSpaces$ = this.store.select(selectAvailableFieldsAndSpaces);
-
-  // Observable data
-  particlesList: ParticleUnit[] = [];
-  broodsList: Brood[] = [];
-  emptyFields: Field[] = [];
+  fields$ = this.store.select(selectBoardFields);
+  validBroodSpaces$ = this.store.select(selectValidBroodSpaces);
   validBroodSpaces: ValidPotentialBroodSpace[] = null;
-
-  // Subscriptions
   subscription: Subscription = new Subscription();
 
   // UI related
@@ -77,21 +69,12 @@ export class BoardComponent
 
   ngOnInit(): void {
     this.subscription.add(
-      this.particlesAndBroods$.subscribe((data) => {
-        this.broodsList = data.broodsList;
-        this.particlesList = data.particlesList;
-      })
-    );
-
-    this.subscription.add(
-      this.availableFieldsAndSpaces$.subscribe((data) => {
-        this.validBroodSpaces = data.validBroodSpaces;
-        this.emptyFields = data.emptyFields;
+      this.validBroodSpaces$.subscribe((data) => {
+        this.validBroodSpaces = data;
       })
     );
 
     this.initBoard();
-
     this.toggleBordersDown();
     this.addNewBroodValidRootRandomly();
   }
@@ -135,19 +118,12 @@ export class BoardComponent
       })
     );
 
+    this.boardService.clearParticles();
     this.broodService.clearBroods();
   }
 
   handleClick(type: string) {
     this[type]();
-  }
-
-  private checkThenDeleteEmptyBroods(data: Brood[]) {
-    data.forEach((brood) => {
-      if (!brood.units) {
-        this.store.dispatch(removeBroodFromList({ id: brood.id }));
-      }
-    });
   }
 
   reloadBoard() {

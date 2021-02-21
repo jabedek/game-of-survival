@@ -106,6 +106,16 @@ export const selectAvailableFieldsAndSpaces = createSelector(
   }
 );
 
+export const selectBoardSnapshot = createSelector(
+  selectAvailableFieldsAndSpaces,
+  selectParticlesAndBroods,
+  (available, occupied) => {
+    return { available, occupied };
+  }
+);
+
+// export const selectBoar
+
 export const selectBoardField = createSelector(
   selectBoard,
   (state: BoardState, props) => {

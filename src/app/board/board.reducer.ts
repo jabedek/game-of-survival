@@ -56,7 +56,7 @@ const authReducer = createReducer(
    * Doesn't update particle on a field on its own.
    */
   on(appActions.removeBroodMember, (state, { pos }) => {
-    const broodsList = [...state.broodsList].map((b) => {
+    let broodsList = [...state.broodsList].map((b) => {
       let brood = Object.assign({}, b);
 
       brood.units = brood.units.filter(
@@ -65,6 +65,8 @@ const authReducer = createReducer(
 
       return brood;
     });
+
+    broodsList = broodsList.filter((b) => b.units.length !== 0);
 
     return { ...state, broodsList };
   }),
@@ -109,6 +111,13 @@ const authReducer = createReducer(
     });
 
     return { ...state, broodsList };
+  }),
+
+  on(appActions.clearParticles, (state) => {
+    return {
+      ...state,
+      particlesList: [],
+    };
   }),
 
   on(appActions.addParticleToList, (state, { unit }) => {

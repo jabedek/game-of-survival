@@ -117,9 +117,8 @@ export class BroodsService {
       ),
     ];
 
-    let units = fallbackUnits.filter((u) => isInBoundries(dimensions, u.pos));
-
-    let brood = new Brood(broodId, units, color);
+    const units = fallbackUnits.filter((u) => isInBoundries(dimensions, u.pos));
+    const brood = new Brood(broodId, units, color);
 
     this.service.addBroodToList(brood);
   }

@@ -8,4 +8,25 @@
     <div class="bigstar"></div>
     <div class="bigstar1"></div>
   </ng-container>
+
+  <div *ngIf="panelShowing" class="game-panel">
+    <div class="info-list">
+      <div class="info">
+        <p class="key">Empty Fields:</p>
+        <p class="val">{{ emptyFields.length }}</p>
+      </div>
+      <div class="info">
+        <p class="key">VALID BROOD ROOTS:</p>
+        <p class="val">{{ validBroodSpaces.length }}</p>
+      </div>
+      <div class="info">
+        <p class="key">All Broods:</p>
+        <p class="val">{{ broodsList.length }}</p>
+      </div>
+      <div class="info">
+        <p class="key">All particles:</p>
+        <p class="val">{{ particlesList.length }}</p>
+      </div>
+    </div>
+  </div>
 </div>
