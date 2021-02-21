@@ -1,4 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterContentChecked,
+  AfterContentInit,
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
 import { selectBoardSnapshot, selectUI } from './board';
@@ -20,7 +27,7 @@ import {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ui$ = this.store.select(selectUI);
   decorShowing = true;
   panelShowing = true;
@@ -51,12 +58,19 @@ export class AppComponent implements OnInit, OnDestroy {
     );
   }
 
-  ngOnInit() {
-    this.game.launchBroodTurns();
-  }
+  ngOnInit() {}
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+  ngAfterViewInit() {
+    console.log('elo');
+  }
+
+  nextTurn() {
+    if (this.broodsList.length > 0) {
+      this.game.nextTurn(this.broodsList);
+    }
   }
 
   toggleDecor() {

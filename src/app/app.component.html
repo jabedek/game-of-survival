@@ -1,5 +1,6 @@
 <div class="main-container" (contextmenu)="$event.preventDefault()">
   <app-board>
+    <button (click)="nextTurn()" class="global-button">Kolejna tura</button>
     <button (click)="toggleDecor()" class="global-button">Pokaż grafikę</button>
   </app-board>
 

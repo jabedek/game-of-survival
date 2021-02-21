@@ -74,8 +74,6 @@ export const selectValidBroodSpaces = createSelector(
       });
     });
 
-    // console.log(raport);
-
     return raport;
   }
 );
@@ -115,13 +113,10 @@ export const selectBoardSnapshot = createSelector(
   }
 );
 
-// export const selectBoar
-
 export const selectBoardField = createSelector(
   selectBoard,
   (state: BoardState, props) => {
     const fieldDetails = state?.fields[props.row][props.column];
-    // console.log(props);
     return fieldDetails;
   }
 );

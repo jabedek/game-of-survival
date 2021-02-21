@@ -97,7 +97,6 @@ export class BoardComponent implements OnInit {
       );
 
       let rndId = `uniton-${Math.floor(Math.random() * 1000)}`;
-      console.log(rndId);
 
       this.boardService.addNewBroodOnContextmenu(
         rndId,

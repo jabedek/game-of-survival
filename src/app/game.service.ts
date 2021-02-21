@@ -46,5 +46,9 @@ export class GameService {
     // this.boardState$.subscribe((data) => console.log(data));
   }
 
-  launchBroodTurns() {}
+  nextTurn(broods: Brood[]) {
+    broods.forEach(function (b) {
+      b.beginTurn();
+    });
+  }
 }

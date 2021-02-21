@@ -1,3 +1,12 @@
+$blue: rgba(5, 50, 230, 1);
+$red: rgba(200, 50, 5, 1);
+$green: rgba(50, 200, 5, 1);
+$purple: rgba(110, 20, 245, 1);
+
+$brightness-hover: 125%;
+$brightness-active: 150%;
+$brightness-focus: 200%;
+
 .field-container {
   // border: 1px solid rgb(110, 100, 90);
 
@@ -50,25 +59,18 @@
   }
   cursor: pointer;
   &:hover {
-    filter: brightness(125%);
+    border-color: rgba(80, 80, 80);
+    filter: brightness($brightness-hover);
   }
 
   &:active {
-    filter: brightness(150%);
+    filter: brightness($brightness-active);
   }
 
   &:focus {
-    filter: brightness((200%));
+    filter: brightness(($brightness-focus));
   }
 }
-$blue: rgba(5, 50, 230, 1);
-$red: rgba(200, 50, 5, 1);
-$green: rgba(50, 200, 5, 1);
-$purple: rgba(110, 20, 245, 1);
-
-$brightness-hover: 125%;
-$brightness-active: 150%;
-$brightness-focus: 200%;
 
 .particle {
   position: relative;
@@ -97,7 +99,7 @@ $brightness-focus: 200%;
     background: rgb(0, 0, 0);
 
     &:hover {
-      filter: drop-shadow(0 0 0.75rem $green) brightness($brightness-hover);
+      filter: drop-shadow(0 0 0.75rem $purple) brightness($brightness-hover);
     }
 
     &:active {

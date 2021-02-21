@@ -70,7 +70,7 @@ export interface Brood {
   units: ParticleUnit[];
   color: string;
   turnState: 'to do' | 'moving' | 'done';
-  beginTurn(cb: Function);
+  beginTurn(): void;
 }
 export interface NeighborField {
   field: Field;
@@ -86,6 +86,10 @@ export interface NeighborsRaport {
 export type ParticleColor = 'red' | 'blue' | 'green' | 'black' | 'mixed';
 
 export class Brood implements Brood {
+  beginTurn = () => {
+    console.log('Making turn:', this.id);
+  };
+
   constructor(id: string, units: ParticleUnit[], color: string) {
     this.id = id;
     this.units = units || null;
