@@ -119,9 +119,13 @@ const authReducer = createReducer(
   }),
 
   on(appActions.deleteParticleFromList, (state, { pos }) => {
+    const particlesList = [...state.particlesList].filter(
+      (p) => !(p.pos.row === pos.row && p.pos.column === pos.column)
+    );
+
     return {
       ...state,
-      particlesList: [...state.particlesList].filter((p) => p.pos !== pos),
+      particlesList,
     };
   }),
 

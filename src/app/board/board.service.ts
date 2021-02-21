@@ -267,6 +267,7 @@ export class BoardService {
       this.setFieldParticle(unit);
       this.setParticleBroodBelonging(unit, unit.groupId);
       this.addMemberToBroodUnits(unit);
+      this.updateParticlesOnBoard('add', unit);
     });
 
     this.store.dispatch(addBroodToList({ brood }));
