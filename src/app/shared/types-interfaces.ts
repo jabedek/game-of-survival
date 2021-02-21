@@ -88,6 +88,10 @@ export type ParticleColor = 'red' | 'blue' | 'green' | 'black' | 'mixed';
 export class Brood implements Brood {
   beginTurn = () => {
     console.log('Making turn:', this.id);
+
+    this.units.forEach((u) => {
+      // u.
+    });
   };
 
   constructor(id: string, units: ParticleUnit[], color: string) {

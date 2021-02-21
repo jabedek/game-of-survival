@@ -9,6 +9,7 @@ import {
   FieldPos,
   Fields,
   NeighborsRaport,
+  ParticleUnit,
 } from '../shared/types-interfaces';
 import { BOARD_DIMENSIONS } from './board.constants';
 
@@ -121,6 +122,13 @@ export const selectBoardField = createSelector(
   }
 );
 
+export const selectParticleField = createSelector(
+  selectBoardFields,
+  (fields: Fields, props) => {
+    return fields[props.row][props.column];
+  }
+);
+
 export const selectFieldBlocked = createSelector(
   selectBoardFields,
   (fields: Fields, props: FieldPos) => {
@@ -129,6 +137,18 @@ export const selectFieldBlocked = createSelector(
     return field.blocked;
   }
 );
+
+export const selectUnitsNeighbors = createSelector(
+  selectBoardFields,
+  (fields: Fields, props: ParticleUnit[]) => {
+    const fieldsNeighbors: NeighborsRaport[] = props.map((p) => {
+      return HELPERS.getNeighbors([...fields], p.pos);
+    });
+
+    return fieldsNeighbors;
+  }
+);
+
 export const selectFieldNeighbors = createSelector(
   selectBoardFields,
   (fields: Fields, props: FieldPos) => {

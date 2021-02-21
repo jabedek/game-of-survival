@@ -1,10 +1,13 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
+  SimpleChanges,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
@@ -17,7 +20,7 @@ import {
   NeighborsRaport,
   ParticleUnit,
 } from 'src/app/shared/types-interfaces';
-import { selectBoardField } from '..';
+import { selectBoardField, selectFieldNeighbors } from '..';
 
 import { BoardService } from '../board.service';
 import { FIELD_SIZE } from '../board.constants';
@@ -28,7 +31,8 @@ import { FIELD_SIZE } from '../board.constants';
   styleUrls: ['./field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FieldComponent implements OnInit, OnDestroy {
+export class FieldComponent
+  implements OnInit, OnDestroy, OnChanges, AfterViewInit {
   // From Particle:
 
   CSSsize = FIELD_SIZE * 0.8;
@@ -42,7 +46,7 @@ export class FieldComponent implements OnInit, OnDestroy {
   broodInfo: Brood = null;
 
   neighbors: NeighborsRaport = null;
-
+  occupyingUnit = null;
   ////
   @Input() pos: FieldPos;
   @Input() fieldSize: number;
@@ -67,6 +71,8 @@ export class FieldComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.neighbors$ = this.store.select(selectFieldNeighbors, this.pos);
+
     this.CSS.size = this.fieldSize;
 
     this.selfDetails$ = this.store.select(selectBoardField, this.pos);
@@ -76,17 +82,35 @@ export class FieldComponent implements OnInit, OnDestroy {
 
         if (data.blocked === true) {
           if (data.occupyingUnit?.pos) {
+            this.occupyingUnit = data.occupyingUnit;
+
             this.mode = 2;
           } else {
+            this.occupyingUnit = false;
             this.mode = 1;
           }
         } else {
+          this.occupyingUnit = false;
           this.mode = 0;
         }
       })
     );
   }
+  ngAfterViewInit() {
+    if (this.occupyingUnit) {
+      console.log('ngAfterViewInit');
+      this.subscriptionNeighbors.add(
+        this.neighbors$.subscribe((data) => {
+          console.log(data);
+          this.neighbors = data;
+        })
+      );
+    }
+  }
 
+  ngOnChanges(changes: SimpleChanges) {
+    // console.log(changes);
+  }
   ngOnDestroy() {
     this.subscription.unsubscribe();
     this.subscriptionNeighbors.unsubscribe();
@@ -107,9 +131,12 @@ export class FieldComponent implements OnInit, OnDestroy {
         );
         this.mode = 2;
         this.boardService.addNewParticle(unit);
+
         break;
       case 2:
         this.mode = 0;
+        this.subscriptionNeighbors.unsubscribe();
+
         this.boardService.deleteUnit(this.pos);
         break;
     }

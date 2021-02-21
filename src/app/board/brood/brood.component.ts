@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { Brood } from 'src/app/shared/types-interfaces';
 
 @Component({
   selector: 'app-brood',
@@ -6,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./brood.component.scss'],
 })
 export class BroodComponent implements OnInit {
+  @Input() brood: Brood = null;
   constructor() {}
 
   ngOnInit(): void {}

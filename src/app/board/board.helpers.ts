@@ -155,6 +155,10 @@ export function isInBoundries(boardDimensions: number, pos: FieldPos) {
   } else return false;
 }
 
+// export function
+
+// export function getParticleFieldI
+
 export function getNeighbors(fields: Fields, props: FieldPos): NeighborsRaport {
   const col: number = +props.column;
   const row: number = +props.row;

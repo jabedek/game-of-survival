@@ -16,7 +16,10 @@ import {
   selectBoard,
   selectBoardFields,
   selectBoardSnapshot,
+  selectFieldNeighbors,
+  selectParticleField,
   selectParticlesAndBroods,
+  selectUnitsNeighbors,
 } from './board';
 
 @Injectable({
@@ -43,11 +46,31 @@ export class GameService {
     public boardService: BoardService
   ) {
     this.boardSnapshot$.subscribe((data) => console.log());
+    // this.store
+
     // this.boardState$.subscribe((data) => console.log(data));
   }
 
   nextTurn(broods: Brood[]) {
-    broods.forEach(function (b) {
+    broods.forEach((b) => {
+      this.store.select(selectUnitsNeighbors, b.units).subscribe((data) => {
+        const neighbors = data;
+
+        let filtered: any[] = [];
+
+        b.units.forEach((u) => {
+          neighbors.forEach((n) => {
+            n.particles.forEach((p) => {
+              if (p?.field?.pos === u.pos) {
+                filtered.push(n);
+              }
+            });
+          });
+        });
+      });
+
+      b.units;
+
       b.beginTurn();
     });
   }
