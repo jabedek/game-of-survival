@@ -11,7 +11,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { GameService } from './game.service';
-import { BroodsService } from './board/broods.service';
 import { BoardService } from './board/board.service';
 
 @NgModule({
@@ -30,7 +29,7 @@ import { BoardService } from './board/board.service';
       logOnly: environment.production,
     }),
   ],
-  providers: [GameService, BroodsService, BoardService],
+  providers: [GameService, BoardService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

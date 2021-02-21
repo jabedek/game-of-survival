@@ -16,6 +16,7 @@ import {
   Fields,
   ParticleUnit,
   Brood,
+  ParticleColor,
 } from '../shared/types-interfaces';
 import {
   addBroodToList,
@@ -29,7 +30,9 @@ import {
   addParticleToList,
   deleteParticleFromList,
   clearParticles,
+  clearBroods,
 } from './board.actions';
+import { BOARD_DIMENSIONS } from './board.constants';
 import * as HELPERS from './board.helpers';
 
 @Injectable({
@@ -315,5 +318,82 @@ export class BoardService {
 
     // 3. Update brood units
     this.swapBroodMemberOnPos(updatedUnit);
+  }
+
+  addNewBroodBSRRoot(
+    id: string,
+    potentialSpaces: ValidPotentialBroodSpace,
+    color: ParticleColor
+  ) {
+    if (potentialSpaces) {
+      const broodId = id;
+      const fallbackUnits: ParticleUnit[] = potentialSpaces.space.map(
+        (s, index) => {
+          return new ParticleUnit(`${index}`, s.pos, color, broodId);
+        }
+      );
+
+      let brood = new Brood(broodId, fallbackUnits, color);
+
+      this.addBroodToList(brood);
+    }
+  }
+
+  addNewBroodOnContextmenu(
+    id: string,
+    pos: FieldPos,
+    color: ParticleColor = 'red'
+  ) {
+    const broodId = id;
+    const dimensions = BOARD_DIMENSIONS;
+    const fallbackUnits = [
+      new ParticleUnit(
+        `0`,
+        {
+          row: pos.row,
+          column: pos.column,
+        },
+        color,
+        broodId
+      ),
+      new ParticleUnit(
+        `1`,
+        {
+          row: pos.row,
+          column: pos.column + 1,
+        },
+        color,
+        broodId
+      ),
+      new ParticleUnit(
+        `2`,
+        {
+          row: pos.row + 1,
+          column: pos.column,
+        },
+        color,
+        broodId
+      ),
+      new ParticleUnit(
+        `3`,
+        {
+          row: pos.row + 1,
+          column: pos.column + 1,
+        },
+        color,
+        broodId
+      ),
+    ];
+
+    const units = fallbackUnits.filter((u) =>
+      HELPERS.isInBoundries(dimensions, u.pos)
+    );
+    const brood = new Brood(broodId, units, color);
+
+    this.addBroodToList(brood);
+  }
+
+  clearBroods() {
+    this.store.dispatch(clearBroods());
   }
 }

@@ -2,7 +2,6 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 
-import { BroodsService } from 'src/app/board/broods.service';
 import { GameService } from 'src/app/game.service';
 import {
   AppState,
@@ -28,7 +27,6 @@ export class BoardComponent implements OnInit {
   constructor(
     public store: Store<AppState>,
     public boardService: BoardService,
-    public broodService: BroodsService,
     public gameService: GameService,
     public cdr: ChangeDetectorRef
   ) {}
@@ -101,7 +99,7 @@ export class BoardComponent implements OnInit {
       let rndId = `uniton-${Math.floor(Math.random() * 1000)}`;
       console.log(rndId);
 
-      this.broodService.addNewBroodOnContextmenu(
+      this.boardService.addNewBroodOnContextmenu(
         rndId,
         this.validBroodSpaces[randomValidIndex]?.startingPos,
         'green'
@@ -122,7 +120,7 @@ export class BoardComponent implements OnInit {
     );
 
     this.boardService.clearParticles();
-    this.broodService.clearBroods();
+    this.boardService.clearBroods();
   }
 
   private toggleBordersDown() {

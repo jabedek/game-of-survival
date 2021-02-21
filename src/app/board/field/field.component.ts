@@ -2,13 +2,9 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
-  Output,
-  TemplateRef,
-  ViewChild,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
@@ -18,17 +14,13 @@ import {
   Field,
   FieldMode,
   FieldPos,
-  Fields,
   NeighborsRaport,
   ParticleUnit,
-  Unit,
 } from 'src/app/shared/types-interfaces';
-import { selectBoardField, selectBoardFields } from '..';
+import { selectBoardField } from '..';
 
-import { setFieldParticle } from '../board.actions';
-import { BroodsService } from '../broods.service';
 import { BoardService } from '../board.service';
-import { BOARD_DIMENSIONS, FIELD_SIZE } from '../board.constants';
+import { FIELD_SIZE } from '../board.constants';
 
 @Component({
   selector: 'app-field',
@@ -71,7 +63,6 @@ export class FieldComponent implements OnInit, OnDestroy {
   constructor(
     public store: Store<AppState>,
     public cdr: ChangeDetectorRef,
-    public broodsService: BroodsService,
     public boardService: BoardService
   ) {}
 
@@ -131,7 +122,7 @@ export class FieldComponent implements OnInit, OnDestroy {
 
     console.log('###', rndId);
 
-    this.broodsService.addNewBroodOnContextmenu(rndId, this.pos, 'red');
+    this.boardService.addNewBroodOnContextmenu(rndId, this.pos, 'red');
     this.cdr.markForCheck();
   }
 }

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { BoardService } from './board/board.service';
-import { BroodsService } from './board/broods.service';
 import {
   AppState,
   Brood,
@@ -41,8 +40,7 @@ export class GameService {
 
   constructor(
     public store: Store<AppState>,
-    public boardService: BoardService,
-    public broodsService: BroodsService
+    public boardService: BoardService
   ) {
     this.boardSnapshot$.subscribe((data) => console.log());
     // this.boardState$.subscribe((data) => console.log(data));
