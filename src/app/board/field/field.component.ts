@@ -41,10 +41,8 @@ export class FieldComponent implements OnInit, OnDestroy {
 
   CSSsize = FIELD_SIZE * 0.8;
   @Input() fieldPos: FieldPos;
-  @Input() isBlue = true;
-  @Input() isRed = true;
-  @Input() isPurple = false;
-  @Input() isColor: 'blue' | 'red' | 'purple' = 'blue';
+
+  @Input() isColor: 'blue' | 'red' | 'green' = 'blue';
   @Input() particleUnit: ParticleUnit;
   turnDone = false;
   subscriptionNeighbors: Subscription = new Subscription();
@@ -52,6 +50,7 @@ export class FieldComponent implements OnInit, OnDestroy {
   broodInfo: Brood = null;
 
   neighbors: NeighborsRaport = null;
+
   ////
   @Input() pos: FieldPos;
   @Input() fieldSize: number;
@@ -99,6 +98,7 @@ export class FieldComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    this.subscriptionNeighbors.unsubscribe();
   }
 
   toggleSelf() {
@@ -119,7 +119,7 @@ export class FieldComponent implements OnInit, OnDestroy {
         break;
       case 2:
         this.mode = 0;
-        this.boardService.deleteParticle(this.pos);
+        this.boardService.deleteUnit(this.pos);
         break;
     }
   }
@@ -132,5 +132,6 @@ export class FieldComponent implements OnInit, OnDestroy {
     console.log('###', rndId);
 
     this.broodsService.addNewBroodOnContextmenu(rndId, this.pos, 'red');
+    this.cdr.markForCheck();
   }
 }

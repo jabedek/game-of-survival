@@ -18,14 +18,16 @@ import {
   Brood,
 } from '../shared/types-interfaces';
 import {
-  addBrood,
-  addBroodMember,
+  addBroodToList,
+  addMemberToBroodUnits,
   removeBroodMember,
   loadFields,
   setFieldEmpty,
   setFieldObsticle,
   setFieldParticle,
-  setBroodMemberOnPos,
+  swapBroodMemberOnPos,
+  addParticleToList,
+  deleteParticleFromList,
 } from './board.actions';
 import * as HELPERS from './board.helpers';
 
@@ -218,9 +220,19 @@ export class BoardService {
     this.store.dispatch(setFieldParticle({ unit }));
   }
 
+  updateParticlesOnBoard(action: 'add' | 'del', unit: ParticleUnit) {
+    action === 'add'
+      ? this.store.dispatch(addParticleToList({ unit }))
+      : this.store.dispatch(deleteParticleFromList({ pos: unit.pos }));
+  }
+
+  /**
+   *
+   */
   addNewParticle(unit: ParticleUnit) {
     this.setFieldEmpty(unit.pos);
     this.setFieldParticle(unit);
+    this.updateParticlesOnBoard('add', unit);
 
     if (!!unit.groupId && unit.groupId.length > 0) {
       this.setParticleBroodBelonging(unit, unit.groupId);
@@ -230,8 +242,15 @@ export class BoardService {
   /**
    * Deletes a particle both from field (also UI) and from brood (if set any).
    */
-  deleteParticle(pos: FieldPos) {
+  deleteUnit(pos: FieldPos) {
     this.removeBroodMember(pos);
+    this.updateParticlesOnBoard('del', {
+      pos,
+      groupId: null,
+      color: null,
+      id: null,
+      state: null,
+    });
     this.setFieldEmpty(pos);
   }
 
@@ -240,17 +259,17 @@ export class BoardService {
    * Doesn't check given units' positions validity.
    * Before that, it deletes any existing particles on new brood units' positions.
    */
-  addBrood(brood: Brood) {
-    // console.log('addBrood');
+  addBroodToList(brood: Brood) {
+    // console.log('addBroodToList');
 
     brood.units.forEach((unit) => {
-      this.deleteParticle(unit.pos);
+      this.deleteUnit(unit.pos);
       this.setFieldParticle(unit);
       this.setParticleBroodBelonging(unit, unit.groupId);
-      this.addBroodMember(unit);
+      this.addMemberToBroodUnits(unit);
     });
 
-    this.store.dispatch(addBrood({ brood }));
+    this.store.dispatch(addBroodToList({ brood }));
   }
 
   /**
@@ -258,8 +277,8 @@ export class BoardService {
    * Doesn't update particle's belonging.
    */
 
-  private addBroodMember(unit: ParticleUnit) {
-    this.store.dispatch(addBroodMember({ unit }));
+  private addMemberToBroodUnits(unit: ParticleUnit) {
+    this.store.dispatch(addMemberToBroodUnits({ unit }));
   }
 
   /**
@@ -274,8 +293,8 @@ export class BoardService {
    * Overwrites brood member on member field position.
    * Doesn't update particle's belonging.
    */
-  private setBroodMemberOnPos(unit: ParticleUnit) {
-    this.store.dispatch(setBroodMemberOnPos({ unit }));
+  private swapBroodMemberOnPos(unit: ParticleUnit) {
+    this.store.dispatch(swapBroodMemberOnPos({ unit }));
   }
 
   /**
@@ -289,6 +308,6 @@ export class BoardService {
     const updatedUnit = { ...unit, groupId };
 
     // 3. Update brood units
-    this.setBroodMemberOnPos(updatedUnit);
+    this.swapBroodMemberOnPos(updatedUnit);
   }
 }

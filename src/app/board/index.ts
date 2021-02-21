@@ -21,30 +21,26 @@ export const selectParticleUnits = (state: AppState) => state.particleUnits;
 
 // export const featureSelector = createFeatureSelector<BoardState>('board');
 
-export const selectBroodsOnBoard = createSelector(
+export const selectBroodsList = createSelector(
   selectBoard,
   (state: BoardState) => {
-    return state.broodsOnBoard;
+    return state.broodsList;
   }
 );
 
-export const selectParticlesOnBoard = createSelector(
+export const selectParticlesList = createSelector(
   selectBoard,
   (state: BoardState) => {
-    // console.log(state.particlesOnBoard);
-
-    return state.particlesOnBoard;
+    return state.particlesList;
   }
 );
 
-export const selectParticlesAndBroods = createSelector(
-  selectBoard,
-  selectParticleUnits,
-  (state) => {
-    // console.log(state);
-    return state;
-  }
-);
+export const selectParticlesAndBroods = createSelector(selectBoard, (state) => {
+  return {
+    particlesList: state.particlesList,
+    broodsList: state.broodsList,
+  };
+});
 
 export const selectBroodsRaport = createSelector(
   selectBoard,
@@ -99,6 +95,14 @@ export const selectEmptyFields = createSelector(
     });
 
     return availableFields;
+  }
+);
+
+export const selectAvailableFieldsAndSpaces = createSelector(
+  selectEmptyFields,
+  selectValidBroodSpaces,
+  (emptyFields: any, validBroodSpaces: any) => {
+    return { emptyFields, validBroodSpaces };
   }
 );
 

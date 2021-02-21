@@ -11,9 +11,9 @@ import { NEIGHBORS_BEST_CHANCES_NOT_DIE } from '../board/board.constants';
 export interface ParticleUnit extends Unit {
   state: ParticleState;
   color: ParticleColor;
-  makeTurn(): boolean;
-  setLongTermGoal(): boolean;
-  getState(): any;
+  makeTurn?(): boolean;
+  setLongTermGoal?(): boolean;
+  getState?(): any;
 }
 
 export interface ParticleUnitSimplified extends Unit {
@@ -83,7 +83,7 @@ export interface NeighborsRaport {
   obsticles: NeighborField[];
 }
 
-export type ParticleColor = 'red' | 'blue' | 'purple' | 'black' | 'mixed';
+export type ParticleColor = 'red' | 'blue' | 'green' | 'black' | 'mixed';
 
 export class Brood implements Brood {
   constructor(id: string, units: ParticleUnit[], color: string) {
@@ -98,6 +98,14 @@ export interface Field {
   pos: FieldPos;
   blocked: boolean;
   occupyingUnit?: null | Unit;
+}
+
+export interface Particle {
+  name: string;
+  broodName: string;
+  CSSrgba: string;
+  CSSsize: { height: string; width: string };
+  // CSS:
 }
 
 export class Field implements Field {
@@ -141,13 +149,13 @@ export interface AppState {
 
 export interface BoardState {
   fields: [] | Fields;
-  broodsOnBoard: Brood[];
-  particlesOnBoard: ParticleUnit[];
+  broodsList: Brood[];
+  particlesList: ParticleUnit[];
   raport: ValidPotentialBroodSpace[];
 }
 
 export interface BroodsState {
-  broodsOnBoard: Brood[];
+  broodsList: Brood[];
   raport: ValidPotentialBroodSpace[];
 }
 

@@ -11,20 +11,20 @@ import {
   ParticleUnit,
   ParticleColor,
 } from '../shared/types-interfaces';
-import { selectBroodsOnBoard, selectValidBroodSpaces } from '.';
+import { selectBroodsList, selectValidBroodSpaces } from '.';
 import { BOARD_DIMENSIONS } from './board.constants';
 import { isInBoundries } from './board.helpers';
-// import { addBrood } from './broods.actions';
+// import { addBroodToList } from './broods.actions';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BroodsService {
-  public broodsOnBoard: Brood[] = [];
+  public broodsList: Brood[] = [];
   constructor(public store: Store<AppState>, public service: BoardService) {
     this.store
-      .select(selectBroodsOnBoard)
-      .subscribe((data) => (this.broodsOnBoard = data));
+      .select(selectBroodsList)
+      .subscribe((data) => (this.broodsList = data));
   }
 
   validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(
@@ -32,19 +32,19 @@ export class BroodsService {
   );
 
   getBroodById(id: string) {
-    return this.broodsOnBoard.find((brood) => brood.id === id);
+    return this.broodsList.find((brood) => brood.id === id);
   }
 
   getBroodByIndex(index: number) {
-    return this.broodsOnBoard[index];
+    return this.broodsList[index];
   }
 
   getUnit(id: string) {
-    return this.broodsOnBoard.forEach((b) => b.units.find((u) => u.id === id));
+    return this.broodsList.forEach((b) => b.units.find((u) => u.id === id));
   }
 
   getBroodsOnBoard$() {
-    return this.store.select(selectBroodsOnBoard);
+    return this.store.select(selectBroodsList);
   }
 
   // addNewFieldsOverwrite(unit:ParticleUnit) {
@@ -67,7 +67,7 @@ export class BroodsService {
 
       let brood = new Brood(broodId, fallbackUnits, color);
 
-      this.service.addBrood(brood);
+      this.service.addBroodToList(brood);
     }
   }
 
@@ -121,7 +121,7 @@ export class BroodsService {
 
     let brood = new Brood(broodId, units, color);
 
-    this.service.addBrood(brood);
+    this.service.addBroodToList(brood);
   }
 
   getAllValidBroodSpaces$() {

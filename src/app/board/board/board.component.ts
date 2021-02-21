@@ -18,21 +18,18 @@ import {
   Brood,
   ValidPotentialBroodSpace,
   Field,
-  FieldPos,
   Fields,
   ParticleUnit,
-  ParticleUnitSimplified,
-  Unit,
 } from 'src/app/shared/types-interfaces';
 import {
   selectBoardFields,
-  selectBroodsOnBoard,
   selectValidBroodSpaces,
   selectEmptyFields,
-  selectParticlesOnBoard,
+  selectParticlesList,
   selectParticlesAndBroods,
+  selectAvailableFieldsAndSpaces,
 } from '..';
-import { loadFields, removeBrood } from '../board.actions';
+import { loadFields, removeBroodFromList } from '../board.actions';
 import {
   BOARD_DIMENSIONS,
   FIELD_SIZE,
@@ -55,40 +52,41 @@ export class BoardComponent
     public broodService: BroodsService,
     public gameService: GameService,
     public cdr: ChangeDetectorRef
-  ) {
-    this.store
-      .select(selectParticlesAndBroods)
-      .subscribe((data) => console.log());
-  }
+  ) {}
 
-  boardDimensions = BOARD_DIMENSIONS;
-
-  fieldSize = FIELD_SIZE;
-
-  panelShowing = true;
-
-  FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
-
-  borderObsticlesUp = false;
-  validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(
-    selectValidBroodSpaces
-  );
-  validBroodSpaces: ValidPotentialBroodSpace[] = null;
-  broodsOnBoard: Observable<Brood[]> = this.store.select(selectBroodsOnBoard);
-  particlesOnBoard$: Observable<ParticleUnit[]> = this.store.select(
-    selectParticlesOnBoard
-  );
+  // Observables
   fields$: Observable<Fields> = this.store.select(selectBoardFields);
-  emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
-  emptyFieldsTotal = 0;
+  particlesAndBroods$ = this.store.select(selectParticlesAndBroods);
+  availableFieldsAndSpaces$ = this.store.select(selectAvailableFieldsAndSpaces);
 
-  broodSpacesTotal = 0;
+  // Observable data
+  particlesList: ParticleUnit[] = [];
+  broodsList: Brood[] = [];
+  emptyFields: Field[] = [];
+  validBroodSpaces: ValidPotentialBroodSpace[] = null;
+
+  // Subscriptions
   subscription: Subscription = new Subscription();
+
+  // UI related
+  boardDimensions = BOARD_DIMENSIONS;
+  FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
+  fieldSize = FIELD_SIZE;
+  panelShowing = true;
+  borderObsticlesUp = false;
 
   ngOnInit(): void {
     this.subscription.add(
-      this.validBroodSpaces$.subscribe((data) => {
-        this.validBroodSpaces = data;
+      this.particlesAndBroods$.subscribe((data) => {
+        this.broodsList = data.broodsList;
+        this.particlesList = data.particlesList;
+      })
+    );
+
+    this.subscription.add(
+      this.availableFieldsAndSpaces$.subscribe((data) => {
+        this.validBroodSpaces = data.validBroodSpaces;
+        this.emptyFields = data.emptyFields;
       })
     );
 
@@ -98,8 +96,18 @@ export class BoardComponent
     this.addNewBroodValidRootRandomly();
   }
 
+  ngAfterViewInit() {
+    this.cdr.detectChanges();
+  }
+  ngOnChanges(changes: SimpleChanges) {}
+
+  ngOnDestroy(): void {}
+
   showPanel() {
     this.panelShowing = !this.panelShowing;
+
+    if (this.panelShowing === false) {
+    }
   }
 
   addNewBroodValidRootRandomly() {
@@ -114,18 +122,9 @@ export class BoardComponent
       this.broodService.addNewBroodOnContextmenu(
         rndId,
         this.validBroodSpaces[randomValidIndex]?.startingPos,
-        'purple'
+        'green'
       );
     }
-  }
-
-  ngAfterViewInit() {
-    this.cdr.detectChanges();
-  }
-  ngOnChanges(changes: SimpleChanges) {}
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 
   initBoard() {
@@ -146,29 +145,10 @@ export class BoardComponent
   private checkThenDeleteEmptyBroods(data: Brood[]) {
     data.forEach((brood) => {
       if (!brood.units) {
-        this.store.dispatch(removeBrood({ id: brood.id }));
+        this.store.dispatch(removeBroodFromList({ id: brood.id }));
       }
     });
   }
-
-  // getEmptyFields() {
-
-  //   this.boardService
-  //     .getEmptyFields$()
-  //     .subscribe((data) => {
-  //       this.emptyFieldsTotal = data.length;
-  //     })
-  //     .unsubscribe();
-  // }
-
-  // getAllValidBroodSpaces() {
-  //   this.broodService
-  //     .getAllValidBroodSpaces$()
-  //     .subscribe((data) => {
-  //       this.broodSpacesTotal = data.length;
-  //     })
-  //     .unsubscribe();
-  // }
 
   reloadBoard() {
     this.initBoard();

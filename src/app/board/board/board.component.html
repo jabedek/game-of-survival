@@ -11,14 +11,13 @@
 
   <div *ngIf="panelShowing" class="game-panel">
     <div class="available">
-      <p>Empty Fields: {{ (boardService.getEmptyFields$() | async).length }}</p>
+      <p>Empty Fields: {{ emptyFields.length }}</p>
       <p>
-        Brood Spaces:
-        {{ (broodService.getAllValidBroodSpaces$() | async).length }}
+        VALID BROOD ROOTS:
+        {{ validBroodSpaces.length }}
       </p>
-      <p>
-        Brood so far: {{ (broodService.getBroodsOnBoard$() | async)?.length }}
-      </p>
+      <p>Brood so far: {{ broodsList.length }}</p>
+      <p>All particles: {{ particlesList.length }}</p>
     </div>
 
     <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>

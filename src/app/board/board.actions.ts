@@ -32,31 +32,41 @@ export const removeBroodMember = createAction(
   '[Board/Field] Remove  Brood member',
   props<{ pos: FieldPos }>()
 );
-export const addBroodMember = createAction(
-  '[Board/Field] Add Brood mmber',
+export const addMemberToBroodUnits = createAction(
+  '[Board/Field] Add Member To Brood Units',
   props<{ unit: ParticleUnit }>()
 );
-export const setBroodMemberOnPos = createAction(
-  '[Board/Field] Set Brood member on position',
+export const swapBroodMemberOnPos = createAction(
+  '[Board/Field] Swap Member onto Position',
   props<{ unit: ParticleUnit }>()
+);
+
+export const addParticleToList = createAction(
+  '[Board/Field] Add Particle to list',
+  props<{ unit: ParticleUnit }>()
+);
+
+export const deleteParticleFromList = createAction(
+  '[Board/Field] Delete Particle from list',
+  props<{ pos: FieldPos }>()
 );
 
 export const setParticleBroodBelonging = createAction(
   '[Board/Field] Set Particle Brood belonging ',
   props<{ unit: ParticleUnit }>()
 );
-export const removeUnitFromBrood = createAction(
-  '[Board/Field] Remove Unit from Brood',
+export const removeMemberFromBrood = createAction(
+  '[Board/Field] Remove Member from Brood',
   props<{ pos: FieldPos }>()
 );
 
-export const addBrood = createAction(
-  '[Board/Field] Add Broot on Root',
+export const addBroodToList = createAction(
+  '[Board/Field] Add Broot to List',
   props<{ brood: Brood }>()
 );
 
-export const removeBrood = createAction(
-  '[Board/Field] Remove Brood',
+export const removeBroodFromList = createAction(
+  '[Board/Field] Remove Brood from List',
   props<{ id: string }>()
 );
 

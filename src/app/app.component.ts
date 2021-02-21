@@ -7,7 +7,7 @@ import { GameService } from './game.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  decorShowing = false;
+  decorShowing = true;
   constructor(private game: GameService) {}
 
   ngOnInit() {

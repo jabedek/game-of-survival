@@ -7,7 +7,6 @@ import { BoardComponent } from './board/board.component';
 import { FieldComponent } from './field/field.component';
 import * as fromBoardReducer from './board.reducer';
 import { BrowserModule } from '@angular/platform-browser';
-import { ParticleModule } from '../particle/particle.module';
 import { ObsticleModule } from '../obsticle/obsticle.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -29,7 +28,6 @@ const components = [
     BoardRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    ParticleModule,
     ObsticleModule,
     BrowserAnimationsModule,
     StoreModule.forFeature(

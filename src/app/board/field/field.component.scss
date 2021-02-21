@@ -61,3 +61,142 @@
     filter: brightness((200%));
   }
 }
+$blue: rgba(5, 50, 230, 1);
+$red: rgba(200, 50, 5, 1);
+$green: rgba(50, 200, 5, 1);
+$purple: rgba(110, 20, 245, 1);
+
+$brightness-hover: 125%;
+$brightness-active: 150%;
+$brightness-focus: 200%;
+
+.particle {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 100%;
+  user-select: none;
+  cursor: pointer;
+
+  &:active {
+    filter: brightness($brightness-active);
+  }
+
+  &:focus {
+    filter: brightness(($brightness-focus));
+  }
+
+  &--black {
+    filter: drop-shadow(0 0 0.75rem $purple);
+    background: $red;
+
+    background: rgb(0, 0, 0);
+
+    &:hover {
+      filter: drop-shadow(0 0 0.75rem $green) brightness($brightness-hover);
+    }
+
+    &:active {
+      filter: drop-shadow(0 0 0.75rem $red) brightness($brightness-active);
+    }
+  }
+
+  &--red {
+    filter: drop-shadow(0 0 0.75rem $red);
+    background: $red;
+
+    background: rgb(0, 0, 0);
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 1) 0%,
+      $red 65%,
+      rgba(52, 52, 52, 1) 75%,
+      rgba(99, 99, 99, 1) 94%,
+      rgba(139, 139, 139, 1) 100%,
+      rgba(0, 0, 0, 1) 100%
+    );
+
+    &:hover {
+      filter: drop-shadow(0 0 0.75rem $red) brightness($brightness-hover);
+    }
+  }
+  &--blue {
+    filter: drop-shadow(0 0 0.75rem $blue);
+    background: $blue;
+
+    background: rgb(0, 0, 0);
+
+    background: rgb(0, 0, 0);
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 1) 0%,
+      $blue 65%,
+      rgba(52, 52, 52, 1) 75%,
+      rgba(99, 99, 99, 1) 94%,
+      rgba(139, 139, 139, 1) 100%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  }
+  &--green {
+    filter: drop-shadow(0 0 0.75rem $green);
+    background: $green;
+
+    background: rgb(0, 0, 0);
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 1) 0%,
+      $green 65%,
+      rgba(52, 52, 52, 1) 75%,
+      rgba(99, 99, 99, 1) 94%,
+      rgba(139, 139, 139, 1) 100%,
+      rgba(0, 0, 0, 1) 100%
+    );
+
+    &:hover {
+      filter: drop-shadow(0 0 0.75rem $green) brightness($brightness-hover);
+    }
+  }
+
+  &--mixed {
+    &:hover {
+      filter: drop-shadow(0 0 0.75rem $red) brightness($brightness-hover);
+    }
+
+    background: $blue;
+
+    background: rgb(0, 0, 0);
+
+    background: rgb(0, 0, 0);
+    background: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 1) 0%,
+      $blue 65%,
+      rgba(52, 52, 52, 1) 75%,
+      rgba(99, 99, 99, 1) 94%,
+      rgba(139, 139, 139, 1) 100%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  }
+}
+
+.animation-blurring {
+  animation: animation-blurring 4s linear infinite;
+}
+
+@keyframes animation-blurring {
+  0% {
+    color: rgba(255, 255, 0, 0.8);
+  }
+
+  46% {
+    color: rgba(255, 255, 0, 0.2);
+  }
+
+  51% {
+    color: rgba(255, 255, 0, 0.8);
+  }
+}

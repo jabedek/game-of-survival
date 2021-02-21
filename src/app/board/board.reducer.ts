@@ -13,65 +13,41 @@ export const featureKey = 'board';
 
 export const initialBoardState: BoardState = {
   fields: [],
-  broodsOnBoard: [],
-  particlesOnBoard: [],
+  broodsList: [],
+  particlesList: [],
   raport: null,
 };
 
 const authReducer = createReducer(
   initialBoardState,
-  on(appActions.removeBrood, (state, { id }) => {
-    const broodToDel = [...state.broodsOnBoard].findIndex((b) => b.id === id);
+  on(appActions.removeBroodFromList, (state, { id }) => {
+    const broodToDel = [...state.broodsList].findIndex((b) => b.id === id);
 
-    let broodsOnBoard = [...state.broodsOnBoard].map((b) => b);
+    let broodsList = [...state.broodsList].map((b) => b);
 
-    const unitsToDelete = broodsOnBoard[broodToDel].units;
+    const unitsToDelete = broodsList[broodToDel].units;
 
-    let units = [...state.particlesOnBoard].map((p) => p);
+    // let units = [...state.particlesList].map((p) => p);
 
-    for (let i = 0; i < unitsToDelete.length; i++) {
-      units = units.filter((u) => u.id === unitsToDelete[i].id);
-    }
+    // for (let i = 0; i < unitsToDelete.length; i++) {
+    //   units = units.filter((u) => u.id === unitsToDelete[i].id);
+    // }
     // console.log(broodToDel, units);
 
     return {
       ...state,
-      broodsOnBoard: [...state.broodsOnBoard].filter((b) => b.id !== id),
+      broodsList: [...state.broodsList].filter((b) => b.id !== id),
     };
   }),
 
-  on(appActions.addBrood, (state: BoardState, { brood }) => {
-    let exactInitialSpace = false;
-    let exactInitialBroodIndex = -1;
-    let broodsOnBoard: Brood[] = [...state.broodsOnBoard].map((b) => b);
-    console.log(broodsOnBoard);
-
-    // broodsOnBoard.forEach((b, i) => {
-    //   if (
-    //     b.units[0].pos === brood.units[0].pos &&
-    //     b.units[1].pos === brood.units[1].pos &&
-    //     b.units[2].pos === brood.units[2].pos &&
-    //     b.units[3].pos === brood.units[3].pos
-    //   ) {
-    //     exactInitialSpace = true;
-    //     exactInitialBroodIndex = i;
-    //   }
-    // });
-
-    // if (exactInitialSpace) {
-    //   broodsOnBoard[exactInitialBroodIndex] = brood;
-    // } else {
-    // }
-    broodsOnBoard = [...state.broodsOnBoard.map((b) => b), brood];
-    broodsOnBoard = [...broodsOnBoard].filter((b) => b.units.length > 0);
-
-    console.log(broodsOnBoard);
-    // console.log(broodsOnBoard[0]?.units[0]?.pos, '=== ', brood?.units[0].pos);
-    // console.log(exactInitialSpace);
+  on(appActions.addBroodToList, (state: BoardState, { brood }) => {
+    let broodsList: Brood[] = [...state.broodsList].map((b) => b);
+    broodsList = [...state.broodsList.map((b) => b), brood];
+    broodsList = [...broodsList].filter((b) => b.units.length > 0);
 
     return {
       ...state,
-      broodsOnBoard,
+      broodsList,
     };
   }),
 
@@ -80,59 +56,25 @@ const authReducer = createReducer(
    * Doesn't update particle on a field on its own.
    */
   on(appActions.removeBroodMember, (state, { pos }) => {
-    console.log('removeBroodMember');
+    const broodsList = [...state.broodsList].map((b) => {
+      let brood = Object.assign({}, b);
 
-    let particle: ParticleUnit = null;
-    // let particlesOnBoard: ParticleUnit[] = [...state.particlesOnBoard].map(
-    //   (p) => p
-    // );
+      brood.units = brood.units.filter(
+        (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
+      );
 
-    // particlesOnBoard.forEach((p) => {
-    //   if (p.pos !== pos) {
-    //   } else {
-    //     particle = { ...p };
-    //   }
-    // });
+      return brood;
+    });
 
-    // particlesOnBoard = particlesOnBoard.filter((p) => p.pos !== pos);
-
-    let newBrood: Brood;
-    let broodsOnBoard: Brood[] = [...state.broodsOnBoard].map((b) => b);
-    if (particle) {
-      broodsOnBoard = [
-        ...[...state.broodsOnBoard].map((data) => {
-          if (data?.id === particle.groupId) {
-            // console.log(particle);
-            newBrood = {
-              ...data,
-              units: [...data.units].filter((u) => u.id !== particle.id),
-            };
-
-            if (newBrood.units.length > 0) {
-              return data;
-            }
-          } else return data;
-        }),
-      ];
-
-      return state;
-    }
-    return state;
+    return { ...state, broodsList };
   }),
 
-  on(appActions.addBroodMember, (state, { unit }) => {
-    let broodsOnBoard = [...state.broodsOnBoard].map((b) => b);
+  on(appActions.addMemberToBroodUnits, (state, { unit }) => {
+    let broodsList = [...state.broodsList].map((b) => b);
     let broodToUpdate = null;
-    broodsOnBoard.forEach((b) => {
-      // console.log(b);
-      console.log(unit.groupId, '===');
-      console.log(b.id);
-
+    broodsList.forEach((b) => {
       if (b.id === unit.groupId) {
-        // console.log(b, unit);
-        // console.log(b.units);
         broodToUpdate = { ...b };
-        // if(b.)
 
         let overwritten = false;
         broodToUpdate.units.forEach((u) => {
@@ -147,19 +89,16 @@ const authReducer = createReducer(
           newUnits.push({ ...unit });
 
           broodToUpdate.units = newUnits;
-          // broodToUpdate.units.push(Object.assign({}, unit));
         }
       }
-      console.log(broodToUpdate);
-
       return b;
     });
 
-    return { ...state, broodsOnBoard };
+    return { ...state, broodsList };
   }),
 
-  on(appActions.setBroodMemberOnPos, (state, { unit }) => {
-    const broodsOnBoard = [...state.broodsOnBoard].map((b) => {
+  on(appActions.swapBroodMemberOnPos, (state, { unit }) => {
+    const broodsList = [...state.broodsList].map((b) => {
       b.units.forEach((u) => {
         if (u.pos === unit.pos) {
           u = unit;
@@ -169,13 +108,27 @@ const authReducer = createReducer(
       return b;
     });
 
-    return { ...state, broodsOnBoard };
+    return { ...state, broodsList };
+  }),
+
+  on(appActions.addParticleToList, (state, { unit }) => {
+    return {
+      ...state,
+      particlesList: Array.from(new Set([...state.particlesList, unit])),
+    };
+  }),
+
+  on(appActions.deleteParticleFromList, (state, { pos }) => {
+    return {
+      ...state,
+      particlesList: [...state.particlesList].filter((p) => p.pos !== pos),
+    };
   }),
 
   on(appActions.clearBroods, (state) => {
     return {
       ...state,
-      broodsOnBoard: [],
+      broodsList: [],
     };
   }),
 
@@ -189,23 +142,6 @@ const authReducer = createReducer(
   on(appActions.setFieldParticle, (state, { unit }) => {
     const { pos } = unit;
 
-    // 1. Update particlesOnBoard by overwriting unit on position or adding new unit
-    let overwrittenPos = false;
-    let particlesOnBoard: ParticleUnit[] = [...state.particlesOnBoard].map(
-      (p) => {
-        if (p.pos === pos) {
-          p = unit;
-          overwrittenPos = true;
-        }
-
-        return p;
-      }
-    );
-    if (!overwrittenPos) {
-      particlesOnBoard.push(unit);
-    }
-
-    // 2. Update new particle field
     const fields: Fields = [...state.fields].map((row: Field[]) =>
       row.map((field: Field) => {
         if (field.pos.column === pos.column && field.pos.row === pos.row) {
@@ -221,7 +157,7 @@ const authReducer = createReducer(
 
     return {
       ...state,
-      particlesOnBoard,
+
       fields,
     };
   }),
@@ -251,7 +187,6 @@ const authReducer = createReducer(
   on(appActions.setFieldEmpty, (state, { pos }) => {
     if (state.fields[pos.row] && state.fields[pos.row][pos.column]) {
       const previousField: Field = { ...state.fields[pos.row][pos.column] };
-      // console.log(state, pos);
 
       let blocked: boolean;
       if (!!previousField?.occupyingUnit?.pos) {
@@ -275,10 +210,7 @@ const authReducer = createReducer(
         })
       );
 
-      let particlesOnBoard: any[] = [...state.particlesOnBoard].map((p) => p);
-      // BROODS
-      let broodsOnBoard: Brood[] = [...state.broodsOnBoard].map((p) => p);
-      // console.log(broodsOnBoard);
+      let broodsList: Brood[] = [...state.broodsList].map((p) => p);
 
       // Check if it was particle and if was in brood then delete it from there
 
@@ -288,14 +220,10 @@ const authReducer = createReducer(
       ) {
         const { occupyingUnit } = previousField;
 
-        particlesOnBoard = [
-          ...state.particlesOnBoard.filter((p) => p.id !== occupyingUnit.id),
-        ];
-
         // brzydki syntax ale ngrx nie przepuści bez skopiowania obiektu / tablicy
         let indexToUpdate = -1;
         let broodToUpdate: Brood = {
-          ...[...state.broodsOnBoard].find((br: Brood, index) => {
+          ...[...state.broodsList].find((br: Brood, index) => {
             indexToUpdate = index;
             return br.id === occupyingUnit.groupId;
           }),
@@ -306,14 +234,13 @@ const authReducer = createReducer(
             (u) => u.pos !== occupyingUnit.pos
           );
 
-          broodsOnBoard[indexToUpdate] = broodToUpdate;
+          broodsList[indexToUpdate] = broodToUpdate;
         }
       }
 
       return {
         ...state,
-        particlesOnBoard,
-        broodsOnBoard,
+        broodsList,
         fields,
       };
     } else return state;
