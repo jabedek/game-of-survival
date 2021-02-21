@@ -1,5 +1,6 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import {
+  AppState,
   BoardState,
   Brood,
   Field,
@@ -16,6 +17,7 @@ export const initialBoardState: BoardState = {
   broodsList: [],
   particlesList: [],
   raport: null,
+  ui: { decorShowing: true, panelShowing: true },
 };
 
 const authReducer = createReducer(
@@ -113,6 +115,22 @@ const authReducer = createReducer(
     return { ...state, broodsList };
   }),
 
+  on(appActions.toggleUIPanelShowing, (state: BoardState) => {
+    let ui = { ...state.ui };
+    ui.panelShowing = !ui.panelShowing;
+    return {
+      ...state,
+      ui,
+    };
+  }),
+  on(appActions.toggleUIDecorShowing, (state: BoardState) => {
+    let ui = { ...state.ui };
+    ui.decorShowing = !ui.decorShowing;
+    return {
+      ...state,
+      ui,
+    };
+  }),
   on(appActions.clearParticles, (state) => {
     return {
       ...state,

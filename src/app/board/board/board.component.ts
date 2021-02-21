@@ -1,35 +1,15 @@
-import {
-  AfterViewInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, of, Subscription } from 'rxjs';
-import { concatMap, map, mergeMap } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+
 import { BroodsService } from 'src/app/board/broods.service';
 import { GameService } from 'src/app/game.service';
 import {
   AppState,
-  Brood,
   ValidPotentialBroodSpace,
-  Field,
-  Fields,
-  ParticleUnit,
 } from 'src/app/shared/types-interfaces';
-import {
-  selectBoardFields,
-  selectValidBroodSpaces,
-  selectEmptyFields,
-  selectParticlesList,
-  selectParticlesAndBroods,
-  selectAvailableFieldsAndSpaces,
-} from '..';
-import { loadFields, removeBroodFromList } from '../board.actions';
+import { selectBoardFields, selectUI, selectValidBroodSpaces } from '..';
+import { loadFields, toggleUIPanelShowing } from '../board.actions';
 import {
   BOARD_DIMENSIONS,
   FIELD_SIZE,
@@ -44,8 +24,7 @@ import { BoardService } from '../board.service';
   styleUrls: ['./board.component.scss'],
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BoardComponent
-  implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+export class BoardComponent implements OnInit {
   constructor(
     public store: Store<AppState>,
     public boardService: BoardService,
@@ -55,6 +34,7 @@ export class BoardComponent
   ) {}
 
   // Observables
+  ui$ = this.store.select(selectUI);
   fields$ = this.store.select(selectBoardFields);
   validBroodSpaces$ = this.store.select(selectValidBroodSpaces);
   validBroodSpaces: ValidPotentialBroodSpace[] = null;
@@ -69,6 +49,12 @@ export class BoardComponent
 
   ngOnInit(): void {
     this.subscription.add(
+      this.ui$.subscribe((data) => {
+        this.panelShowing = data.panelShowing;
+      })
+    );
+
+    this.subscription.add(
       this.validBroodSpaces$.subscribe((data) => {
         this.validBroodSpaces = data;
       })
@@ -79,21 +65,34 @@ export class BoardComponent
     this.addNewBroodValidRootRandomly();
   }
 
-  ngAfterViewInit() {
-    this.cdr.detectChanges();
-  }
-  ngOnChanges(changes: SimpleChanges) {}
-
-  ngOnDestroy(): void {}
-
-  showPanel() {
-    this.panelShowing = !this.panelShowing;
-
-    if (this.panelShowing === false) {
-    }
+  handleClick(type: string) {
+    this[type]();
   }
 
-  addNewBroodValidRootRandomly() {
+  reloadBoard() {
+    this.initBoard();
+    this.toggleBordersDown();
+  }
+
+  scenario1() {
+    this.initBoard();
+    this.toggleBordersUp();
+    this.addUnits(2, 2);
+  }
+
+  toggleBorders(): void {
+    this.boardService.toggleBorders(
+      this.boardDimensions,
+      this.borderObsticlesUp
+    );
+    this.borderObsticlesUp = !this.borderObsticlesUp;
+  }
+
+  togglePanel() {
+    this.store.dispatch(toggleUIPanelShowing());
+  }
+
+  private addNewBroodValidRootRandomly() {
     if (!!this.validBroodSpaces.length && this.validBroodSpaces.length > 0) {
       let randomValidIndex = Math.floor(
         Math.random() * this.validBroodSpaces.length
@@ -110,7 +109,11 @@ export class BoardComponent
     }
   }
 
-  initBoard() {
+  private addUnits(particles: number, obsticles = 0) {
+    this.boardService.addUnitsRandomly(particles, obsticles);
+  }
+
+  private initBoard() {
     this.borderObsticlesUp = false;
     this.store.dispatch(
       loadFields({
@@ -122,25 +125,7 @@ export class BoardComponent
     this.broodService.clearBroods();
   }
 
-  handleClick(type: string) {
-    this[type]();
-  }
-
-  reloadBoard() {
-    this.initBoard();
-    this.toggleBordersDown();
-  }
-
-  toggleBordersUp() {
-    this.borderObsticlesUp = false;
-    this.boardService.toggleBorders(
-      this.boardDimensions,
-      this.borderObsticlesUp
-    );
-    this.borderObsticlesUp = true;
-  }
-
-  toggleBordersDown() {
+  private toggleBordersDown() {
     this.borderObsticlesUp = true;
     this.boardService.toggleBorders(
       this.boardDimensions,
@@ -149,24 +134,12 @@ export class BoardComponent
     this.borderObsticlesUp = false;
   }
 
-  toggleBorders(): void {
+  private toggleBordersUp() {
+    this.borderObsticlesUp = false;
     this.boardService.toggleBorders(
       this.boardDimensions,
       this.borderObsticlesUp
     );
-    this.borderObsticlesUp = !this.borderObsticlesUp;
-  }
-
-  // ### Composit actions
-
-  // Reinit board fields, then: add borders (obsticles), then: add 2 particles, then: add 2 more obsticles
-  scenario1() {
-    this.initBoard();
-    this.toggleBordersUp();
-    this.addUnits(2, 2);
-  }
-
-  addUnits(particles: number, obsticles = 0) {
-    this.boardService.addUnitsRandomly(particles, obsticles);
+    this.borderObsticlesUp = true;
   }
 }

@@ -8,6 +8,10 @@ import {
   Unit,
 } from '../shared/types-interfaces';
 
+export const toggleUIPanelShowing = createAction('[Board] Toggle Panel');
+
+export const toggleUIDecorShowing = createAction('[Board] Toggle Decor');
+
 export const loadFields = createAction(
   '[Board] Load Fields',
   props<{ fields: Fields }>()

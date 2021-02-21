@@ -1,6 +1,6 @@
 <div class="main-container" (contextmenu)="$event.preventDefault()">
   <app-board>
-    <button (click)="showDecor()" class="global-button">Pokaż grafikę</button>
+    <button (click)="toggleDecor()" class="global-button">Pokaż grafikę</button>
   </app-board>
 
   <ng-container *ngIf="decorShowing">

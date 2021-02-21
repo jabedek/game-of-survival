@@ -143,11 +143,18 @@ export interface AppState {
   // broods: BroodsState;
 }
 
+interface UIState {
+  panelShowing: boolean;
+  decorShowing: boolean;
+}
+
 // export interface BoardState {
 //   fields: [] | Fields;
 // }
 
 export interface BoardState {
+  ui: UIState;
+
   fields: [] | Fields;
   broodsList: Brood[];
   particlesList: ParticleUnit[];

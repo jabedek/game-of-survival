@@ -1,7 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { selectBoardSnapshot } from './board';
+import { Observable, Subscription } from 'rxjs';
+import { selectBoardSnapshot, selectUI } from './board';
+import {
+  toggleUIDecorShowing,
+  toggleUIPanelShowing,
+} from './board/board.actions';
 import { GameService } from './game.service';
 import {
   AppState,
@@ -16,7 +20,8 @@ import {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
+  ui$ = this.store.select(selectUI);
   decorShowing = true;
   panelShowing = true;
 
@@ -26,20 +31,23 @@ export class AppComponent implements OnInit {
   broodsList: Brood[] = [];
   emptyFields: Field[] = [];
   validBroodSpaces: ValidPotentialBroodSpace[] = null;
+  subscription: Subscription = new Subscription();
 
   constructor(public store: Store<AppState>, private game: GameService) {
-    this.boardSnapshot$.subscribe((data) =>
-      // console.log(data.available?.emptyFields.length)
-      {
-        console.log(data);
+    this.subscription.add(
+      this.ui$.subscribe((data) => {
+        this.decorShowing = data.decorShowing;
+        this.panelShowing = data.panelShowing;
+      })
+    );
 
-        {
-          this.particlesList = data.occupied.particlesList;
-          this.broodsList = data.occupied.broodsList;
-          this.emptyFields = data.available.emptyFields;
-          this.validBroodSpaces = data.available.validBroodSpaces;
-        }
-      }
+    this.subscription.add(
+      this.boardSnapshot$.subscribe((data) => {
+        this.particlesList = data.occupied.particlesList;
+        this.broodsList = data.occupied.broodsList;
+        this.emptyFields = data.available.emptyFields;
+        this.validBroodSpaces = data.available.validBroodSpaces;
+      })
     );
   }
 
@@ -47,7 +55,15 @@ export class AppComponent implements OnInit {
     this.game.launchBroodTurns();
   }
 
-  showDecor() {
-    this.decorShowing = !this.decorShowing;
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+  toggleDecor() {
+    this.store.dispatch(toggleUIDecorShowing());
+  }
+
+  togglePanel() {
+    this.store.dispatch(toggleUIPanelShowing());
   }
 }

@@ -15,6 +15,7 @@ import { BOARD_DIMENSIONS } from './board.constants';
 import * as HELPERS from './board.helpers';
 
 export const selectBoard = (state: AppState) => state.board;
+export const selectUI = (state: AppState) => state.board.ui;
 export const selectParticleUnits = (state: AppState) => state.particleUnits;
 
 // export const featureSelector = createFeatureSelector<BoardState>('broods');

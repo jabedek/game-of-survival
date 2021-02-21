@@ -7,7 +7,7 @@
   </app-board-container>
 
   <ng-content></ng-content>
-  <button (click)="showPanel()" class="global-button">Pokaż panel</button>
+  <button (click)="togglePanel()" class="global-button">Pokaż panel</button>
 
   <div *ngIf="panelShowing" class="game-panel">
     <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>
