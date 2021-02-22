@@ -18,6 +18,16 @@ export const initialBoardState: BoardState = {
   particlesList: [],
   raport: null,
   ui: { decorShowing: true, panelShowing: true },
+
+  turn: {
+    index: 0,
+    phase: 'all done',
+    allBroodsDone: false,
+    update: {
+      unitsToAdd: [],
+      unitsToDel: [],
+    },
+  },
 };
 
 const authReducer = createReducer(
@@ -42,6 +52,41 @@ const authReducer = createReducer(
     };
   }),
 
+  on(appActions.loadChangesAfterTurn, (state: BoardState, { update }) => {
+    console.log(update);
+
+    return {
+      ...state,
+      turn: { ...state.turn, update },
+      // update,
+    };
+  }),
+  on(appActions.setTurnDone, (state: BoardState) => {
+    return {
+      ...state,
+      turn: { ...state.turn, phase: 'all done' },
+      // update: {...state.turn},
+    };
+  }),
+  on(appActions.setTurnPhase, (state: BoardState, { phase }) => {
+    return {
+      ...state,
+      turn: { ...state.turn, phase },
+      // update: {...state.turn},
+    };
+  }),
+  on(appActions.implementLoadedChanges, (state: BoardState) => {
+    // console.log(update);
+    console.log(state);
+
+    let changesAdd = [...state.turn.update.unitsToAdd];
+    let changesDel = [...state.turn.update.unitsToDel];
+    console.log(changesAdd, changesDel);
+
+    return {
+      ...state,
+    };
+  }),
   on(appActions.addBroodToList, (state: BoardState, { brood }) => {
     let broodsList: Brood[] = [...state.broodsList].map((b) => b);
     broodsList = [...state.broodsList.map((b) => b), brood];

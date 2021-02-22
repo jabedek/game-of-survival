@@ -138,6 +138,18 @@ export const selectFieldBlocked = createSelector(
   }
 );
 
+export const selectAllUnitsNeighbors = createSelector(
+  selectBoardFields,
+  selectParticlesList,
+  (fields: Fields, particles: ParticleUnit[]) => {
+    const fieldsNeighbors: NeighborsRaport[] = particles.map((p) => {
+      return HELPERS.getNeighbors([...fields], p.pos);
+    });
+
+    return fieldsNeighbors;
+  }
+);
+
 export const selectUnitsNeighbors = createSelector(
   selectBoardFields,
   (fields: Fields, props: ParticleUnit[]) => {
@@ -155,6 +167,16 @@ export const selectFieldNeighbors = createSelector(
     const neighbors: NeighborsRaport = HELPERS.getNeighbors([...fields], props);
 
     return neighbors;
+  }
+);
+export const selectTurnPhase = createSelector(
+  selectBoard,
+  (state: BoardState) => {
+    // const neighbors: NeighborsRaport = HELPERS.getNeighbors([...fields], props);
+
+    // return neighbors;
+
+    return state.turn.phase;
   }
 );
 

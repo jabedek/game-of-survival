@@ -237,7 +237,7 @@ export class BoardService {
   /**
    *
    */
-  addNewParticle(unit: ParticleUnit) {
+  addNewParticle = (unit: ParticleUnit) => {
     this.setFieldEmpty(unit.pos);
     this.setFieldParticle(unit);
     this.updateParticlesOnBoard('add', unit);
@@ -245,7 +245,7 @@ export class BoardService {
     if (!!unit.groupId && unit.groupId.length > 0) {
       this.setParticleBroodBelonging(unit, unit.groupId);
     }
-  }
+  };
 
   /**
    * Deletes a particle both from field (also UI) and from brood (if set any).

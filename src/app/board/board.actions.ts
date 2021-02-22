@@ -5,6 +5,7 @@ import {
   FieldPos,
   Fields,
   ParticleUnit,
+  TurnUpdate,
   Unit,
 } from '../shared/types-interfaces';
 
@@ -33,8 +34,23 @@ export const setFieldEmpty = createAction(
 );
 
 export const removeBroodMember = createAction(
-  '[Board/Field] Remove  Brood member',
+  '[Board/Field] Remove Brood member',
   props<{ pos: FieldPos }>()
+);
+
+export const loadChangesAfterTurn = createAction(
+  '[Board] Load Changes After Turn',
+  props<{ update: TurnUpdate }>()
+);
+
+export const implementLoadedChanges = createAction(
+  '[Board] Implement Loaded Changes'
+);
+export const setTurnDone = createAction('[Board] Set Turn to Done');
+
+export const setTurnPhase = createAction(
+  '[Board] Set Turn Phase',
+  props<{ phase: string }>()
 );
 export const addMemberToBroodUnits = createAction(
   '[Board/Field] Add Member To Brood Units',

@@ -70,7 +70,7 @@ export interface Brood {
   units: ParticleUnit[];
   color: string;
   turnState: 'to do' | 'moving' | 'done';
-  beginTurn(): void;
+  beginTurn(args?: { [key: string]: any | any[] }): void;
 }
 export interface NeighborField {
   field: Field;
@@ -79,6 +79,7 @@ export interface NeighborField {
 
 export interface NeighborsRaport {
   all: NeighborField[];
+  centerPos: FieldPos;
   particles: NeighborField[];
   obsticles: NeighborField[];
 }
@@ -86,13 +87,21 @@ export interface NeighborsRaport {
 export type ParticleColor = 'red' | 'blue' | 'green' | 'black' | 'mixed';
 
 export class Brood implements Brood {
-  beginTurn = () => {
-    console.log('Making turn:', this.id);
+  beginTurn = (args?: { [key: string]: any | any[] }) => {
+    // console.log(args);
+    let rndId = `${Math.floor(Math.random() * 1000)}`;
+    const particle = new ParticleUnit(
+      rndId,
+      { row: 1, column: 1 },
+      'blue',
+      this.id
+    );
+    // console.log(particle);
 
-    this.units.forEach((u) => {
-      // u.
-    });
+    args.cb(particle);
   };
+
+  TESTaddUnitToSelf() {}
 
   constructor(id: string, units: ParticleUnit[], color: string) {
     this.id = id;
@@ -162,7 +171,7 @@ interface UIState {
 
 export interface BoardState {
   ui: UIState;
-
+  turn: TurnState;
   fields: [] | Fields;
   broodsList: Brood[];
   particlesList: ParticleUnit[];
@@ -172,6 +181,22 @@ export interface BoardState {
 export interface BroodsState {
   broodsList: Brood[];
   raport: ValidPotentialBroodSpace[];
+}
+
+export interface TurnState {
+  index: number;
+  phase: 'pending' | 'all done';
+  allBroodsDone: boolean;
+  update: TurnUpdate;
+}
+
+export interface BroodTurn {
+  phase: 'pending' | 'done';
+}
+
+export interface TurnUpdate {
+  unitsToAdd: ParticleUnit[];
+  unitsToDel: FieldPos[];
 }
 
 /**

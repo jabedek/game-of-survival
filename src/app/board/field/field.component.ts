@@ -98,10 +98,8 @@ export class FieldComponent
   }
   ngAfterViewInit() {
     if (this.occupyingUnit) {
-      console.log('ngAfterViewInit');
       this.subscriptionNeighbors.add(
         this.neighbors$.subscribe((data) => {
-          console.log(data);
           this.neighbors = data;
         })
       );

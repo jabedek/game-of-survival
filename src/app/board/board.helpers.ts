@@ -281,5 +281,5 @@ export function getNeighbors(fields: Fields, props: FieldPos): NeighborsRaport {
       !!neighbour?.field?.blocked && !neighbour?.field?.occupyingUnit
   );
 
-  return { all: neighbouringFields, particles, obsticles };
+  return { all: neighbouringFields, particles, obsticles, centerPos: props };
 }

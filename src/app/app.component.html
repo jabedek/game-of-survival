@@ -1,7 +1,19 @@
 <div class="main-container" (contextmenu)="$event.preventDefault()">
   <app-board>
-    <button (click)="nextTurn()" class="global-button">Kolejna tura</button>
-    <button (click)="toggleDecor()" class="global-button">Pokaż grafikę</button>
+    <button
+      [disabled]="turnButtonBlocked"
+      (click)="nextTurn()"
+      class="global-button"
+    >
+      Kolejna tura
+    </button>
+    <button
+      [disabled]="turnButtonBlocked"
+      (click)="toggleDecor()"
+      class="global-button"
+    >
+      Pokaż grafikę
+    </button>
   </app-board>
 
   <ng-container *ngIf="decorShowing">

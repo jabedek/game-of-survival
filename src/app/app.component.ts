@@ -8,8 +8,10 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { selectBoardSnapshot, selectUI } from './board';
+import { selectBoardSnapshot, selectTurnPhase, selectUI } from './board';
 import {
+  implementLoadedChanges,
+  setTurnPhase,
   toggleUIDecorShowing,
   toggleUIPanelShowing,
 } from './board/board.actions';
@@ -31,6 +33,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ui$ = this.store.select(selectUI);
   decorShowing = true;
   panelShowing = true;
+
+  turnButtonBlocked = false;
 
   boardSnapshot$ = this.store.select(selectBoardSnapshot);
 
@@ -56,6 +60,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.validBroodSpaces = data.available.validBroodSpaces;
       })
     );
+
+    this.subscription.add(
+      this.store.select(selectTurnPhase).subscribe((data) => {
+        this.turnButtonBlocked = data === 'all done' ? false : true;
+      })
+    );
   }
 
   ngOnInit() {}
@@ -64,13 +74,21 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.subscription.unsubscribe();
   }
   ngAfterViewInit() {
-    console.log('elo');
+    // console.log('elo');
   }
 
-  nextTurn() {
+  async nextTurn() {
+    // chyab trza zamontownac observable na flage skonczonść tur broodów
+    this.store.dispatch(setTurnPhase({ phase: 'pending' }));
     if (this.broodsList.length > 0) {
-      this.game.nextTurn(this.broodsList);
+      this.broodsList.forEach((brood) => {
+        this.game.nextTurnSingle(brood);
+      });
+      // this.game.nextTurn(this.broodsList);
     }
+
+    this.game.computeResults();
+    // this.store
   }
 
   toggleDecor() {
