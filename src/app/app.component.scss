@@ -1,9 +1,11 @@
-// .global-button {
-//   // position: absolute;
-//   z-index: 3;
-
-//   left: 50%;
-// }
+.global-button {
+  // // position: absolute;
+  // z-index: 3;
+  font-size: 1rem;
+  background: blue;
+  color: white;
+  text-transform: uppercase;
+}
 @import "./shared/styles/mixins.scss";
 
 .game-panel {

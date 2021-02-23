@@ -1,34 +1,36 @@
 <div class="main-container" (contextmenu)="$event.preventDefault()">
   <app-board>
-    <button
-      [disabled]="turnButtonBlocked"
-      (click)="nextTurn()"
-      class="global-button"
-    >
-      next turn
-    </button>
+    <div class="info-list">
+      <button
+        [disabled]="turnButtonBlocked"
+        (click)="nextTurn()"
+        class="global-button key"
+      >
+        <p class="val">next turn</p>
+      </button>
 
-    <button
-      [disabled]="turnButtonBlocked"
-      (click)="startAuto()"
-      class="global-button"
-    >
-      start auto
-    </button>
-    <button
-      [disabled]="turnButtonBlocked"
-      (click)="stopAuto()"
-      class="global-button"
-    >
-      stop auto
-    </button>
-    <button
-      [disabled]="turnButtonBlocked"
-      (click)="toggleDecor()"
-      class="global-button"
-    >
-      Pokaż grafikę
-    </button>
+      <button
+        [disabled]="turnButtonBlocked"
+        (click)="startAuto()"
+        class="global-button key"
+      >
+        <p class="val">start auto</p>
+      </button>
+      <button
+        [disabled]="turnButtonBlocked"
+        (click)="stopAuto()"
+        class="global-button key"
+      >
+        <p class="val">stop auto</p>
+      </button>
+      <button
+        [disabled]="turnButtonBlocked"
+        (click)="toggleDecor()"
+        class="global-button key"
+      >
+        <p class="val">Pokaż grafikę</p>
+      </button>
+    </div>
   </app-board>
 
   <ng-container *ngIf="decorShowing">

@@ -100,7 +100,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   startAuto() {
     this.boardService.scenario2();
     if (this.mockTurnSub === null) {
-      this.mockTurnSub = interval(700).subscribe(() => {
+      this.mockTurnSub = interval(600).subscribe(() => {
         this.nextTurn();
         if (this.particlesList.length === 0) {
           this.stopAuto();
