@@ -29,8 +29,9 @@ import {
   swapBroodMemberOnPos,
   addParticleToList,
   deleteParticleFromList,
-  clearParticles,
-  clearBroods,
+  clearParticlesList,
+  clearBroodsList,
+  resetTurnCounter,
 } from './board.actions';
 import { BOARD_DIMENSIONS } from './board.constants';
 import * as HELPERS from './board.helpers';
@@ -64,57 +65,81 @@ export class BoardService {
     };
   }
 
-  getAllFields$() {
-    return this.store.select(selectBoardFields);
+  // Board only
+  reloadBoard() {
+    this.store.dispatch(
+      loadFields({
+        fields: this.getInitialFields(BOARD_DIMENSIONS),
+      })
+    );
+
+    this.clearParticlesList();
+    this.clearBroodsList();
+    this.store.dispatch(resetTurnCounter());
   }
 
-  getInitialBoard(boardDimensions): FieldReference[][] {
-    return HELPERS.getInitialBoard(boardDimensions);
-  }
+  scenario2() {
+    this.reloadBoard();
+    const redBrood: Brood = new Brood(
+      'reds',
+      [
+        new ParticleUnit('reds-0', { row: 0, column: 0 }, 'red', 'reds'),
+        new ParticleUnit('reds-0', { row: 0, column: 1 }, 'red', 'reds'),
+      ],
+      'red'
+    );
 
-  getInitialFields(boardDimensions): Fields {
-    return HELPERS.getInitialFields(boardDimensions);
-  }
+    const blueBrood: Brood = new Brood(
+      'blues',
+      [
+        new ParticleUnit(
+          'blues-0',
+          { row: BOARD_DIMENSIONS - 1, column: BOARD_DIMENSIONS - 1 - 1 },
+          'blue',
+          'blues'
+        ),
+        new ParticleUnit(
+          'blues-0',
+          { row: BOARD_DIMENSIONS - 1, column: BOARD_DIMENSIONS - 1 },
+          'blue',
+          'blues'
+        ),
+      ],
+      'blue'
+    );
 
-  getEmptyFields$() {
-    return this.emptyFields$;
-  }
+    const greenBrood: Brood = new Brood(
+      'greens',
+      [
+        new ParticleUnit(
+          'greens-0',
+          {
+            row: Math.round(BOARD_DIMENSIONS / 2) - 1,
+            column: Math.round(BOARD_DIMENSIONS / 2) - 1,
+          },
+          'green',
+          'greens'
+        ),
+        new ParticleUnit(
+          'greens-0',
+          {
+            row: Math.round(BOARD_DIMENSIONS / 2) - 1,
+            column: Math.round(BOARD_DIMENSIONS / 2),
+          },
+          'green',
+          'greens'
+        ),
+      ],
+      'green'
+    );
 
-  toggleBorders2(boardDimensions: number, toggler) {
-    const borderObsticlesUp = !toggler;
+    console.log(redBrood, blueBrood, greenBrood);
 
-    let newFields: Fields = [];
+    this.addBroodToList(redBrood);
+    this.addBroodToList(blueBrood);
+    this.addBroodToList(greenBrood);
 
-    this.fields$.subscribe((fieldsData) => {
-      newFields = fieldsData.map((data: Field[], row) =>
-        data.map((field: Field, column) => {
-          if (
-            row == 0 ||
-            column == 0 ||
-            row == boardDimensions - 1 ||
-            column == boardDimensions - 1
-          ) {
-            if (borderObsticlesUp) {
-              field = {
-                ...field,
-                occupyingUnit: null,
-                blocked: true,
-              };
-            } else {
-              field = {
-                ...field,
-                occupyingUnit: null,
-                blocked: false,
-              };
-            }
-          }
-
-          return field;
-        })
-      );
-    });
-
-    this.store.dispatch(loadFields({ fields: newFields }));
+    // this.boardService.
   }
 
   toggleBorders(boardDimensions: number, toggler): void {
@@ -168,7 +193,6 @@ export class BoardService {
 
   private putUnitOnEmptyFieldRandomly(type) {
     let success = false;
-    let newUnit: ParticleUnit = null;
     let board: Field[] = [];
 
     this.store
@@ -204,6 +228,7 @@ export class BoardService {
           }
         } else {
           console.log('no available fields');
+          throw new Error('No available fields.');
         }
       })
       .unsubscribe();
@@ -211,12 +236,24 @@ export class BoardService {
 
   // # FIELD
 
+  /**
+   * Doesnt resolve Fields's relationships with other enitites in board state.
+   */
   private setFieldEmpty(pos: FieldPos) {
     this.store.dispatch(setFieldEmpty({ pos }));
   }
-
+  /**
+   * Doesnt resolve Fields's relationships with other enitites in board state.
+   */
   setFieldObsticle(pos: FieldPos) {
     this.store.dispatch(setFieldObsticle({ pos }));
+  }
+
+  /**
+   * Doesnt resolve Fields's relationships with other enitites in board state.
+   */
+  clearParticlesList() {
+    this.store.dispatch(clearParticlesList());
   }
 
   // # PARTICLE (& FIELD)
@@ -228,10 +265,6 @@ export class BoardService {
     action === 'add'
       ? this.store.dispatch(addParticleToList({ unit }))
       : this.store.dispatch(deleteParticleFromList({ pos: unit.pos }));
-  }
-
-  clearParticles() {
-    this.store.dispatch(clearParticles());
   }
 
   /**
@@ -393,7 +426,23 @@ export class BoardService {
     this.addBroodToList(brood);
   }
 
-  clearBroods() {
-    this.store.dispatch(clearBroods());
+  clearBroodsList() {
+    this.store.dispatch(clearBroodsList());
+  }
+
+  getAllFields$() {
+    return this.store.select(selectBoardFields);
+  }
+
+  getInitialBoard(boardDimensions): FieldReference[][] {
+    return HELPERS.getInitialBoard(boardDimensions);
+  }
+
+  getInitialFields(boardDimensions): Fields {
+    return HELPERS.getInitialFields(boardDimensions);
+  }
+
+  getEmptyFields$() {
+    return this.emptyFields$;
   }
 }

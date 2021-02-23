@@ -22,11 +22,14 @@ import {
   selectFieldNeighbors,
   selectParticleField,
   selectParticlesAndBroods,
+  selectTurnIndex,
   selectUnitsNeighbors,
 } from './board';
 import {
+  countTurn,
   implementLoadedChanges,
   loadChangesAfterTurn,
+  resetTurnCounter,
   setTurnDone,
   setTurnPhase,
 } from './board/board.actions';
@@ -78,6 +81,7 @@ export class GameService {
   }
 
   nextTurnSingle(brood: Brood) {
+    this.store.dispatch(setTurnPhase({ phase: 'pending' }));
     this.store
       .select(selectUnitsNeighbors, brood.units)
       .subscribe((data) => {
@@ -100,12 +104,17 @@ export class GameService {
           this.store
             .select(selectAllUnitsNeighbors, data)
             .subscribe((neighbors) => {
+              console.log(neighbors.length);
+
               let unitsToAdd = [];
               let unitsToDel = [];
 
-              // 2. filter particles based on their neighbors amount
+              // 2. prepare Update and filter particles based on their neighbors amount
 
-              neighbors.forEach((n) => {
+              neighbors.forEach((n, i) => {
+                console.log('checking particle on', n.centerPos);
+                console.log(n.accessible);
+
                 if (n.particles.length === 3 || n.particles.length === 4) {
                   unitsToDel.push(n.centerPos);
                 }
@@ -118,29 +127,38 @@ export class GameService {
 
                   let CHANCE_TO_MULTIPLE = Math.round((base + rnd) * 100);
                   let RESULT = Math.round(Math.random() * 100);
+                  console.log(CHANCE_TO_MULTIPLE, RESULT);
 
                   let willMultiply = !!(RESULT <= CHANCE_TO_MULTIPLE);
-                  // console.log(CHANCE_TO_MULTIPLE, RESULT, willMultiply);
+                  if (willMultiply) {
+                    console.log('WILL MULTIPLY');
 
-                  const field: Field = n.particles[0].field as Field;
+                    const field: Field = n.particles[0]?.field as Field;
 
-                  if (willMultiply && field && field.occupyingUnit) {
-                    let unit = { ...field.occupyingUnit } as ParticleUnit;
-
-                    unit.id = `${Math.round(Math.random() * 100)}`;
-                    unit.pos = {
-                      column: unit.pos.column + 1,
-                      row: unit.pos.row + 1,
-                    };
-                    unitsToAdd.push(unit);
+                    if (field && field.occupyingUnit) {
+                      const sourceUnit = {
+                        ...field.occupyingUnit,
+                      } as ParticleUnit;
+                      const id = `${Math.round(Math.random() * 100)}`;
+                      const pos = n.accessible[0].field.pos;
+                      const unit: ParticleUnit = new ParticleUnit(
+                        id,
+                        pos,
+                        sourceUnit.color,
+                        sourceUnit.groupId,
+                        null
+                      );
+                      console.log(
+                        '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>will multiply onto',
+                        unit.pos
+                      );
+                      unitsToAdd.push(unit);
+                    }
                   }
                 }
               });
               update = { unitsToAdd, unitsToDel };
-              if (update.unitsToAdd.length || update.unitsToDel.length) {
-                // console.log(update);
-                // this.store.dispatch(loadChangesAfterTurn({ update }));
-              }
+
               return;
             })
             .unsubscribe();
@@ -155,13 +173,22 @@ export class GameService {
   }
 
   update(update: TurnUpdate) {
-    update.unitsToDel.forEach((u) => {
-      this.boardService.deleteUnit(u);
-    });
-    update.unitsToAdd.forEach((u) => {
-      this.boardService.addNewParticle(u);
-    });
-    // this.store.dispatch(setTurnDone());
+    console.log(update);
+
+    if (update) {
+      update.unitsToDel.forEach((u) => {
+        this.boardService.deleteUnit(u);
+      });
+
+      update.unitsToAdd.forEach((u) => {
+        this.boardService.addNewParticle(u);
+      });
+      // this.store.dispatch(setTurnDone());
+    }
+    this.store.dispatch(countTurn());
+
+    this.store.dispatch(loadChangesAfterTurn({ update }));
+
     this.store.dispatch(setTurnPhase({ phase: 'all done' }));
   }
 }

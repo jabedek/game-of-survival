@@ -8,13 +8,20 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
-import { selectBoardSnapshot, selectTurnPhase, selectUI } from './board';
+import { interval } from 'rxjs';
+import {
+  selectBoardSnapshot,
+  selectTurnIndex,
+  selectTurnPhase,
+  selectUI,
+} from './board';
 import {
   implementLoadedChanges,
   setTurnPhase,
   toggleUIDecorShowing,
   toggleUIPanelShowing,
 } from './board/board.actions';
+import { BoardService } from './board/board.service';
 import { GameService } from './game.service';
 import {
   AppState,
@@ -43,8 +50,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   emptyFields: Field[] = [];
   validBroodSpaces: ValidPotentialBroodSpace[] = null;
   subscription: Subscription = new Subscription();
+  mockTurnSub: Subscription = null;
 
-  constructor(public store: Store<AppState>, private game: GameService) {
+  turnCounter = 0;
+
+  constructor(
+    public store: Store<AppState>,
+    private game: GameService,
+    public boardService: BoardService
+  ) {
     this.subscription.add(
       this.ui$.subscribe((data) => {
         this.decorShowing = data.decorShowing;
@@ -66,6 +80,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
         this.turnButtonBlocked = data === 'all done' ? false : true;
       })
     );
+
+    this.subscription.add(
+      this.store.select(selectTurnIndex).subscribe((data) => {
+        this.turnCounter = data;
+      })
+    );
   }
 
   ngOnInit() {}
@@ -75,6 +95,23 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   ngAfterViewInit() {
     // console.log('elo');
+  }
+
+  startAuto() {
+    this.boardService.scenario2();
+    if (this.mockTurnSub === null) {
+      this.mockTurnSub = interval(1000).subscribe(() => {
+        this.nextTurn();
+        if (this.particlesList.length === 0) {
+          this.stopAuto();
+        }
+      });
+    }
+  }
+
+  stopAuto() {
+    this.mockTurnSub.unsubscribe();
+    this.mockTurnSub = null;
   }
 
   async nextTurn() {

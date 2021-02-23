@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs';
 import { GameService } from 'src/app/game.service';
 import {
   AppState,
+  Brood,
+  ParticleUnit,
   ValidPotentialBroodSpace,
 } from 'src/app/shared/types-interfaces';
 import { selectBoardFields, selectUI, selectValidBroodSpaces } from '..';
@@ -112,14 +114,7 @@ export class BoardComponent implements OnInit {
 
   private initBoard() {
     this.borderObsticlesUp = false;
-    this.store.dispatch(
-      loadFields({
-        fields: this.boardService.getInitialFields(this.boardDimensions),
-      })
-    );
-
-    this.boardService.clearParticles();
-    this.boardService.clearBroods();
+    this.boardService.reloadBoard();
   }
 
   private toggleBordersDown() {

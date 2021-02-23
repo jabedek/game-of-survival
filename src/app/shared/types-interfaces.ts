@@ -82,6 +82,7 @@ export interface NeighborsRaport {
   centerPos: FieldPos;
   particles: NeighborField[];
   obsticles: NeighborField[];
+  accessible: NeighborField[];
 }
 
 export type ParticleColor = 'red' | 'blue' | 'green' | 'black' | 'mixed';
@@ -186,7 +187,6 @@ export interface BroodsState {
 export interface TurnState {
   index: number;
   phase: 'pending' | 'all done';
-  allBroodsDone: boolean;
   update: TurnUpdate;
 }
 

@@ -280,6 +280,15 @@ export function getNeighbors(fields: Fields, props: FieldPos): NeighborsRaport {
     (neighbour) =>
       !!neighbour?.field?.blocked && !neighbour?.field?.occupyingUnit
   );
+  let accessible = neighbouringFields.filter(
+    (n) => n.field !== null && n.field.blocked === false
+  );
 
-  return { all: neighbouringFields, particles, obsticles, centerPos: props };
+  return {
+    all: neighbouringFields,
+    particles,
+    obsticles,
+    centerPos: props,
+    accessible,
+  };
 }

@@ -5,7 +5,22 @@
       (click)="nextTurn()"
       class="global-button"
     >
-      Kolejna tura
+      next turn
+    </button>
+
+    <button
+      [disabled]="turnButtonBlocked"
+      (click)="startAuto()"
+      class="global-button"
+    >
+      start auto
+    </button>
+    <button
+      [disabled]="turnButtonBlocked"
+      (click)="stopAuto()"
+      class="global-button"
+    >
+      stop auto
     </button>
     <button
       [disabled]="turnButtonBlocked"
@@ -24,6 +39,10 @@
 
   <div *ngIf="panelShowing" class="game-panel">
     <div class="info-list">
+      <div class="info">
+        <p class="key">Turn:</p>
+        <p class="val">{{ turnCounter + 1 }}</p>
+      </div>
       <div class="info">
         <p class="key">Empty Fields:</p>
         <p class="val">{{ emptyFields.length }}</p>

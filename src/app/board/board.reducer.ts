@@ -22,7 +22,6 @@ export const initialBoardState: BoardState = {
   turn: {
     index: 0,
     phase: 'all done',
-    allBroodsDone: false,
     update: {
       unitsToAdd: [],
       unitsToDel: [],
@@ -55,10 +54,11 @@ const authReducer = createReducer(
   on(appActions.loadChangesAfterTurn, (state: BoardState, { update }) => {
     console.log(update);
 
+    const fallbackUpdate = update || { unitsToAdd: [], unitsToDel: [] };
+
     return {
       ...state,
-      turn: { ...state.turn, update },
-      // update,
+      turn: { ...state.turn, update: fallbackUpdate },
     };
   }),
   on(appActions.setTurnDone, (state: BoardState) => {
@@ -176,10 +176,22 @@ const authReducer = createReducer(
       ui,
     };
   }),
-  on(appActions.clearParticles, (state) => {
+  on(appActions.clearParticlesList, (state) => {
     return {
       ...state,
       particlesList: [],
+    };
+  }),
+  on(appActions.countTurn, (state) => {
+    return {
+      ...state,
+      turn: { ...state.turn, index: state.turn.index + 1 },
+    };
+  }),
+  on(appActions.resetTurnCounter, (state) => {
+    return {
+      ...state,
+      turn: { ...state.turn, index: 0 },
     };
   }),
 
@@ -201,7 +213,7 @@ const authReducer = createReducer(
     };
   }),
 
-  on(appActions.clearBroods, (state) => {
+  on(appActions.clearBroodsList, (state) => {
     return {
       ...state,
       broodsList: [],

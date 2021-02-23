@@ -52,7 +52,7 @@ export class FieldComponent
   @Input() fieldSize: number;
   @Input() groupId?: string;
   @Input() displayPos = true;
-  @Input() displayDetails = false;
+  @Input() displayDetails = true;
 
   firstToggled = false;
   selfDetails$: Observable<Field>;

@@ -46,6 +46,10 @@ export const loadChangesAfterTurn = createAction(
 export const implementLoadedChanges = createAction(
   '[Board] Implement Loaded Changes'
 );
+
+export const countTurn = createAction('[Game] Count up Turn Index');
+export const resetTurnCounter = createAction('[Game] Reset Turn Index to 0');
+
 export const setTurnDone = createAction('[Board] Set Turn to Done');
 
 export const setTurnPhase = createAction(
@@ -61,7 +65,7 @@ export const swapBroodMemberOnPos = createAction(
   props<{ unit: ParticleUnit }>()
 );
 
-export const clearParticles = createAction('[Board/Field] Clear Particles');
+export const clearParticlesList = createAction('[Board/Field] Clear Particles');
 export const addParticleToList = createAction(
   '[Board/Field] Add Particle to list',
   props<{ unit: ParticleUnit }>()
@@ -91,4 +95,4 @@ export const removeBroodFromList = createAction(
   props<{ id: string }>()
 );
 
-export const clearBroods = createAction('[Board/Field] Clear Broods');
+export const clearBroodsList = createAction('[Board/Field] Clear Broods');

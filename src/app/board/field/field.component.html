@@ -11,10 +11,6 @@
         *ngIf="data?.occupyingUnit; then particleUnit; else obsticleUnit"
       >
       </ng-container>
-
-      <ng-container *ngIf="displayDetails">
-        {{ data?.blocked }}
-      </ng-container>
     </div>
   </div>
 
@@ -24,6 +20,10 @@
     <div [style.width.px]="CSSsize" [style.height.px]="CSSsize">
       <!-- <p class="particle particle--test"></p> -->
       <p class="particle {{ 'particle--' + item.color }}"></p>
+
+      <ng-container *ngIf="true">
+        {{ pos.row }} x {{ pos.column }}
+      </ng-container>
     </div>
   </ng-template>
 
@@ -32,6 +32,10 @@
       class="obsticle"
       [style.width.px]="CSSsize"
       [style.height.px]="CSSsize"
-    ></div>
+    >
+      <ng-container *ngIf="true">
+        {{ pos.row }} x {{ pos.column }}
+      </ng-container>
+    </div>
   </ng-template>
 </div>
