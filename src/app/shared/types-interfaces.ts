@@ -79,7 +79,7 @@ export interface NeighborField {
 
 export interface NeighborsRaport {
   all: NeighborField[];
-  centerPos: FieldPos;
+  centerField: Field;
   particles: NeighborField[];
   obsticles: NeighborField[];
   accessible: NeighborField[];

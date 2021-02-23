@@ -6,8 +6,10 @@ import {
   Brood,
   Field,
   Fields,
+  NeighborsRaport,
   ParticleUnit,
   TurnUpdate,
+  Unit,
   ValidPotentialBroodSpace,
 } from './shared/types-interfaces';
 import * as CONSTS from './board/board.constants';
@@ -15,6 +17,7 @@ import * as CONSTS from './board/board.constants';
 import { Observable, of, Subscription } from 'rxjs';
 import {
   selectAllUnitsNeighbors,
+  selectAllUnitsNeighborsAndBroodsList,
   selectAvailableFieldsAndSpaces,
   selectBoard,
   selectBoardFields,
@@ -102,58 +105,54 @@ export class GameService {
       .subscribe((data) => {
         if (data) {
           this.store
-            .select(selectAllUnitsNeighbors, data)
-            .subscribe((neighbors) => {
-              console.log(neighbors.length);
-
+            .select(selectAllUnitsNeighborsAndBroodsList, data)
+            .subscribe((data) => {
+              const neighbors = data.fieldsNeighbors;
               let unitsToAdd = [];
               let unitsToDel = [];
 
               // 2. prepare Update and filter particles based on their neighbors amount
-
               neighbors.forEach((n, i) => {
-                console.log('checking particle on', n.centerPos);
-                console.log(n.accessible);
+                switch (n.particles.length) {
+                  case 0: {
+                    let willMultiply = this.willMultiply(data, n, 1, true);
+                    if (willMultiply) {
+                      const unit = this.getMultipliedMember(n);
+                      if (unit) {
+                        console.log(unit);
 
-                if (n.particles.length === 3 || n.particles.length === 4) {
-                  unitsToDel.push(n.centerPos);
-                }
-
-                if (n.particles.length === 1) {
-                  const base = CONSTS.BASE_CHANCES_TO_PARTICLE_MULTIPLY;
-                  const rnd = +parseFloat(
-                    `${Math.random() * CONSTS.RANDOM_ADDITIONAL_LIMIT}`
-                  ).toFixed(2);
-
-                  let CHANCE_TO_MULTIPLE = Math.round((base + rnd) * 100);
-                  let RESULT = Math.round(Math.random() * 100);
-                  console.log(CHANCE_TO_MULTIPLE, RESULT);
-
-                  let willMultiply = !!(RESULT <= CHANCE_TO_MULTIPLE);
-                  if (willMultiply) {
-                    console.log('WILL MULTIPLY');
-
-                    const field: Field = n.particles[0]?.field as Field;
-
-                    if (field && field.occupyingUnit) {
-                      const sourceUnit = {
-                        ...field.occupyingUnit,
-                      } as ParticleUnit;
-                      const id = `${Math.round(Math.random() * 100)}`;
-                      const pos = n.accessible[0].field.pos;
-                      const unit: ParticleUnit = new ParticleUnit(
-                        id,
-                        pos,
-                        sourceUnit.color,
-                        sourceUnit.groupId,
-                        null
-                      );
-                      console.log(
-                        '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>will multiply onto',
-                        unit.pos
-                      );
-                      unitsToAdd.push(unit);
+                        unitsToAdd.push(unit);
+                      }
                     }
+                    break;
+                  }
+                  case 1: {
+                    let willMultiply = this.willMultiply(data, n);
+
+                    if (willMultiply) {
+                      const unit = this.getMultipliedMember(n);
+                      if (unit) {
+                        unitsToAdd.push(unit);
+                      }
+                    }
+                    break;
+                  }
+                  case 2: {
+                    let willMultiply = this.willMultiply(data, n, -2);
+                    if (willMultiply) {
+                      const unit = this.getMultipliedMember(n);
+                      if (unit) {
+                        console.log(unit);
+
+                        unitsToAdd.push(unit);
+                      }
+                    }
+                    break;
+                  }
+                  case 3:
+                  case 4: {
+                    unitsToDel.push(n.centerField.pos);
+                    break;
                   }
                 }
               });
@@ -165,14 +164,49 @@ export class GameService {
         }
       })
       .unsubscribe();
-    // 3. update board
 
+    // 3. update board
     this.update(update);
 
     return;
   }
 
-  update(update: TurnUpdate) {
+  private getMultipliedMember(n: NeighborsRaport): ParticleUnit {
+    const field = n.centerField;
+    const groupId = field?.occupyingUnit?.groupId || 'randoms';
+    const id = `${groupId}-${Math.round(Math.random() * 100)}`;
+    const color = (field?.occupyingUnit as ParticleUnit).color || 'blue';
+    const pos =
+      n.accessible[Math.round(Math.random() * (n.accessible.length - 1))].field
+        .pos;
+
+    return new ParticleUnit(id, pos, color, groupId, null);
+  }
+
+  private willMultiply(data, n, bonus = 0, noNeighbors?: boolean): boolean {
+    const brood = data.broodsList.find((b) =>
+      b.units.find((u) => u.pos === n.centerPos)
+    );
+
+    const broodStrength = brood?.units?.length || 0;
+    const rnd = Math.random() * CONSTS.RANDOM_ADDITIONAL_LIMIT;
+    const base = noNeighbors
+      ? 0
+      : CONSTS.BASE_CHANCES_TO_PARTICLE_MULTIPLY_WITH_NEIGHBORS;
+
+    const probability = Math.round(base + rnd + broodStrength);
+
+    let probArray: boolean[] = Array.from({ length: 100 });
+    for (let i = 0; i < probArray.length; i++) {
+      probArray[i] = i < probability + bonus ? true : false;
+    }
+
+    const randomOutcome = probArray[Math.round(Math.random() * 100)];
+
+    return randomOutcome;
+  }
+
+  update(update: TurnUpdate): void {
     console.log(update);
 
     if (update) {

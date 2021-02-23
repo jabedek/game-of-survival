@@ -288,7 +288,7 @@ export function getNeighbors(fields: Fields, props: FieldPos): NeighborsRaport {
     all: neighbouringFields,
     particles,
     obsticles,
-    centerPos: props,
+    centerField: fields[row][col],
     accessible,
   };
 }

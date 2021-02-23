@@ -10,6 +10,7 @@ import {
   Fields,
   NeighborsRaport,
   ParticleUnit,
+  Brood,
 } from '../shared/types-interfaces';
 import { BOARD_DIMENSIONS } from './board.constants';
 
@@ -150,6 +151,18 @@ export const selectAllUnitsNeighbors = createSelector(
     });
 
     return fieldsNeighbors;
+  }
+);
+export const selectAllUnitsNeighborsAndBroodsList = createSelector(
+  selectBoardFields,
+  selectParticlesList,
+  selectBroodsList,
+  (fields: Fields, particles: ParticleUnit[], broods: Brood[]) => {
+    const fieldsNeighbors: NeighborsRaport[] = particles.map((p) => {
+      return HELPERS.getNeighbors([...fields], p.pos);
+    });
+
+    return { fieldsNeighbors, broodsList: broods };
   }
 );
 
