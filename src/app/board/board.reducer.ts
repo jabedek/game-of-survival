@@ -172,6 +172,7 @@ const authReducer = createReducer(
       };
     } else return state;
   }),
+
   // *** Broods
   /**
    * Only updates info in a brood.

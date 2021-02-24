@@ -11,18 +11,12 @@ import {
   ParticleUnit,
   ValidPotentialBroodSpace,
 } from './board/types-interfaces';
-import {
-  setTurnPhase,
-  toggleUIDecorShowing,
-  toggleUIPanelShowing,
-} from './game/game.actions';
-import {
-  selectTurnIndex,
-  selectTurnPhase,
-  selectUI,
-} from './game/game.selectors';
+import { setTurnPhase } from './game/game.actions';
+import { selectTurnIndex, selectTurnPhase } from './game/game.selectors';
 import { GameService } from './game/game.service';
 import { RootState } from './root-state';
+import { toggleUIDecorShowing, toggleUIPanelShowing } from './ui/ui.actions';
+import { selectUI } from './ui/ui.selectors';
 
 @Component({
   selector: 'app-root',
@@ -78,6 +72,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.subscription.add(
       this.store.select(selectTurnIndex).subscribe((data) => {
+        console.log('new turn', data);
+
         this.turnCounter = data;
       })
     );

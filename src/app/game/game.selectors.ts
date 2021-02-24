@@ -8,10 +8,9 @@ export const selectGame = createFeatureSelector<RootState, GameState>(
   featureKey
 );
 
-export const selectTurn = createSelector(
-  selectGame,
-  (state: GameState) => state.turn
-);
+export const selectTurn = createSelector(selectGame, (state: GameState) => {
+  return state.turn;
+});
 
 export const selectTurnPhase = createSelector(
   selectTurn,
@@ -19,8 +18,3 @@ export const selectTurnPhase = createSelector(
 );
 
 export const selectTurnIndex = createSelector(selectTurn, (turn) => turn.index);
-
-export const selectUI = createSelector(
-  selectGame,
-  (state: GameState) => state.ui
-);

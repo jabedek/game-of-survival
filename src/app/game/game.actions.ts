@@ -16,11 +16,3 @@ export const setTurnPhase = createAction(
   '[Board] Set Turn Phase',
   props<{ phase: string }>()
 );
-
-export const toggleUIPanelShowing = createAction(
-  '[App Component] Toggle Panel'
-);
-
-export const toggleUIDecorShowing = createAction(
-  '[App Component] Toggle Decor'
-);

@@ -13,8 +13,8 @@ import { environment } from '../environments/environment';
 import { GameService } from './game/game.service';
 import { BoardService } from './board/board.service';
 
-import { rootReducer } from './app.reducer';
 import { GameModule } from './game/game.module';
+import { UIModule } from './ui/ui.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -27,6 +27,7 @@ import { GameModule } from './game/game.module';
     ReactiveFormsModule,
     BoardModule,
     GameModule,
+    UIModule,
     StoreModule.forRoot({}),
     StoreDevtoolsModule.instrument({
       maxAge: 25,
