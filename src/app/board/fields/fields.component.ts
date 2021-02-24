@@ -9,8 +9,9 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { RootState } from 'src/app/root-state';
-
+import { UIService } from 'src/app/ui/ui.service';
 import { BoardService } from '../board.service';
+
 import {
   BoardDynamicCSS,
   Field,
@@ -20,12 +21,12 @@ import {
 } from '../types-interfaces';
 
 @Component({
-  selector: 'app-board-container',
-  templateUrl: './board-container.component.html',
-  styleUrls: ['./board-container.component.scss'],
+  selector: 'app-fields',
+  templateUrl: './fields.component.html',
+  styleUrls: ['./fields.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BoardContainerComponent implements OnInit {
+export class FieldsComponent implements OnInit {
   @Input() boardDimensions: number = null;
   @Input() fieldSize: number = null;
   @Input() fields: Fields = [];
@@ -38,7 +39,11 @@ export class BoardContainerComponent implements OnInit {
   // ### Functional flags
   borderObsticlesUp = false;
 
-  constructor(public service: BoardService, public store: Store<RootState>) {}
+  constructor(
+    public store: Store<RootState>,
+    public boardService: BoardService,
+    private uiService: UIService
+  ) {}
 
   ngOnInit(): void {
     this.initBoardWithStylings();
@@ -55,7 +60,7 @@ export class BoardContainerComponent implements OnInit {
   }
 
   private initBoardWithStylings() {
-    this.CSS = this.service.getStylingsDetails(
+    this.CSS = this.uiService.getStylingsDetails(
       this.boardDimensions,
       this.fieldSize
     );

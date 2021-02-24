@@ -1,29 +1,16 @@
-// ### IN-GAME COSMIC FLUCTUACTIONS
-
-// = 9 MEANS '9 %' ADDED TO CHANCE
-export const CHANCES_TO_DIE_BASE = 95;
+// ### REPRO
+export const CHANCES_TO_DIE_BASE = 95; // = 95 MEANS 95% ADDED TO PROBABILITY
 export const BASE_CHANCES_TO_PARTICLE_MULTIPLY_WITH_NEIGHBORS = 5;
 export const RANDOM_ADDITIONAL_LIMIT = 5;
-// ### IN-GAME CONSTANTS
-export const NEIGHBORS_FOR_REPRO = 3;
-export type NEIGHBORS_BEST_CHANCES_NOT_DIE = 2 | 3;
 
 // ### BOARD ###
-export const BOARD_DIMENSIONS = 15; // do 16-17 działa bez straty płynności
-export const BOARD_DIMENSIONS_X = 60;
-export const BOARD_DIMENSIONS_Y = 60;
+export const BOARD_DIMENSIONS = 16; // do 15-16 działa bez straty płynności, głównie przy togglowaniu borderów
 
-/**
- * BOARD_DIMENSIONS's value rouned up to the next even number.
- * If value already is even it will not be affected at all.
- */
-export const BOARD_DIMENSIONS_ALWAYS_EVEN = Math.ceil(BOARD_DIMENSIONS / 2) * 2;
+// ### FIELD ###
+export const FIELD_DISPLAY_INFO = false;
 
 /**
  * BOARD_FIELD_SIZE's value is passed down to Field component
  * as a number of pixels for each Field's height and width.
  */
 export const FIELD_SIZE = 6 * 6; // 6 * x
-
-// ### FIELD ###
-export const FIELD_DISPLAY_INFO = false;

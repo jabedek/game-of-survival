@@ -1,4 +1,4 @@
-import { NEIGHBORS_BEST_CHANCES_NOT_DIE } from './board.constants';
+import { getRandom } from '../shared/helpers';
 
 // *** Feature state parts
 export interface BoardState {
@@ -133,7 +133,7 @@ export interface Brood {
 
 export class Brood implements Brood {
   beginTurn = (args?: { [key: string]: any | any[] }) => {
-    let rndId = `${Math.floor(Math.random() * 1000)}`;
+    let rndId = `${getRandom(1000)}`;
     const particle = new ParticleUnit(
       rndId,
       { row: 1, column: 1 },

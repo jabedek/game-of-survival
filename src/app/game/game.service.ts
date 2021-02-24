@@ -22,10 +22,12 @@ import {
   Fields,
   NeighborsRaport,
   ParticleUnit,
+  Unit,
   ValidPotentialBroodSpace,
 } from '../board/types-interfaces';
 import { RootState } from '../root-state';
 import { TurnUpdate } from './types-interfaces';
+import { group } from '@angular/animations';
 
 @Injectable({
   providedIn: 'root',
@@ -97,10 +99,11 @@ export class GameService {
                   case 0: {
                     let willMultiply = this.willMultiply(data, n, 1, true);
                     if (willMultiply) {
-                      const unit = this.getMultipliedMember(n);
+                      const unit = this.getMultipliedMember(
+                        n,
+                        n.centerField?.occupyingUnit?.groupId
+                      );
                       if (unit) {
-                        console.log(unit);
-
                         unitsToAdd.push(unit);
                       }
                     }
@@ -110,7 +113,10 @@ export class GameService {
                     let willMultiply = this.willMultiply(data, n);
 
                     if (willMultiply) {
-                      const unit = this.getMultipliedMember(n);
+                      const unit = this.getMultipliedMember(
+                        n,
+                        n.centerField?.occupyingUnit?.groupId
+                      );
                       if (unit) {
                         unitsToAdd.push(unit);
                       }
@@ -122,8 +128,6 @@ export class GameService {
                     if (willMultiply) {
                       const unit = this.getMultipliedMember(n);
                       if (unit) {
-                        console.log(unit);
-
                         unitsToAdd.push(unit);
                       }
                     }
@@ -135,7 +139,23 @@ export class GameService {
                     break;
                   }
                 }
+
+                let updatedN = { ...n };
+
+                if (updatedN.accessible.length > 0) {
+                  updatedN.accessible = updatedN.accessible.filter((f) => {
+                    return !unitsToAdd.find((u: Unit) => u.pos === f.field.pos);
+                  });
+                }
+
+                const voidChance = getRandom(400) === 1;
+
+                if (voidChance) {
+                  const voidParticle = this.getMultipliedMember(n, null, true);
+                  unitsToAdd.push(voidParticle);
+                }
               });
+
               update = { unitsToAdd, unitsToDel };
 
               return;
@@ -151,14 +171,29 @@ export class GameService {
     return;
   }
 
-  private getMultipliedMember(n: NeighborsRaport): ParticleUnit {
+  private getMultipliedMember(
+    n: NeighborsRaport,
+    forcedGroupId?: string,
+    voidParticle?: boolean
+  ): ParticleUnit {
     const field = n.centerField;
-    const groupId = field?.occupyingUnit?.groupId || 'randoms';
-    const id = `${groupId}-${getRandom(100)}`;
-    const color = (field?.occupyingUnit as ParticleUnit).color || 'blue';
-    const pos = n.accessible[getRandom(n.accessible.length - 1)].field.pos;
 
-    return new ParticleUnit(id, pos, color, groupId, null);
+    let groupId = forcedGroupId || field?.occupyingUnit?.groupId;
+    groupId = voidParticle ? null : groupId;
+
+    let id = `${groupId}-${getRandom(100)}` || 'randomer';
+    id = voidParticle ? 'voider' : id;
+
+    let color = (field?.occupyingUnit as ParticleUnit).color || 'blue';
+    color = voidParticle ? 'black' : color;
+
+    if (n.accessible.length > 0) {
+      const pos = n.accessible[getRandom(n.accessible.length - 1)].field.pos;
+
+      return new ParticleUnit(id, pos, color, groupId, null);
+    }
+
+    return null;
   }
 
   private willMultiply(data, n, bonus = 0, noNeighbors?: boolean): boolean {
@@ -185,7 +220,7 @@ export class GameService {
   }
 
   update(update: TurnUpdate): void {
-    console.log(update);
+    // console.log(update);
 
     if (update) {
       update.unitsToDel.forEach((u) => {

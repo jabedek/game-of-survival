@@ -1,10 +1,10 @@
 <div>
-  <app-board-container
+  <app-fields
     [boardDimensions]="boardDimensions"
     [fieldSize]="fieldSize"
     [fields]="fields$ | async"
   >
-  </app-board-container>
+  </app-fields>
 
   <ng-content></ng-content>
   <button (click)="togglePanel()" class="global-button">Pokaż panel</button>

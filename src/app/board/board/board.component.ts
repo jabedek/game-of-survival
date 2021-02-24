@@ -93,9 +93,7 @@ export class BoardComponent implements OnInit {
 
   private addNewBroodValidRootRandomly() {
     if (!!this.validBroodSpaces.length && this.validBroodSpaces.length > 0) {
-      let randomValidIndex = Math.floor(
-        Math.random() * this.validBroodSpaces.length
-      );
+      let randomValidIndex = getRandom(this.validBroodSpaces.length);
 
       let rndId = `uniton-${getRandom(1000)}`;
 

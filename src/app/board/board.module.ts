@@ -8,9 +8,9 @@ import * as fromBoardReducer from './board.reducer';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BoardContainerComponent } from './board-container/board-container.component';
+import { FieldsComponent } from './fields/fields.component';
 
-const components = [BoardComponent, FieldComponent, BoardContainerComponent];
+const components = [BoardComponent, FieldComponent, FieldsComponent];
 @NgModule({
   declarations: components,
   imports: [

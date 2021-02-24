@@ -72,7 +72,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.subscription.add(
       this.store.select(selectTurnIndex).subscribe((data) => {
-        console.log('new turn', data);
+        // console.log('new turn', data);
 
         this.turnCounter = data;
       })
@@ -99,8 +99,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   stopAuto() {
-    this.mockTurnSub.unsubscribe();
-    this.mockTurnSub = null;
+    if (this.mockTurnSub) {
+      this.mockTurnSub.unsubscribe();
+      this.mockTurnSub = null;
+    }
   }
 
   async nextTurn() {

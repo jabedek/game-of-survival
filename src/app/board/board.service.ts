@@ -58,19 +58,6 @@ export class BoardService {
     selectValidBroodSpaces
   );
 
-  getStylingsDetails(
-    boardDimensions: number,
-    fieldSize: number
-  ): BoardDynamicCSS {
-    return {
-      sizings: HELPERS.getPxSizings(boardDimensions, fieldSize),
-      structurings: HELPERS.getBoardLayoutStructurings(
-        boardDimensions,
-        fieldSize
-      ),
-    };
-  }
-
   reloadBoard() {
     this.store.dispatch(
       loadBoardFields({
@@ -207,7 +194,7 @@ export class BoardService {
 
         if (board.length) {
           while (!success) {
-            const rndIndex = Math.floor(Math.random() * board.length);
+            const rndIndex = getRandom(board.length);
             const rndmlySelectedField = board[rndIndex];
 
             if (!rndmlySelectedField.blocked) {
