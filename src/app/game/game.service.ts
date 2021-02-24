@@ -1,41 +1,31 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { BoardService } from './board/board.service';
-import {
-  AppState,
-  Brood,
-  Field,
-  Fields,
-  NeighborsRaport,
-  ParticleUnit,
-  TurnUpdate,
-  Unit,
-  ValidPotentialBroodSpace,
-} from './shared/types-interfaces';
-import * as CONSTS from './board/board.constants';
+import { BoardService } from '../board/board.service';
+
+import * as CONSTS from '../board/board.constants';
 
 import { Observable, of, Subscription } from 'rxjs';
 import {
-  selectAllUnitsNeighbors,
   selectAllUnitsNeighborsAndBroodsList,
   selectAvailableFieldsAndSpaces,
   selectBoard,
   selectBoardFields,
   selectBoardSnapshot,
-  selectFieldNeighbors,
-  selectParticleField,
   selectParticlesAndBroods,
-  selectTurnIndex,
   selectUnitsNeighbors,
-} from './board';
+} from '../board/board.selectors';
+import { countTurn, loadChangesAfterTurn, setTurnPhase } from './game.actions';
+import { getRandom } from '../shared/helpers';
 import {
-  countTurn,
-  implementLoadedChanges,
-  loadChangesAfterTurn,
-  resetTurnCounter,
-  setTurnDone,
-  setTurnPhase,
-} from './board/board.actions';
+  Brood,
+  Field,
+  Fields,
+  NeighborsRaport,
+  ParticleUnit,
+  ValidPotentialBroodSpace,
+} from '../board/types-interfaces';
+import { RootState } from '../root-state';
+import { TurnUpdate } from './types-interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -59,23 +49,15 @@ export class GameService {
   broodId = '';
 
   constructor(
-    public store: Store<AppState>,
+    public store: Store<RootState>,
     public boardService: BoardService
-  ) {
-    this.boardSnapshot$.subscribe((data) => console.log());
-    // this.store
-
-    // this.boardState$.subscribe((data) => console.log(data));
-  }
+  ) {}
 
   addNewParticleToBrood = (particle) => {
     this.addNewParticle(particle);
   };
 
-  addNewParticle = (particle) => {
-    // this.boardService.addNewParticle(particle);
-    // console.log(this);
-  };
+  addNewParticle = (particle) => {};
 
   nextTurn(broods: Brood[]) {
     broods.forEach((brood) => {
@@ -92,10 +74,8 @@ export class GameService {
           neighbors: data,
           cb: this.addNewParticleToBrood,
         });
-        // console.log(data);
       })
       .unsubscribe();
-    // this.
   }
 
   computeResults() {
@@ -174,11 +154,9 @@ export class GameService {
   private getMultipliedMember(n: NeighborsRaport): ParticleUnit {
     const field = n.centerField;
     const groupId = field?.occupyingUnit?.groupId || 'randoms';
-    const id = `${groupId}-${Math.round(Math.random() * 100)}`;
+    const id = `${groupId}-${getRandom(100)}`;
     const color = (field?.occupyingUnit as ParticleUnit).color || 'blue';
-    const pos =
-      n.accessible[Math.round(Math.random() * (n.accessible.length - 1))].field
-        .pos;
+    const pos = n.accessible[getRandom(n.accessible.length - 1)].field.pos;
 
     return new ParticleUnit(id, pos, color, groupId, null);
   }
@@ -189,7 +167,7 @@ export class GameService {
     );
 
     const broodStrength = brood?.units?.length || 0;
-    const rnd = Math.random() * CONSTS.RANDOM_ADDITIONAL_LIMIT;
+    const rnd = getRandom(CONSTS.RANDOM_ADDITIONAL_LIMIT, true);
     const base = noNeighbors
       ? 0
       : CONSTS.BASE_CHANCES_TO_PARTICLE_MULTIPLY_WITH_NEIGHBORS;
@@ -201,7 +179,7 @@ export class GameService {
       probArray[i] = i < probability + bonus ? true : false;
     }
 
-    const randomOutcome = probArray[Math.round(Math.random() * 100)];
+    const randomOutcome = probArray[getRandom(100)];
 
     return randomOutcome;
   }

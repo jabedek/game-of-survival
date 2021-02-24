@@ -11,19 +11,21 @@ import {
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs';
+
+import { selectBoardField, selectFieldNeighbors } from '../board.selectors';
+
+import { BoardService } from '../board.service';
+import { FIELD_SIZE } from '../board.constants';
+import { getRandom } from 'src/app/shared/helpers';
 import {
-  AppState,
   Brood,
   Field,
   FieldMode,
   FieldPos,
   NeighborsRaport,
   ParticleUnit,
-} from 'src/app/shared/types-interfaces';
-import { selectBoardField, selectFieldNeighbors } from '..';
-
-import { BoardService } from '../board.service';
-import { FIELD_SIZE } from '../board.constants';
+} from '../types-interfaces';
+import { RootState } from 'src/app/root-state';
 
 @Component({
   selector: 'app-field',
@@ -33,8 +35,6 @@ import { FIELD_SIZE } from '../board.constants';
 })
 export class FieldComponent
   implements OnInit, OnDestroy, OnChanges, AfterViewInit {
-  // From Particle:
-
   CSSsize = FIELD_SIZE * 0.8;
   @Input() fieldPos: FieldPos;
 
@@ -47,7 +47,6 @@ export class FieldComponent
 
   neighbors: NeighborsRaport = null;
   occupyingUnit = null;
-  ////
   @Input() pos: FieldPos;
   @Input() fieldSize: number;
   @Input() groupId?: string;
@@ -65,7 +64,7 @@ export class FieldComponent
   private subscription: Subscription = new Subscription();
 
   constructor(
-    public store: Store<AppState>,
+    public store: Store<RootState>,
     public cdr: ChangeDetectorRef,
     public boardService: BoardService
   ) {}
@@ -106,9 +105,8 @@ export class FieldComponent
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    // console.log(changes);
-  }
+  ngOnChanges(changes: SimpleChanges) {}
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
     this.subscriptionNeighbors.unsubscribe();
@@ -143,9 +141,7 @@ export class FieldComponent
   addBroodOnContextmenu(event) {
     event.preventDefault();
 
-    let rndId = `eriton-${Math.floor(Math.random() * 1000)}`;
-
-    console.log('###', rndId);
+    let rndId = `eviton-${getRandom(1000)}`;
 
     this.boardService.addNewBroodOnContextmenu(rndId, this.pos, 'red');
     this.cdr.markForCheck();

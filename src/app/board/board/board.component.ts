@@ -1,16 +1,12 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
+import { toggleUIPanelShowing } from 'src/app/game/game.actions';
+import { selectUI } from 'src/app/game/game.selectors';
 
-import { GameService } from 'src/app/game.service';
-import {
-  AppState,
-  Brood,
-  ParticleUnit,
-  ValidPotentialBroodSpace,
-} from 'src/app/shared/types-interfaces';
-import { selectBoardFields, selectUI, selectValidBroodSpaces } from '..';
-import { loadFields, toggleUIPanelShowing } from '../board.actions';
+import { GameService } from 'src/app/game/game.service';
+
+import { selectBoardFields, selectValidBroodSpaces } from '../board.selectors';
 import {
   BOARD_DIMENSIONS,
   FIELD_SIZE,
@@ -18,6 +14,9 @@ import {
 } from '../board.constants';
 
 import { BoardService } from '../board.service';
+import { getRandom } from 'src/app/shared/helpers';
+import { RootState } from 'src/app/root-state';
+import { ValidPotentialBroodSpace } from '../types-interfaces';
 
 @Component({
   selector: 'app-board',
@@ -27,7 +26,7 @@ import { BoardService } from '../board.service';
 })
 export class BoardComponent implements OnInit {
   constructor(
-    public store: Store<AppState>,
+    public store: Store<RootState>,
     public boardService: BoardService,
     public gameService: GameService,
     public cdr: ChangeDetectorRef
@@ -98,7 +97,7 @@ export class BoardComponent implements OnInit {
         Math.random() * this.validBroodSpaces.length
       );
 
-      let rndId = `uniton-${Math.floor(Math.random() * 1000)}`;
+      let rndId = `uniton-${getRandom(1000)}`;
 
       this.boardService.addNewBroodOnContextmenu(
         rndId,

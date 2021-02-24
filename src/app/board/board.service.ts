@@ -5,42 +5,48 @@ import {
   selectEmptyFields,
   selectBoardFields,
   selectValidBroodSpaces,
-} from '.';
-import {
-  AppState,
-  BoardDynamicCSS,
-  ValidPotentialBroodSpace,
-  Field,
-  FieldPos,
-  FieldReference,
-  Fields,
-  ParticleUnit,
-  Brood,
-  ParticleColor,
-} from '../shared/types-interfaces';
+} from './board.selectors';
+
 import {
   addBroodToList,
-  addMemberToBroodUnits,
-  removeBroodMember,
-  loadFields,
-  setFieldEmpty,
-  setFieldObsticle,
-  setFieldParticle,
-  swapBroodMemberOnPos,
   addParticleToList,
   deleteParticleFromList,
   clearParticlesList,
   clearBroodsList,
-  resetTurnCounter,
+  loadBoardFields,
 } from './board.actions';
 import { BOARD_DIMENSIONS } from './board.constants';
 import * as HELPERS from './board.helpers';
+import {
+  addMemberToBroodUnits,
+  removeBroodMember,
+  swapBroodMemberOnPos,
+} from './brood.actions';
+import {
+  setFieldEmpty,
+  setFieldObsticle,
+  setFieldParticle,
+} from './field/field.actions';
+import { resetTurnCounter } from '../game/game.actions';
+import { getRandom } from '../shared/helpers';
+import { RootState } from '../root-state';
+import {
+  BoardDynamicCSS,
+  Brood,
+  Field,
+  FieldPos,
+  FieldReference,
+  Fields,
+  ParticleColor,
+  ParticleUnit,
+  ValidPotentialBroodSpace,
+} from './types-interfaces';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BoardService {
-  constructor(public store: Store<AppState>) {}
+  constructor(public store: Store<RootState>) {}
 
   fields$: Observable<Fields> = this.store.select(selectBoardFields);
   emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
@@ -65,10 +71,9 @@ export class BoardService {
     };
   }
 
-  // Board only
   reloadBoard() {
     this.store.dispatch(
-      loadFields({
+      loadBoardFields({
         fields: this.getInitialFields(BOARD_DIMENSIONS),
       })
     );
@@ -170,8 +175,8 @@ export class BoardService {
     totalBlockades = 4;
 
     for (let i = 0; i < totalBlockades; i++) {
-      const column = Math.floor(Math.random() * boardDimensions);
-      const row = Math.floor(Math.random() * boardDimensions);
+      const column = getRandom(boardDimensions);
+      const row = getRandom(boardDimensions);
 
       this.store.dispatch(setFieldObsticle({ pos: { row, column } }));
     }
@@ -234,8 +239,6 @@ export class BoardService {
       .unsubscribe();
   }
 
-  // # FIELD
-
   /**
    * Doesnt resolve Fields's relationships with other enitites in board state.
    */
@@ -256,7 +259,6 @@ export class BoardService {
     this.store.dispatch(clearParticlesList());
   }
 
-  // # PARTICLE (& FIELD)
   private setFieldParticle(unit: ParticleUnit) {
     this.store.dispatch(setFieldParticle({ unit }));
   }
@@ -301,8 +303,6 @@ export class BoardService {
    * Before that, it deletes any existing particles on new brood units' positions.
    */
   addBroodToList(brood: Brood) {
-    // console.log('addBroodToList');
-
     brood.units.forEach((unit) => {
       this.deleteUnit(unit.pos);
       this.setFieldParticle(unit);
@@ -362,7 +362,7 @@ export class BoardService {
       const broodId = id;
       const fallbackUnits: ParticleUnit[] = potentialSpaces.space.map(
         (s, index) => {
-          return new ParticleUnit(`${index}`, s.pos, color, broodId);
+          return new ParticleUnit(`${id}-${index}`, s.pos, color, broodId);
         }
       );
 
@@ -381,7 +381,7 @@ export class BoardService {
     const dimensions = BOARD_DIMENSIONS;
     const fallbackUnits = [
       new ParticleUnit(
-        `0`,
+        `${id}-0`,
         {
           row: pos.row,
           column: pos.column,
@@ -390,7 +390,7 @@ export class BoardService {
         broodId
       ),
       new ParticleUnit(
-        `1`,
+        `${id}-1`,
         {
           row: pos.row,
           column: pos.column + 1,
@@ -399,7 +399,7 @@ export class BoardService {
         broodId
       ),
       new ParticleUnit(
-        `2`,
+        `${id}-2`,
         {
           row: pos.row + 1,
           column: pos.column,
@@ -408,7 +408,7 @@ export class BoardService {
         broodId
       ),
       new ParticleUnit(
-        `3`,
+        `${id}-3`,
         {
           row: pos.row + 1,
           column: pos.column + 1,

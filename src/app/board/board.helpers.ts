@@ -1,13 +1,13 @@
 import {
-  BoardDynamicCSS_structurings,
   BasicInitialBroodFields,
+  BoardDynamicCSS_structurings,
   Field,
   FieldPos,
   FieldReference,
   Fields,
   NeighborField,
   NeighborsRaport,
-} from '../shared/types-interfaces';
+} from './types-interfaces';
 
 export function getBoardSize_CSSpx(
   boardDimensions: number,
@@ -93,7 +93,6 @@ export function isValidBroodRoot(
   } else {
     available0 = fields[posA][posB].blocked ? null : fields[posA][posB];
   }
-  // console.log(available0);
 
   // 1. north-east
   posB = column + 1;
@@ -131,9 +130,6 @@ export function isValidBroodRoot(
   broodFields[2] = available2;
   broodFields[3] = available3;
 
-  // = [available0, available1, available2, available3];
-  // console.log('##', bs);
-
   if (
     available0 !== null &&
     available1 !== null &&
@@ -154,10 +150,6 @@ export function isInBoundries(boardDimensions: number, pos: FieldPos) {
     return true;
   } else return false;
 }
-
-// export function
-
-// export function getParticleFieldI
 
 export function getNeighbors(fields: Fields, props: FieldPos): NeighborsRaport {
   const col: number = +props.column;

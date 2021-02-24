@@ -1,93 +1,29 @@
 import { Action, createReducer, on } from '@ngrx/store';
-import {
-  AppState,
-  BoardState,
-  Brood,
-  Field,
-  Fields,
-  ParticleUnit,
-} from '../shared/types-interfaces';
 
-import * as appActions from './board.actions';
+import * as boardActions from './board.actions';
+import * as broodActions from './brood.actions';
+import * as fieldActions from './field/field.actions';
+import { BoardState, Brood, Field, Fields } from './types-interfaces';
 
 export const featureKey = 'board';
 
 export const initialBoardState: BoardState = {
   fields: [],
-  broodsList: [],
   particlesList: [],
-  raport: null,
-  ui: { decorShowing: true, panelShowing: true },
-
-  turn: {
-    index: 0,
-    phase: 'all done',
-    update: {
-      unitsToAdd: [],
-      unitsToDel: [],
-    },
-  },
+  broodsList: [],
 };
 
 const authReducer = createReducer(
   initialBoardState,
-  on(appActions.removeBroodFromList, (state, { id }) => {
-    const broodToDel = [...state.broodsList].findIndex((b) => b.id === id);
 
-    let broodsList = [...state.broodsList].map((b) => b);
-
-    const unitsToDelete = broodsList[broodToDel].units;
-
-    // let units = [...state.particlesList].map((p) => p);
-
-    // for (let i = 0; i < unitsToDelete.length; i++) {
-    //   units = units.filter((u) => u.id === unitsToDelete[i].id);
-    // }
-    // console.log(broodToDel, units);
-
+  // *** Particles ***
+  on(boardActions.clearParticlesList, (state) => {
     return {
       ...state,
-      broodsList: [...state.broodsList].filter((b) => b.id !== id),
+      particlesList: [],
     };
   }),
-
-  on(appActions.loadChangesAfterTurn, (state: BoardState, { update }) => {
-    console.log(update);
-
-    const fallbackUpdate = update || { unitsToAdd: [], unitsToDel: [] };
-
-    return {
-      ...state,
-      turn: { ...state.turn, update: fallbackUpdate },
-    };
-  }),
-  on(appActions.setTurnDone, (state: BoardState) => {
-    return {
-      ...state,
-      turn: { ...state.turn, phase: 'all done' },
-      // update: {...state.turn},
-    };
-  }),
-  on(appActions.setTurnPhase, (state: BoardState, { phase }) => {
-    return {
-      ...state,
-      turn: { ...state.turn, phase },
-      // update: {...state.turn},
-    };
-  }),
-  on(appActions.implementLoadedChanges, (state: BoardState) => {
-    // console.log(update);
-    console.log(state);
-
-    let changesAdd = [...state.turn.update.unitsToAdd];
-    let changesDel = [...state.turn.update.unitsToDel];
-    console.log(changesAdd, changesDel);
-
-    return {
-      ...state,
-    };
-  }),
-  on(appActions.addBroodToList, (state: BoardState, { brood }) => {
+  on(boardActions.addBroodToList, (state: BoardState, { brood }) => {
     let broodsList: Brood[] = [...state.broodsList].map((b) => b);
     broodsList = [...state.broodsList.map((b) => b), brood];
     broodsList = [...broodsList].filter((b) => b.units.length > 0);
@@ -98,111 +34,14 @@ const authReducer = createReducer(
     };
   }),
 
-  /**
-   * Only updates info in a brood.
-   * Doesn't update particle on a field on its own.
-   */
-  on(appActions.removeBroodMember, (state, { pos }) => {
-    let broodsList = [...state.broodsList].map((b) => {
-      let brood = Object.assign({}, b);
-
-      brood.units = brood.units.filter(
-        (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
-      );
-
-      return brood;
-    });
-
-    broodsList = broodsList.filter((b) => b.units.length !== 0);
-
-    return { ...state, broodsList };
-  }),
-
-  on(appActions.addMemberToBroodUnits, (state, { unit }) => {
-    let broodsList = [...state.broodsList].map((b) => b);
-    let broodToUpdate = null;
-    broodsList.forEach((b) => {
-      if (b.id === unit.groupId) {
-        broodToUpdate = { ...b };
-
-        let overwritten = false;
-        broodToUpdate.units.forEach((u) => {
-          if (u.pos === unit.pos) {
-            u = unit;
-            overwritten = true;
-          }
-        });
-
-        if (!overwritten) {
-          let newUnits = [...broodToUpdate.units].map((u) => u);
-          newUnits.push({ ...unit });
-
-          broodToUpdate.units = newUnits;
-        }
-      }
-      return b;
-    });
-
-    return { ...state, broodsList };
-  }),
-
-  on(appActions.swapBroodMemberOnPos, (state, { unit }) => {
-    const broodsList = [...state.broodsList].map((b) => {
-      b.units.forEach((u) => {
-        if (u.pos === unit.pos) {
-          u = unit;
-        }
-      });
-
-      return b;
-    });
-
-    return { ...state, broodsList };
-  }),
-
-  on(appActions.toggleUIPanelShowing, (state: BoardState) => {
-    let ui = { ...state.ui };
-    ui.panelShowing = !ui.panelShowing;
-    return {
-      ...state,
-      ui,
-    };
-  }),
-  on(appActions.toggleUIDecorShowing, (state: BoardState) => {
-    let ui = { ...state.ui };
-    ui.decorShowing = !ui.decorShowing;
-    return {
-      ...state,
-      ui,
-    };
-  }),
-  on(appActions.clearParticlesList, (state) => {
-    return {
-      ...state,
-      particlesList: [],
-    };
-  }),
-  on(appActions.countTurn, (state) => {
-    return {
-      ...state,
-      turn: { ...state.turn, index: state.turn.index + 1 },
-    };
-  }),
-  on(appActions.resetTurnCounter, (state) => {
-    return {
-      ...state,
-      turn: { ...state.turn, index: 0 },
-    };
-  }),
-
-  on(appActions.addParticleToList, (state, { unit }) => {
+  on(boardActions.addParticleToList, (state, { unit }) => {
     return {
       ...state,
       particlesList: Array.from(new Set([...state.particlesList, unit])),
     };
   }),
 
-  on(appActions.deleteParticleFromList, (state, { pos }) => {
+  on(boardActions.deleteParticleFromList, (state, { pos }) => {
     const particlesList = [...state.particlesList].filter(
       (p) => !(p.pos.row === pos.row && p.pos.column === pos.column)
     );
@@ -213,21 +52,22 @@ const authReducer = createReducer(
     };
   }),
 
-  on(appActions.clearBroodsList, (state) => {
+  on(boardActions.clearBroodsList, (state) => {
     return {
       ...state,
       broodsList: [],
     };
   }),
 
-  on(appActions.loadFields, (state, { fields }) => {
+  // *** Fields
+  on(boardActions.loadBoardFields, (state, { fields }) => {
     return {
       ...state,
       fields,
     };
   }),
 
-  on(appActions.setFieldParticle, (state, { unit }) => {
+  on(fieldActions.setFieldParticle, (state, { unit }) => {
     const { pos } = unit;
 
     const fields: Fields = [...state.fields].map((row: Field[]) =>
@@ -250,7 +90,7 @@ const authReducer = createReducer(
     };
   }),
 
-  on(appActions.setFieldObsticle, (state, { pos }) => {
+  on(fieldActions.setFieldObsticle, (state, { pos }) => {
     const fields: Fields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
         if (field.pos.column === pos.column && field.pos.row === pos.row) {
@@ -272,7 +112,7 @@ const authReducer = createReducer(
   /**
    * Sets field unblocked with occupying unit set to null, so it doesn't display any unit.
    */
-  on(appActions.setFieldEmpty, (state, { pos }) => {
+  on(fieldActions.setFieldEmpty, (state, { pos }) => {
     if (state.fields[pos.row] && state.fields[pos.row][pos.column]) {
       const previousField: Field = { ...state.fields[pos.row][pos.column] };
 
@@ -301,7 +141,6 @@ const authReducer = createReducer(
       let broodsList: Brood[] = [...state.broodsList].map((p) => p);
 
       // Check if it was particle and if was in brood then delete it from there
-
       if (
         !!previousField.occupyingUnit &&
         previousField.occupyingUnit?.groupId
@@ -332,6 +171,68 @@ const authReducer = createReducer(
         fields,
       };
     } else return state;
+  }),
+  // *** Broods
+  /**
+   * Only updates info in a brood.
+   * Doesn't update particle on a field on its own.
+   */
+  on(broodActions.removeBroodMember, (state, { pos }) => {
+    let broodsList = [...state.broodsList].map((b) => {
+      let brood = Object.assign({}, b);
+
+      brood.units = brood.units.filter(
+        (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
+      );
+
+      return brood;
+    });
+
+    broodsList = broodsList.filter((b) => b.units.length !== 0);
+
+    return { ...state, broodsList };
+  }),
+
+  on(broodActions.addMemberToBroodUnits, (state, { unit }) => {
+    let broodsList = [...state.broodsList].map((b) => b);
+    let broodToUpdate = null;
+    broodsList.forEach((b) => {
+      if (b.id === unit.groupId) {
+        broodToUpdate = { ...b };
+
+        let overwritten = false;
+        broodToUpdate.units.forEach((u) => {
+          if (u.pos === unit.pos) {
+            u = unit;
+            overwritten = true;
+          }
+        });
+
+        if (!overwritten) {
+          let newUnits = [...broodToUpdate.units].map((u) => u);
+          newUnits.push({ ...unit });
+
+          broodToUpdate.units = newUnits;
+        }
+      }
+      return b;
+    });
+
+    return { ...state, broodsList };
+  }),
+
+  on(broodActions.swapBroodMemberOnPos, (state, { unit }) => {
+    const broodsList = [...state.broodsList].map((b) => {
+      b.units.forEach((u) => {
+        if (u.pos === unit.pos) {
+          u = unit;
+        }
+      });
+
+      return b;
+    });
+
+    return { ...state, broodsList };
   })
 );
 

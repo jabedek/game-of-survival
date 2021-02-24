@@ -1,35 +1,28 @@
-import {
-  AfterContentChecked,
-  AfterContentInit,
-  AfterViewInit,
-  Component,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { interval } from 'rxjs';
-import {
-  selectBoardSnapshot,
-  selectTurnIndex,
-  selectTurnPhase,
-  selectUI,
-} from './board';
-import {
-  implementLoadedChanges,
-  setTurnPhase,
-  toggleUIDecorShowing,
-  toggleUIPanelShowing,
-} from './board/board.actions';
+import { selectBoardSnapshot } from './board/board.selectors';
+
 import { BoardService } from './board/board.service';
-import { GameService } from './game.service';
 import {
-  AppState,
   Brood,
   Field,
   ParticleUnit,
   ValidPotentialBroodSpace,
-} from './shared/types-interfaces';
+} from './board/types-interfaces';
+import {
+  setTurnPhase,
+  toggleUIDecorShowing,
+  toggleUIPanelShowing,
+} from './game/game.actions';
+import {
+  selectTurnIndex,
+  selectTurnPhase,
+  selectUI,
+} from './game/game.selectors';
+import { GameService } from './game/game.service';
+import { RootState } from './root-state';
 
 @Component({
   selector: 'app-root',
@@ -55,14 +48,16 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   turnCounter = 0;
 
   constructor(
-    public store: Store<AppState>,
+    public store: Store<RootState>,
     private game: GameService,
     public boardService: BoardService
   ) {
     this.subscription.add(
       this.ui$.subscribe((data) => {
-        this.decorShowing = data.decorShowing;
-        this.panelShowing = data.panelShowing;
+        if (data) {
+          this.decorShowing = data.decorShowing;
+          this.panelShowing = data.panelShowing;
+        }
       })
     );
 
@@ -93,9 +88,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-  ngAfterViewInit() {
-    // console.log('elo');
-  }
+  ngAfterViewInit() {}
 
   startAuto() {
     this.boardService.scenario2();
@@ -125,7 +118,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.game.computeResults();
-    // this.store
   }
 
   toggleDecor() {

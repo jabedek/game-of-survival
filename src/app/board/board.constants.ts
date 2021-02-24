@@ -7,11 +7,9 @@ export const RANDOM_ADDITIONAL_LIMIT = 5;
 // ### IN-GAME CONSTANTS
 export const NEIGHBORS_FOR_REPRO = 3;
 export type NEIGHBORS_BEST_CHANCES_NOT_DIE = 2 | 3;
-// export const neededNeighborsForReproduction = 3;
-// export type neededNeighborsToLowerDeathChances = 2 | 3;
 
 // ### BOARD ###
-export const BOARD_DIMENSIONS = 15; // 16 to max bez straty płynności
+export const BOARD_DIMENSIONS = 15; // do 16-17 działa bez straty płynności
 export const BOARD_DIMENSIONS_X = 60;
 export const BOARD_DIMENSIONS_Y = 60;
 

@@ -8,18 +8,16 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { RootState } from 'src/app/root-state';
+
+import { BoardService } from '../board.service';
 import {
-  AppState,
   BoardDynamicCSS,
-  FieldReference,
+  Field,
+  FieldPos,
   Fields,
   Unit,
-  FieldPos,
-  Field,
-} from 'src/app/shared/types-interfaces';
-import { setFieldObsticle, setFieldParticle } from '../board.actions';
-import { BOARD_DIMENSIONS, FIELD_SIZE } from '../board.constants';
-import { BoardService } from '../board.service';
+} from '../types-interfaces';
 
 @Component({
   selector: 'app-board-container',
@@ -28,7 +26,6 @@ import { BoardService } from '../board.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardContainerComponent implements OnInit {
-  // ### Fields related to dynamic stylings and sizings
   @Input() boardDimensions: number = null;
   @Input() fieldSize: number = null;
   @Input() fields: Fields = [];
@@ -38,13 +35,10 @@ export class BoardContainerComponent implements OnInit {
   @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
   @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
 
-  // ### Board-Fields structure management
-  fieldDimensions: Fields = [];
-
   // ### Functional flags
   borderObsticlesUp = false;
 
-  constructor(public service: BoardService, public store: Store<AppState>) {}
+  constructor(public service: BoardService, public store: Store<RootState>) {}
 
   ngOnInit(): void {
     this.initBoardWithStylings();
@@ -56,7 +50,7 @@ export class BoardContainerComponent implements OnInit {
     }
   }
 
-  trackByFn(index, item: Field) {
+  trackByFn(_, item: Field) {
     return `${item.pos.row}${item.pos.column}`;
   }
 
