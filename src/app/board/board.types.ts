@@ -1,6 +1,6 @@
 import { getRandom } from '../shared/helpers';
 import { Field, FieldPos } from './field/field.types';
-import { BoardFields } from './fields/fields.types';
+import { BoardFields } from './board/board.types';
 
 // *** Feature state parts
 export interface BoardState {

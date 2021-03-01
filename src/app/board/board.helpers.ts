@@ -1,5 +1,5 @@
 import { Field, FieldPos, FieldReference } from './field/field.types';
-import { BoardFields } from './fields/fields.types';
+import { BoardFields } from './board/board.types';
 import {
   BasicInitialBroodFields,
   NeighborField,

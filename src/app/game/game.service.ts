@@ -26,7 +26,7 @@ import {
 import { RootState } from '../root-state';
 import { TurnUpdate } from './game.types';
 import { Field } from '../board/field/field.types';
-import { BoardFields } from '../board/fields/fields.types';
+import { BoardFields } from '../board/board/board.types';
 
 @Injectable({
   providedIn: 'root',

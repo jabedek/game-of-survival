@@ -1,0 +1,28 @@
+<div>
+  <app-board
+    [boardDimensions]="boardDimensions"
+    [fieldSize]="fieldSize"
+    [fields]="fields$ | async"
+  >
+  </app-board>
+
+  <ng-content></ng-content>
+  <button (click)="togglePanel()" class="global-button">Pokaż panel</button>
+
+  <div *ngIf="panelShowing" class="game-panel">
+    <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>
+
+    <p class="board__button" (click)="handleClick('toggleBorders')">
+      Toggle obsticle borders
+    </p>
+    <p class="board__button" (click)="handleClick('scenario1')">
+      Borders & particles & additional obsticles
+    </p>
+    <p
+      class="board__button"
+      (click)="handleClick('addNewBroodValidRootRandomly')"
+    >
+      Add new Brood randomly
+    </p>
+  </div>
+</div>

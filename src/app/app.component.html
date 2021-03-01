@@ -1,5 +1,5 @@
 <div class="main-container" (contextmenu)="$event.preventDefault()">
-  <app-board>
+  <app-panel>
     <div class="info-list">
       <button
         [disabled]="turnButtonBlocked"
@@ -31,7 +31,7 @@
         <p class="val">Pokaż grafikę</p>
       </button>
     </div>
-  </app-board>
+  </app-panel>
 
   <ng-container *ngIf="decorShowing">
     <div class="blackhole"></div>

@@ -4,7 +4,7 @@ import * as boardActions from './board.actions';
 import * as broodActions from './brood.actions';
 import * as fieldActions from './field/field.actions';
 import { Field } from './field/field.types';
-import { BoardFields } from './fields/fields.types';
+import { BoardFields } from './board/board.types';
 import { BoardState, Brood } from './board.types';
 
 export const featureKey = 'board';

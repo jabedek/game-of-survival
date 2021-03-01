@@ -1,11 +1,15 @@
 <div
-  class="field-container"
+  class="field-container accessible-border"
   [style.width.px]="fieldSize"
   [style.height.px]="fieldSize"
   (mouseup)="toggleSelf()"
   (contextmenu)="addBroodOnContextmenu($event)"
 >
-  <div class="field" *ngIf="selfDetails$ | async as data; else loading">
+  <div
+    class="field"
+    *ngIf="selfDetails$ | async as data; else loading"
+    [class.accessible-border]="true"
+  >
     <div class="field__content" *ngIf="data?.fieldDetails?.blocked">
       <ng-container
         *ngIf="

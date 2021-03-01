@@ -37,7 +37,7 @@ import {
   ValidPotentialBroodSpace,
 } from './board.types';
 import { Field, FieldPos, FieldReference } from './field/field.types';
-import { BoardFields } from './fields/fields.types';
+import { BoardFields } from './board/board.types';
 
 @Injectable({
   providedIn: 'root',

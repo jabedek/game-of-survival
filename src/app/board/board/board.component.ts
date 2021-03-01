@@ -1,132 +1,252 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
-import { GameService } from 'src/app/game/game.service';
-import { selectBoardFields, selectValidBroodSpaces } from '../board.selectors';
 import {
-  BOARD_DIMENSIONS,
-  FIELD_SIZE,
-  FIELD_DISPLAY_INFO,
-} from '../board.constants';
-
-import { BoardService } from '../board.service';
-import { getRandom } from 'src/app/shared/helpers';
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  Output,
+  QueryList,
+  SimpleChanges,
+  ViewChildren,
+} from '@angular/core';
+import { Store } from '@ngrx/store';
 import { RootState } from 'src/app/root-state';
-import { ValidPotentialBroodSpace } from '../board.types';
-import { selectUI } from 'src/app/ui/ui.selectors';
-import { toggleUIPanelShowing } from 'src/app/ui/ui.actions';
+import { UIService } from 'src/app/ui/ui.service';
+import { BoardService } from '../board.service';
+import { Field, FieldPos } from '../field/field.types';
+import { Unit } from '../board.types';
+import { BoardFields } from './board.types';
+import { BoardDynamicCSS } from 'src/app/ui/ui.types';
+import { fromEvent, Subject } from 'rxjs';
+import {
+  tap,
+  share,
+  switchMap,
+  filter,
+  takeUntil,
+  auditTime,
+  withLatestFrom,
+  map,
+} from 'rxjs/operators';
+import { moveParticleFromTo } from '../board.actions';
+import { BOARD_DIMENSIONS } from '../board.constants';
+import { selectFieldNeighbors } from '../board.selectors';
+
+const AUDIT_TIME = 16;
 
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BoardComponent implements OnInit {
+export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
+  @Input() boardDimensions: number = null;
+  @Input() fieldSize: number = null;
+  @Input() fields: BoardFields = [];
+  CSS: BoardDynamicCSS = null;
+
+  hostRect: DOMRect = null;
+
+  private destroy = new Subject<void>();
+  @Output() setParticleEvent: EventEmitter<Unit> = new EventEmitter();
+  @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
+  @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
+  @ViewChildren('div', { read: ElementRef }) div;
+  @ViewChildren('fieldsTemplates', { read: ElementRef })
+  fieldsTemplates: ElementRef;
+  @ViewChildren('fieldsRefs') fieldsRefs;
+  dragStart;
+  moveTo;
+  // ### Functional flags
+  borderObsticlesUp = false;
+  refs: ElementRef[] = null;
+  posStart = null;
   constructor(
     public store: Store<RootState>,
     public boardService: BoardService,
-    public gameService: GameService,
-    public cdr: ChangeDetectorRef
+    private uiService: UIService,
+    private ngZone: NgZone,
+    private host: ElementRef
   ) {}
 
-  // Observables
-  ui$ = this.store.select(selectUI);
-  fields$ = this.store.select(selectBoardFields);
-  validBroodSpaces$ = this.store.select(selectValidBroodSpaces);
-  validBroodSpaces: ValidPotentialBroodSpace[] = null;
-  subscription: Subscription = new Subscription();
-
-  // UI related
-  boardDimensions = BOARD_DIMENSIONS;
-  FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
-  fieldSize = FIELD_SIZE;
-  panelShowing = true;
-  borderObsticlesUp = false;
-
   ngOnInit(): void {
-    this.subscription.add(
-      this.ui$.subscribe((data) => {
-        this.panelShowing = data.panelShowing;
-      })
-    );
+    this.hostRect = (this.host
+      .nativeElement as Element).getBoundingClientRect();
 
-    this.subscription.add(
-      this.validBroodSpaces$.subscribe((data) => {
-        this.validBroodSpaces = data;
-      })
-    );
-
-    this.initBoard();
-    this.toggleBordersDown();
-    this.addNewBroodValidRootRandomly();
+    this.initBoardWithStylings();
+    this.observeMouseMove();
   }
 
-  handleClick(type: string) {
-    this[type]();
+  ngOnDestroy(): void {
+    this.destroy.next();
+    this.destroy.complete();
   }
 
-  reloadBoard() {
-    this.initBoard();
-    this.toggleBordersDown();
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes?.boardDimensions || changes?.fieldSize) {
+      this.initBoardWithStylings();
+    }
+  }
+  ngAfterViewInit() {
+    this.refs = [...(this.fieldsTemplates as any).toArray()];
   }
 
-  scenario1() {
-    this.initBoard();
-    this.toggleBordersUp();
-    this.addUnits(2, 2);
+  trackByFn(_, item: Field) {
+    return `${item.pos.row}${item.pos.column}`;
   }
 
-  toggleBorders(): void {
-    this.boardService.toggleBorders(
+  private initBoardWithStylings() {
+    this.CSS = this.uiService.getStylingsDetails(
       this.boardDimensions,
-      this.borderObsticlesUp
+      this.fieldSize
     );
-    this.borderObsticlesUp = !this.borderObsticlesUp;
   }
 
-  togglePanel() {
-    this.store.dispatch(toggleUIPanelShowing());
-  }
+  /**
+   * Observe mouse action (move, up, down)
+   */
+  private observeMouseMove() {
+    this.ngZone.runOutsideAngular(() => {
+      const mousemove$ = fromEvent<MouseEvent>(window, 'mousemove');
 
-  private addNewBroodValidRootRandomly() {
-    if (!!this.validBroodSpaces.length && this.validBroodSpaces.length > 0) {
-      let randomValidIndex = getRandom(this.validBroodSpaces.length);
-
-      let rndId = `uniton-${getRandom(1000)}`;
-
-      this.boardService.addNewBroodOnContextmenu(
-        rndId,
-        this.validBroodSpaces[randomValidIndex]?.startingPos,
-        'green'
+      const mouseup$ = fromEvent<MouseEvent>(window, 'mouseup').pipe(
+        tap((event) => this.onMouseUp(event)),
+        share()
       );
+
+      const mousedown$ = fromEvent<MouseEvent>(window, 'mousedown').pipe(
+        filter((event) => event.button === 0),
+        tap((event) => this.onMouseDown(event)),
+        share()
+      );
+
+      const dragging$ = mousedown$.pipe(
+        filter(() => Boolean(true)),
+        switchMap(() => mousemove$.pipe(takeUntil(mouseup$))),
+        share()
+      );
+
+      const moveOnDrag$ = dragging$.pipe(
+        auditTime(AUDIT_TIME),
+        withLatestFrom(mousemove$, (selectBox, event: MouseEvent) => ({
+          selectBox,
+          event,
+        })),
+        map(({ event }) => event)
+      );
+
+      moveOnDrag$
+        .pipe(takeUntil(this.destroy))
+        .subscribe((event) => this.ngZone.run(() => this.moveParticle(event)));
+    });
+  }
+
+  inRectBoundries(rect: DOMRect, x: number, y: number) {
+    if (
+      x >= rect.left &&
+      x <= rect.right &&
+      y >= rect.top &&
+      y <= rect.bottom
+    ) {
+      console.log(
+        rect,
+        x,
+        y,
+        x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+      );
+    }
+    return (
+      x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+    );
+  }
+
+  onMouseUp(event) {
+    let startPos = null;
+    let endPos = null;
+
+    if (this.dragStart && this.posStart) {
+      [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
+        const rect: DOMRect = t.nativeElement.getBoundingClientRect();
+
+        if (this.inRectBoundries(rect, this.posStart.x, this.posStart.y)) {
+          startPos = {
+            row: Math.floor(i / BOARD_DIMENSIONS),
+            column: i % BOARD_DIMENSIONS,
+          };
+        }
+      });
+
+      [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
+        const rect: DOMRect = t.nativeElement.getBoundingClientRect();
+        if (this.inRectBoundries(rect, event.x, event.y)) {
+          endPos = {
+            row: Math.floor(i / BOARD_DIMENSIONS),
+            column: i % BOARD_DIMENSIONS,
+          };
+        }
+      });
+
+      console.log(startPos, endPos);
+
+      if (startPos && endPos) {
+        this.store.dispatch(
+          moveParticleFromTo({ pos: startPos, newPos: endPos })
+        );
+      }
+
+      this.dragStart = null;
+      this.posStart = null;
     }
   }
 
-  private addUnits(particles: number, obsticles = 0) {
-    this.boardService.addUnitsRandomly(particles, obsticles);
+  onMouseDown(event) {
+    console.log('onMouseDown');
+
+    let startPos = null;
+
+    [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
+      const rect: DOMRect = t.nativeElement.getBoundingClientRect();
+
+      if (this.inRectBoundries(rect, event.x, event.y)) {
+        startPos = {
+          row: Math.floor(i / BOARD_DIMENSIONS),
+          column: i % BOARD_DIMENSIONS,
+        };
+
+        if (!!this.fields[startPos.row][startPos.column]?.occupyingUnit?.id) {
+          this.dragStart = (event.target as Element).getBoundingClientRect();
+          this.posStart = { x: event.x, y: event.y };
+          this.store
+            .select(selectFieldNeighbors, startPos)
+            .subscribe((data) => {
+              console.log(data);
+
+              // data.accessible
+            });
+        }
+      }
+    });
   }
 
-  private initBoard() {
-    this.borderObsticlesUp = false;
-    this.boardService.reloadBoard();
-  }
+  moveParticle(event) {
+    const mousePosition = {
+      x: event.clientX,
+      y: event.clientY,
+    };
 
-  private toggleBordersDown() {
-    this.borderObsticlesUp = true;
-    this.boardService.toggleBorders(
-      this.boardDimensions,
-      this.borderObsticlesUp
-    );
-    this.borderObsticlesUp = false;
-  }
-
-  private toggleBordersUp() {
-    this.borderObsticlesUp = false;
-    this.boardService.toggleBorders(
-      this.boardDimensions,
-      this.borderObsticlesUp
-    );
-    this.borderObsticlesUp = true;
+    this.moveTo = {
+      startPoint: mousePosition,
+      boundinBox: {
+        top: mousePosition.y,
+        left: mousePosition.x,
+        width: 0,
+        height: 0,
+      },
+    };
   }
 }

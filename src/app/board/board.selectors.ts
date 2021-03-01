@@ -3,7 +3,7 @@ import { RootState } from '../root-state';
 
 import * as HELPERS from './board.helpers';
 import { Field, FieldPos } from './field/field.types';
-import { BoardFields } from './fields/fields.types';
+import { BoardFields } from './board/board.types';
 import {
   BasicInitialBroodFields,
   BoardState,
