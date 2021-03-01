@@ -19,7 +19,7 @@ import { RootState } from 'src/app/root-state';
 import { UIService } from 'src/app/ui/ui.service';
 import { BoardService } from '../board.service';
 import { Field, FieldPos } from '../field/field.types';
-import { NeighborsRaport, Unit } from '../board.types';
+import { NeighborField, NeighborsRaport, Unit } from '../board.types';
 import { BoardFields } from './board.types';
 import { BoardDynamicCSS } from 'src/app/ui/ui.types';
 import { fromEvent, Observable, Subject, Subscription } from 'rxjs';
@@ -73,6 +73,7 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
   // ### Functional flags
   borderObsticlesUp = false;
   refs: ElementRef[] = null;
+  accessibleNeighbors: any[] = null;
   posStart = null;
   constructor(
     public store: Store<RootState>,
@@ -205,9 +206,19 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log(startPos, endPos);
 
       if (startPos && endPos) {
-        this.store.dispatch(
-          moveParticleFromTo({ pos: startPos, newPos: endPos })
-        );
+        const result = this.accessibleNeighbors.find((n: Field) => {
+          // console.log(n);
+
+          if (n.pos.row === endPos?.row && n.pos.column === endPos?.column) {
+            return true;
+          }
+        });
+
+        if (result) {
+          this.store.dispatch(
+            moveParticleFromTo({ pos: startPos, newPos: endPos })
+          );
+        }
       }
 
       this.store.dispatch(setAllFieldsHighlightFalse());
@@ -242,7 +253,8 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
               .subscribe((data) => {
                 console.log(data);
                 const fields = data.accessibleToMove.map((a) => a.field);
-                console.log(fields);
+                this.accessibleNeighbors = fields;
+                // console.log(fields);
 
                 this.store.dispatch(
                   setFieldsHighlightTrue({ fieldsToHighLight: fields })
