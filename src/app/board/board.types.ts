@@ -116,7 +116,8 @@ export interface NeighborsRaport {
   centerField: Field;
   particles: NeighborField[];
   obsticles: NeighborField[];
-  accessible: NeighborField[];
+  accessible: NeighborField[]; //
+  accessibleToMove: NeighborField[]; // nie ma ruchow na skos wiec tylko na krzyz
 }
 
 export interface ValidPotentialBroodSpace {

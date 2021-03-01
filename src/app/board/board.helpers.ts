@@ -273,14 +273,27 @@ export function getNeighbors(
     (neighbour) =>
       !!neighbour?.field?.blocked && !neighbour?.field?.occupyingUnit
   );
+
   let accessible = neighbouringFields.filter(
     (n) => n.field !== null && n.field.blocked === false
   );
+
+  let accessibleToMove = accessible.filter((n) => {
+    if (
+      n.at === 'north' ||
+      n.at === 'south' ||
+      n.at === 'west' ||
+      n.at === 'east'
+    ) {
+      return n;
+    }
+  });
 
   return {
     all: neighbouringFields,
     particles,
     obsticles,
+    accessibleToMove,
     centerField: fields[row][col],
     accessible,
   };

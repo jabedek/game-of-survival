@@ -10,6 +10,7 @@
       #fieldsRefs
       *ngFor="let column of row; let colPos = index; trackBy: trackByFn"
       [pos]="{ row: rowPos, column: colPos }"
+      [highlightAccess]="column?.highlightAccess"
       [fieldSize]="fieldSize"
       name="{{ rowPos }}-{{ colPos }}"
       key="{{ rowPos }}-{{ colPos }}"

@@ -70,7 +70,7 @@ const authReducer = createReducer(
   }),
 
   on(boardActions.moveParticleFromTo, (state, { pos, newPos }) => {
-    const unitT = { ...state.fields[pos.row][pos.column]?.occupyingUnit };
+    const unit = { ...state.fields[pos.row][pos.column]?.occupyingUnit };
 
     const field = {
       ...state.fields[pos.row][pos.column],
@@ -80,7 +80,7 @@ const authReducer = createReducer(
 
     const newField = {
       ...state.fields[newPos.row][newPos.column],
-      occupyingUnit: unitT,
+      occupyingUnit: unit,
       blocked: true,
     };
     console.log(field, newField);
@@ -121,6 +121,55 @@ const authReducer = createReducer(
     return {
       ...state,
 
+      fields,
+    };
+  }),
+
+  on(fieldActions.setFieldsHighlightTrue, (state, { fieldsToHighLight }) => {
+    let fields = [...state.fields].map((row: Field[]) => {
+      return row.map((f) => f);
+    });
+
+    fieldsToHighLight.forEach((f) => {
+      const { row, column } = f.pos;
+      const field = {
+        ...fields[row][column],
+        highlightAccess: true,
+      };
+      console.log(field);
+
+      fields[row][column] = field;
+    });
+    console.log(fieldsToHighLight);
+
+    return {
+      ...state,
+      fields,
+    };
+  }),
+  on(fieldActions.setAllFieldsHighlightFalse, (state) => {
+    let fields = [...state.fields].map((row: Field[]) => {
+      return row.map((f) => {
+        return {
+          ...f,
+          highlightAccess: false,
+        };
+      });
+    });
+
+    // fields.forEach((row: Field[]) => {
+    //   return row.forEach((f) => {
+    //     const field = {
+    //       ...f,
+    //       highlightAccess: false,
+    //     };
+
+    //     f = field;
+    //   });
+    // });
+
+    return {
+      ...state,
       fields,
     };
   }),

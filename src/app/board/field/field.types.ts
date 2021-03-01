@@ -19,17 +19,25 @@ export interface Field {
   pos: FieldPos;
   blocked: boolean;
   occupyingUnit?: null | Unit;
+  highlightAccess?: boolean;
 }
 
 export class Field implements Field {
-  constructor(pos: FieldPos, blocked: boolean, occupyingUnit?: Unit) {
+  constructor(
+    pos: FieldPos,
+    blocked: boolean,
+    occupyingUnit?: Unit,
+    highlightAccess?: boolean
+  ) {
     this.pos = pos;
     this.blocked = !!occupyingUnit || blocked;
     this.occupyingUnit = occupyingUnit || null;
+    this.highlightAccess = highlightAccess;
   }
 }
 
 export type FieldInfo = {
   fieldDetails: Field;
+  // highlightAccesibility?: boolean;
   neighbors: NeighborsRaport;
 };

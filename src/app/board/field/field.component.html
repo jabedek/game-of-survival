@@ -8,7 +8,7 @@
   <div
     class="field"
     *ngIf="selfDetails$ | async as data; else loading"
-    [class.accessible-border]="true"
+    [class.accessible-border]="highlightAccess"
   >
     <div class="field__content" *ngIf="data?.fieldDetails?.blocked">
       <ng-container

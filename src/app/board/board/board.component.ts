@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -18,10 +19,10 @@ import { RootState } from 'src/app/root-state';
 import { UIService } from 'src/app/ui/ui.service';
 import { BoardService } from '../board.service';
 import { Field, FieldPos } from '../field/field.types';
-import { Unit } from '../board.types';
+import { NeighborsRaport, Unit } from '../board.types';
 import { BoardFields } from './board.types';
 import { BoardDynamicCSS } from 'src/app/ui/ui.types';
-import { fromEvent, Subject } from 'rxjs';
+import { fromEvent, Observable, Subject, Subscription } from 'rxjs';
 import {
   tap,
   share,
@@ -31,10 +32,15 @@ import {
   auditTime,
   withLatestFrom,
   map,
+  take,
 } from 'rxjs/operators';
 import { moveParticleFromTo } from '../board.actions';
 import { BOARD_DIMENSIONS } from '../board.constants';
 import { selectFieldNeighbors } from '../board.selectors';
+import {
+  setAllFieldsHighlightFalse,
+  setFieldsHighlightTrue,
+} from '../field/field.actions';
 
 const AUDIT_TIME = 16;
 
@@ -62,6 +68,8 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren('fieldsRefs') fieldsRefs;
   dragStart;
   moveTo;
+  sub: Subscription = new Subscription();
+  currentFieldNeighbors$: Observable<NeighborsRaport> = null;
   // ### Functional flags
   borderObsticlesUp = false;
   refs: ElementRef[] = null;
@@ -71,7 +79,8 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
     public boardService: BoardService,
     private uiService: UIService,
     private ngZone: NgZone,
-    private host: ElementRef
+    private host: ElementRef,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -166,6 +175,8 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onMouseUp(event) {
+    // this.currentFieldNeighbors$.;
+    this.sub.unsubscribe();
     let startPos = null;
     let endPos = null;
 
@@ -199,6 +210,8 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
         );
       }
 
+      this.store.dispatch(setAllFieldsHighlightFalse());
+
       this.dragStart = null;
       this.posStart = null;
     }
@@ -221,13 +234,23 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
         if (!!this.fields[startPos.row][startPos.column]?.occupyingUnit?.id) {
           this.dragStart = (event.target as Element).getBoundingClientRect();
           this.posStart = { x: event.x, y: event.y };
-          this.store
-            .select(selectFieldNeighbors, startPos)
-            .subscribe((data) => {
-              console.log(data);
 
-              // data.accessible
-            });
+          this.sub.add(
+            this.store
+              .select(selectFieldNeighbors, startPos)
+              .pipe(take(1))
+              .subscribe((data) => {
+                console.log(data);
+                const fields = data.accessibleToMove.map((a) => a.field);
+                console.log(fields);
+
+                this.store.dispatch(
+                  setFieldsHighlightTrue({ fieldsToHighLight: fields })
+                );
+
+                this.cdr.markForCheck();
+              })
+          );
         }
       }
     });

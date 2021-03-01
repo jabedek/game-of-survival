@@ -48,6 +48,9 @@ export class FieldComponent
   @Input() isColor: 'blue' | 'red' | 'green' = 'blue';
   @Input() particleUnit: ParticleUnit;
   turnDone = false;
+
+  @Input() highlightAccess = false;
+
   subscriptionNeighbors: Subscription = new Subscription();
   // neighbors$: Observable<NeighborsRaport>;
   broodInfo: Brood = null;
@@ -83,6 +86,7 @@ export class FieldComponent
   ngOnInit(): void {
     // this.neighbors$ = this.store.select(selectFieldNeighbors, this.pos);
     // console.log(this.host);
+    // console.log(this.highlightAccess);
 
     this.CSS.size = this.fieldSize;
 
@@ -93,7 +97,6 @@ export class FieldComponent
         if (data.fieldDetails.blocked === true) {
           if (data.fieldDetails.occupyingUnit?.pos) {
             this.occupyingUnit = data.fieldDetails.occupyingUnit;
-
             this.mode = 2;
           } else {
             this.occupyingUnit = false;
@@ -118,7 +121,13 @@ export class FieldComponent
     // }
   }
 
-  ngOnChanges(changes: SimpleChanges) {}
+  ngOnChanges(changes: SimpleChanges) {
+    // console.log();
+
+    if (changes?.highlightAccess) {
+      this.cdr.markForCheck();
+    }
+  }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
