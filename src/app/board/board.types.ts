@@ -1,62 +1,13 @@
 import { getRandom } from '../shared/helpers';
+import { Field, FieldPos } from './field/field.types';
+import { BoardFields } from './fields/fields.types';
 
 // *** Feature state parts
 export interface BoardState {
-  fields: Fields;
+  fields: BoardFields;
   particlesList: ParticleUnit[];
   broodsList: Brood[];
 }
-
-// *** Board stylings
-export interface BoardDynamicCSS {
-  sizings: BoardDynamicCSS_sizings;
-  structurings: BoardDynamicCSS_structurings;
-}
-
-export interface BoardDynamicCSS_sizings {
-  boardSize_px: string;
-  fieldSize_px: string;
-}
-
-export interface BoardDynamicCSS_structurings {
-  display: string;
-  'grid-template-columns': string;
-  'grid-template-rows': string;
-  width: string;
-  height: string;
-}
-
-// *** Board Fields
-export type FieldReference = string;
-
-/**
- * 0 - available to move
- * 1 - blocked by some kind of permanent obsticle
- * 2 - occupied by creature
- */
-export type FieldMode = 0 | 1 | 2;
-
-export interface FieldPos {
-  column: number;
-  row: number;
-}
-
-export interface Field {
-  pos: FieldPos;
-  blocked: boolean;
-  occupyingUnit?: null | Unit;
-}
-
-export class Field implements Field {
-  constructor(pos: FieldPos, blocked: boolean, occupyingUnit?: Unit) {
-    this.pos = pos;
-    this.blocked = !!occupyingUnit || blocked;
-    this.occupyingUnit = occupyingUnit || null;
-  }
-}
-
-export type Fields = Field[][];
-export type BasicInitialBroodFields = [Field, Field, Field, Field];
 
 // *** Units, Particles
 export interface Unit {
@@ -152,7 +103,9 @@ export class Brood implements Brood {
   }
 }
 
-// *** Fields/Particles' Neigbhors, Broods' Root Spaces
+export type BasicInitialBroodFields = [Field, Field, Field, Field];
+
+// *** BoardFields/Particles' Neigbhors, Broods' Root Spaces
 export interface NeighborField {
   field: Field;
   at: string;

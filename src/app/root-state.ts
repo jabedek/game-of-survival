@@ -1,6 +1,6 @@
-import { BoardState } from './board/types-interfaces';
-import { GameState } from './game/types-interfaces';
-import { UIState } from './ui/types-interfaces';
+import { BoardState } from './board/board.types';
+import { GameState } from './game/game.types';
+import { UIState } from './ui/ui.types';
 
 export interface RootState {
   board: BoardState;

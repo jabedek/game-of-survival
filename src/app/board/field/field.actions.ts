@@ -1,5 +1,6 @@
 import { createAction, props } from '@ngrx/store';
-import { FieldPos, ParticleUnit } from '../types-interfaces';
+import { ParticleUnit } from '../board.types';
+import { FieldPos } from './field.types';
 
 export const setFieldParticle = createAction(
   '[Board/Field] Set Particle on Field ',

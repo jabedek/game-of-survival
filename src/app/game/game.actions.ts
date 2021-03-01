@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { TurnUpdate } from './types-interfaces';
+import { TurnUpdate } from './game.types';
 
 export const loadChangesAfterTurn = createAction(
   '[Game] Load Changes After Turn',

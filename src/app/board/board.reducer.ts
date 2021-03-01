@@ -3,7 +3,9 @@ import { Action, createReducer, on } from '@ngrx/store';
 import * as boardActions from './board.actions';
 import * as broodActions from './brood.actions';
 import * as fieldActions from './field/field.actions';
-import { BoardState, Brood, Field, Fields } from './types-interfaces';
+import { Field } from './field/field.types';
+import { BoardFields } from './fields/fields.types';
+import { BoardState, Brood } from './board.types';
 
 export const featureKey = 'board';
 
@@ -59,8 +61,41 @@ const authReducer = createReducer(
     };
   }),
 
-  // *** Fields
+  // *** BoardFields
   on(boardActions.loadBoardFields, (state, { fields }) => {
+    return {
+      ...state,
+      fields,
+    };
+  }),
+
+  on(boardActions.moveParticleFromTo, (state, { pos, newPos }) => {
+    const unitT = { ...state.fields[pos.row][pos.column]?.occupyingUnit };
+
+    const field = {
+      ...state.fields[pos.row][pos.column],
+      occupyingUnit: null,
+      blocked: false,
+    };
+
+    const newField = {
+      ...state.fields[newPos.row][newPos.column],
+      occupyingUnit: unitT,
+      blocked: true,
+    };
+    console.log(field, newField);
+
+    const fields = [...state.fields].map((row: Field[]) => {
+      return row.map((cell: Field) => {
+        if (cell.pos.row === pos.row && cell.pos.column === pos.column)
+          return field;
+        if (cell.pos.row === newPos.row && cell.pos.column === newPos.column)
+          return newField;
+
+        return cell;
+      });
+    });
+
     return {
       ...state,
       fields,
@@ -70,7 +105,7 @@ const authReducer = createReducer(
   on(fieldActions.setFieldParticle, (state, { unit }) => {
     const { pos } = unit;
 
-    const fields: Fields = [...state.fields].map((row: Field[]) =>
+    const fields: BoardFields = [...state.fields].map((row: Field[]) =>
       row.map((field: Field) => {
         if (field.pos.column === pos.column && field.pos.row === pos.row) {
           field = {
@@ -91,7 +126,7 @@ const authReducer = createReducer(
   }),
 
   on(fieldActions.setFieldObsticle, (state, { pos }) => {
-    const fields: Fields = [...state.fields].map((data: Field[]) =>
+    const fields: BoardFields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
         if (field.pos.column === pos.column && field.pos.row === pos.row) {
           field = {
@@ -129,7 +164,7 @@ const authReducer = createReducer(
         occupyingUnit: null,
       };
 
-      const fields: Fields = [...state.fields].map((data: Field[]) =>
+      const fields: BoardFields = [...state.fields].map((data: Field[]) =>
         data.map((field: Field) => {
           if (field.pos.column === pos.column && field.pos.row === pos.row) {
             field = { ...newField };

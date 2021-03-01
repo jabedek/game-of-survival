@@ -1,6 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { RootState } from '../root-state';
-import { GameState, TurnState } from './types-interfaces';
+import { GameState, TurnState } from './game.types';
 
 export const featureKey = 'game';
 

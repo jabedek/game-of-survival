@@ -1,5 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { UIState } from '../ui/types-interfaces';
+import { UIState } from './ui.types';
 import { RootState } from '../root-state';
 
 export const featureKey = 'ui';

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BoardDynamicCSS } from '../board/types-interfaces';
 import * as HELPERS from './../board/board.helpers';
+import { BoardDynamicCSS } from './ui.types';
 
 @Injectable({
   providedIn: 'root',

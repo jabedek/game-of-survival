@@ -1,11 +1,5 @@
-import { UIState } from '../ui/types-interfaces';
-import {
-  Action,
-  combineReducers,
-  createAction,
-  createReducer,
-  on,
-} from '@ngrx/store';
+import { UIState } from './ui.types';
+import { Action, createReducer, on } from '@ngrx/store';
 
 import * as uiActions from './ui.actions';
 

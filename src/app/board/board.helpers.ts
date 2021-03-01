@@ -1,13 +1,11 @@
+import { Field, FieldPos, FieldReference } from './field/field.types';
+import { BoardFields } from './fields/fields.types';
 import {
   BasicInitialBroodFields,
-  BoardDynamicCSS_structurings,
-  Field,
-  FieldPos,
-  FieldReference,
-  Fields,
   NeighborField,
   NeighborsRaport,
-} from './types-interfaces';
+} from './board.types';
+import { BoardDynamicCSS_structurings } from '../ui/ui.types';
 
 export function getBoardSize_CSSpx(
   boardDimensions: number,
@@ -56,8 +54,8 @@ export function getInitialBoard(boardDimensions: number): FieldReference[][] {
   return board;
 }
 
-export function getInitialFields(boardDimensions: number): Fields {
-  let fields: Fields = [];
+export function getInitialFields(boardDimensions: number): BoardFields {
+  let fields: BoardFields = [];
 
   for (let row = 0; row < boardDimensions; row++) {
     fields[row] = [];
@@ -70,7 +68,7 @@ export function getInitialFields(boardDimensions: number): Fields {
 }
 
 export function isValidBroodRoot(
-  fields: Fields,
+  fields: BoardFields,
   props: FieldPos
 ): null | BasicInitialBroodFields {
   const column: number = +props.column;
@@ -151,7 +149,10 @@ export function isInBoundries(boardDimensions: number, pos: FieldPos) {
   } else return false;
 }
 
-export function getNeighbors(fields: Fields, props: FieldPos): NeighborsRaport {
+export function getNeighbors(
+  fields: BoardFields,
+  props: FieldPos
+): NeighborsRaport {
   const col: number = +props.column;
   const row: number = +props.row;
 

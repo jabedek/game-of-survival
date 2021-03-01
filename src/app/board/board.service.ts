@@ -31,16 +31,13 @@ import { resetTurnCounter } from '../game/game.actions';
 import { getRandom } from '../shared/helpers';
 import { RootState } from '../root-state';
 import {
-  BoardDynamicCSS,
   Brood,
-  Field,
-  FieldPos,
-  FieldReference,
-  Fields,
   ParticleColor,
   ParticleUnit,
   ValidPotentialBroodSpace,
-} from './types-interfaces';
+} from './board.types';
+import { Field, FieldPos, FieldReference } from './field/field.types';
+import { BoardFields } from './fields/fields.types';
 
 @Injectable({
   providedIn: 'root',
@@ -48,7 +45,7 @@ import {
 export class BoardService {
   constructor(public store: Store<RootState>) {}
 
-  fields$: Observable<Fields> = this.store.select(selectBoardFields);
+  fields$: Observable<BoardFields> = this.store.select(selectBoardFields);
   emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
   emptyFieldsTotal = 0;
 
@@ -134,6 +131,10 @@ export class BoardService {
     // this.boardService.
   }
 
+  /**
+   * Only used in creating/preparing stage.
+   * Doesn't update overwritten particles or brood states in store.
+   */
   toggleBorders(boardDimensions: number, toggler): void {
     const borderObsticlesUp = !toggler;
 
@@ -425,7 +426,7 @@ export class BoardService {
     return HELPERS.getInitialBoard(boardDimensions);
   }
 
-  getInitialFields(boardDimensions): Fields {
+  getInitialFields(boardDimensions): BoardFields {
     return HELPERS.getInitialFields(boardDimensions);
   }
 

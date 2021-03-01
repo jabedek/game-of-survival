@@ -9,6 +9,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FieldsComponent } from './fields/fields.component';
+import { GameModule } from '../game/game.module';
 
 const components = [BoardComponent, FieldComponent, FieldsComponent];
 @NgModule({

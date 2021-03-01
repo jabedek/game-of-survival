@@ -1,7 +1,7 @@
 import { Action, createReducer, on } from '@ngrx/store';
 
 import * as gameActions from './game.actions';
-import { GameState } from './types-interfaces';
+import { GameState } from './game.types';
 
 export const featureKey = 'game';
 

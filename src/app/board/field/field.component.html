@@ -6,9 +6,13 @@
   (contextmenu)="addBroodOnContextmenu($event)"
 >
   <div class="field" *ngIf="selfDetails$ | async as data; else loading">
-    <div class="field__content" *ngIf="data?.blocked">
+    <div class="field__content" *ngIf="data?.fieldDetails?.blocked">
       <ng-container
-        *ngIf="data?.occupyingUnit; then particleUnit; else obsticleUnit"
+        *ngIf="
+          data?.fieldDetails?.occupyingUnit;
+          then particleUnit;
+          else obsticleUnit
+        "
       >
       </ng-container>
     </div>
@@ -18,12 +22,11 @@
 
   <ng-template #particleUnit let-item>
     <div [style.width.px]="CSSsize" [style.height.px]="CSSsize">
-      <!-- <p class="particle particle--test"></p> -->
-      <p class="particle {{ 'particle--' + item.color }}"></p>
-
-      <ng-container *ngIf="true">
-        {{ pos.row }} x {{ pos.column }}
-      </ng-container>
+      <div class="particle {{ 'particle--' + item.color }}">
+        <div *ngIf="true" class="field__pos">
+          {{ pos.row }} x {{ pos.column }}
+        </div>
+      </div>
     </div>
   </ng-template>
 
@@ -33,9 +36,9 @@
       [style.width.px]="CSSsize"
       [style.height.px]="CSSsize"
     >
-      <ng-container *ngIf="true">
+      <div *ngIf="true" class="field__pos">
         {{ pos.row }} x {{ pos.column }}
-      </ng-container>
+      </div>
     </div>
   </ng-template>
 </div>

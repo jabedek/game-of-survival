@@ -18,23 +18,22 @@ import { countTurn, loadChangesAfterTurn, setTurnPhase } from './game.actions';
 import { getRandom } from '../shared/helpers';
 import {
   Brood,
-  Field,
-  Fields,
   NeighborsRaport,
   ParticleUnit,
   Unit,
   ValidPotentialBroodSpace,
-} from '../board/types-interfaces';
+} from '../board/board.types';
 import { RootState } from '../root-state';
-import { TurnUpdate } from './types-interfaces';
-import { group } from '@angular/animations';
+import { TurnUpdate } from './game.types';
+import { Field } from '../board/field/field.types';
+import { BoardFields } from '../board/fields/fields.types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
   // Observables
-  fields$: Observable<Fields> = this.store.select(selectBoardFields);
+  fields$: Observable<BoardFields> = this.store.select(selectBoardFields);
   particlesAndBroods$ = this.store.select(selectParticlesAndBroods);
   availableFieldsAndSpaces$ = this.store.select(selectAvailableFieldsAndSpaces);
   boardSnapshot$ = this.store.select(selectBoardSnapshot);
@@ -110,7 +109,7 @@ export class GameService {
                     break;
                   }
                   case 1: {
-                    let willMultiply = this.willMultiply(data, n);
+                    let willMultiply = this.willMultiply(data, n, 1);
 
                     if (willMultiply) {
                       const unit = this.getMultipliedMember(
@@ -138,6 +137,10 @@ export class GameService {
                     unitsToDel.push(n.centerField.pos);
                     break;
                   }
+                  default: {
+                    unitsToDel.push(n.centerField.pos);
+                    break;
+                  }
                 }
 
                 let updatedN = { ...n };
@@ -148,7 +151,7 @@ export class GameService {
                   });
                 }
 
-                const voidChance = getRandom(400) === 1;
+                const voidChance = getRandom(500) === 1;
 
                 if (voidChance) {
                   const voidParticle = this.getMultipliedMember(n, null, true);
@@ -206,7 +209,6 @@ export class GameService {
     const base = noNeighbors
       ? 0
       : CONSTS.BASE_CHANCES_TO_PARTICLE_MULTIPLY_WITH_NEIGHBORS;
-
     const probability = Math.round(base + rnd + broodStrength);
 
     let probArray: boolean[] = Array.from({ length: 100 });
@@ -215,7 +217,6 @@ export class GameService {
     }
 
     const randomOutcome = probArray[getRandom(100)];
-
     return randomOutcome;
   }
 

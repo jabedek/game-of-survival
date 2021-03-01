@@ -2,17 +2,16 @@ import { createSelector } from '@ngrx/store';
 import { RootState } from '../root-state';
 
 import * as HELPERS from './board.helpers';
+import { Field, FieldPos } from './field/field.types';
+import { BoardFields } from './fields/fields.types';
 import {
   BasicInitialBroodFields,
   BoardState,
   Brood,
-  Field,
-  FieldPos,
-  Fields,
   NeighborsRaport,
   ParticleUnit,
   ValidPotentialBroodSpace,
-} from './types-interfaces';
+} from './board.types';
 
 export const selectBoard = (state: RootState) => state.board;
 
@@ -44,7 +43,7 @@ export const selectParticlesAndBroods = createSelector(selectBoard, (state) => {
 
 export const selectEmptyFields = createSelector(
   selectBoardFields,
-  (fields: Fields) => {
+  (fields: BoardFields) => {
     let availableFields: Field[] = [];
 
     fields.forEach((fieldCol: Field[]) => {
@@ -61,7 +60,7 @@ export const selectEmptyFields = createSelector(
 
 export const selectValidBroodSpaces = createSelector(
   selectBoardFields,
-  (fields: Fields) => {
+  (fields: BoardFields) => {
     let settlements: BasicInitialBroodFields[] = [];
     let validBroodRoots: FieldPos[] = [];
     let raport: ValidPotentialBroodSpace[] = [];
@@ -99,17 +98,26 @@ export const selectBoardField = createSelector(
 
 export const selectFieldNeighbors = createSelector(
   selectBoardFields,
-  (fields: Fields, props: FieldPos) => {
+  (fields: BoardFields, props: FieldPos) => {
     const neighbors: NeighborsRaport = HELPERS.getNeighbors([...fields], props);
 
     return neighbors;
   }
 );
 
+export const selectBoardFieldInfo = createSelector(
+  selectBoard,
+  selectFieldNeighbors,
+  (state: BoardState, neighbors: NeighborsRaport, props) => {
+    const fieldDetails = state?.fields[props.row][props.column];
+    return { fieldDetails, neighbors };
+  }
+);
+
 export const selectAllUnitsNeighbors = createSelector(
   selectBoardFields,
   selectParticlesList,
-  (fields: Fields, particles: ParticleUnit[]) => {
+  (fields: BoardFields, particles: ParticleUnit[]) => {
     const fieldsNeighbors: NeighborsRaport[] = particles.map((p) => {
       return HELPERS.getNeighbors([...fields], p.pos);
     });
@@ -121,7 +129,7 @@ export const selectAllUnitsNeighborsAndBroodsList = createSelector(
   selectBoardFields,
   selectParticlesList,
   selectBroodsList,
-  (fields: Fields, particles: ParticleUnit[], broods: Brood[]) => {
+  (fields: BoardFields, particles: ParticleUnit[], broods: Brood[]) => {
     const fieldsNeighbors: NeighborsRaport[] = particles.map((p) => {
       return HELPERS.getNeighbors([...fields], p.pos);
     });
@@ -132,7 +140,7 @@ export const selectAllUnitsNeighborsAndBroodsList = createSelector(
 
 export const selectUnitsNeighbors = createSelector(
   selectBoardFields,
-  (fields: Fields, props: ParticleUnit[]) => {
+  (fields: BoardFields, props: ParticleUnit[]) => {
     const fieldsNeighbors: NeighborsRaport[] = props.map((p) => {
       return HELPERS.getNeighbors([...fields], p.pos);
     });

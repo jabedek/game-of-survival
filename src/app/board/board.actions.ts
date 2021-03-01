@@ -1,10 +1,17 @@
 import { createAction, props } from '@ngrx/store';
-import { Brood, FieldPos, Fields, ParticleUnit } from './types-interfaces';
+import { FieldPos } from './field/field.types';
+import { BoardFields } from './fields/fields.types';
+import { Brood, ParticleUnit } from './board.types';
 
 // *** Board Fields ***
 export const loadBoardFields = createAction(
   '[Board] Load Board Fields',
-  props<{ fields: Fields }>()
+  props<{ fields: BoardFields }>()
+);
+
+export const moveParticleFromTo = createAction(
+  '[Board] Move Particle',
+  props<{ pos: FieldPos; newPos: FieldPos }>()
 );
 
 // *** Particles List ***
