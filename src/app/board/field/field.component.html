@@ -21,28 +21,22 @@
       </ng-container>
     </div>
   </div>
+</div>
 
-  <ng-template #loading>...</ng-template>
+<ng-template #loading>...</ng-template>
 
-  <ng-template #particleUnit let-item>
-    <div [style.width.px]="CSSsize" [style.height.px]="CSSsize">
-      <div class="particle {{ 'particle--' + item.color }}">
-        <div *ngIf="true" class="field__pos">
-          {{ pos.row }} x {{ pos.column }}
-        </div>
-      </div>
-    </div>
-  </ng-template>
-
-  <ng-template #obsticleUnit let-item>
-    <div
-      class="obsticle"
-      [style.width.px]="CSSsize"
-      [style.height.px]="CSSsize"
-    >
+<ng-template #particleUnit let-item>
+  <div [style.width.px]="CSSsize" [style.height.px]="CSSsize">
+    <div class="particle {{ 'particle--' + item.color }}">
       <div *ngIf="true" class="field__pos">
         {{ pos.row }} x {{ pos.column }}
       </div>
     </div>
-  </ng-template>
-</div>
+  </div>
+</ng-template>
+
+<ng-template #obsticleUnit let-item>
+  <div class="obsticle" [style.width.px]="CSSsize" [style.height.px]="CSSsize">
+    <div *ngIf="true" class="field__pos">{{ pos.row }} x {{ pos.column }}</div>
+  </div>
+</ng-template>

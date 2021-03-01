@@ -36,7 +36,7 @@ import {
 } from 'rxjs/operators';
 import { moveParticleFromTo } from '../board.actions';
 import { BOARD_DIMENSIONS } from '../board.constants';
-import { selectFieldNeighbors } from '../board.selectors';
+import { selectBuilderMode, selectFieldNeighbors } from '../board.selectors';
 import {
   setAllFieldsHighlightFalse,
   setFieldsHighlightTrue,
@@ -73,6 +73,7 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
   // ### Functional flags
   borderObsticlesUp = false;
   refs: ElementRef[] = null;
+  subscription: Subscription = new Subscription();
   accessibleNeighbors: any[] = null;
   posStart = null;
   constructor(
@@ -89,7 +90,16 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
       .nativeElement as Element).getBoundingClientRect();
 
     this.initBoardWithStylings();
-    this.observeMouseMove();
+
+    this.subscription.add(
+      this.store.select(selectBuilderMode).subscribe((data) => {
+        if (data === true) {
+          this.observeMouseMove();
+        } else {
+          this.destroy.next();
+        }
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -206,14 +216,12 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log(startPos, endPos);
 
       if (startPos && endPos) {
-        const result = this.accessibleNeighbors.find((n: Field) => {
-          // console.log(n);
+        const result = this.accessibleNeighbors.find(
+          (f: Field) =>
+            f.pos.row === endPos?.row && f.pos.column === endPos?.column
+        );
 
-          if (n.pos.row === endPos?.row && n.pos.column === endPos?.column) {
-            return true;
-          }
-        });
-
+        // bez tego warunku możemy przesuwać kropki o ile chcemy
         if (result) {
           this.store.dispatch(
             moveParticleFromTo({ pos: startPos, newPos: endPos })

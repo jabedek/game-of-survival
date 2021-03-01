@@ -13,6 +13,7 @@ export const initialBoardState: BoardState = {
   fields: [],
   particlesList: [],
   broodsList: [],
+  builderMode: true,
 };
 
 const authReducer = createReducer(
@@ -66,6 +67,12 @@ const authReducer = createReducer(
     return {
       ...state,
       fields,
+    };
+  }),
+  on(boardActions.toggleBuilderMode, (state) => {
+    return {
+      ...state,
+      builderMode: !state.builderMode,
     };
   }),
 

@@ -19,6 +19,10 @@ export const selectBoardFields = createSelector(
   selectBoard,
   (state: BoardState) => state.fields
 );
+export const selectBuilderMode = createSelector(
+  selectBoard,
+  (state: BoardState) => state.builderMode
+);
 
 export const selectParticlesList = createSelector(
   selectBoard,

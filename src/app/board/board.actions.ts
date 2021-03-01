@@ -14,6 +14,8 @@ export const moveParticleFromTo = createAction(
   props<{ pos: FieldPos; newPos: FieldPos }>()
 );
 
+export const toggleBuilderMode = createAction('[Board] Toggle Builder Mode');
+
 // *** Particles List ***
 export const addParticleToList = createAction(
   '[Board/Field] Add Particle to list',

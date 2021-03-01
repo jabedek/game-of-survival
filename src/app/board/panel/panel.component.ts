@@ -15,6 +15,7 @@ import { RootState } from 'src/app/root-state';
 import { ValidPotentialBroodSpace } from '../board.types';
 import { selectUI } from 'src/app/ui/ui.selectors';
 import { toggleUIPanelShowing } from 'src/app/ui/ui.actions';
+import { toggleBuilderMode } from '../board.actions';
 
 @Component({
   selector: 'app-panel',
@@ -87,6 +88,10 @@ export class PanelComponent implements OnInit {
 
   togglePanel() {
     this.store.dispatch(toggleUIPanelShowing());
+  }
+
+  private toggleBuilderMode() {
+    this.store.dispatch(toggleBuilderMode());
   }
 
   private addNewBroodValidRootRandomly() {

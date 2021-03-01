@@ -14,7 +14,7 @@ import {
 import { Store } from '@ngrx/store';
 import { fromEvent, Observable, Subject, Subscription } from 'rxjs';
 
-import { selectBoardFieldInfo } from '../board.selectors';
+import { selectBoardFieldInfo, selectBuilderMode } from '../board.selectors';
 
 import { BoardService } from '../board.service';
 import { FIELD_SIZE } from '../board.constants';
@@ -67,13 +67,14 @@ export class FieldComponent
   selfDetails$: Observable<FieldInfo>;
   selfDetails: FieldInfo = null;
 
-  private destroy = new Subject<void>();
+  builderMode$: Observable<boolean> = null;
+  builderMode = false;
+
   private CSS = {
     size: null,
   };
   private mode: FieldMode = 0;
   private subscription: Subscription = new Subscription();
-
   constructor(
     public store: Store<RootState>,
     public cdr: ChangeDetectorRef,
@@ -84,13 +85,18 @@ export class FieldComponent
   ) {}
 
   ngOnInit(): void {
-    // this.neighbors$ = this.store.select(selectFieldNeighbors, this.pos);
-    // console.log(this.host);
-    // console.log(this.highlightAccess);
-
     this.CSS.size = this.fieldSize;
-
     this.selfDetails$ = this.store.select(selectBoardFieldInfo, this.pos);
+
+    this.subscription.add(
+      this.store.select(selectBuilderMode).subscribe((data) => {
+        this.builderMode = data;
+      })
+    );
+
+    // this.observeMouseMove();
+  }
+  ngAfterViewInit() {
     this.subscription.add(
       this.selfDetails$.subscribe((data: FieldInfo) => {
         this.selfDetails = data;
@@ -108,22 +114,9 @@ export class FieldComponent
         }
       })
     );
-
-    // this.observeMouseMove();
-  }
-  ngAfterViewInit() {
-    // if (this.occupyingUnit) {
-    //   this.subscriptionNeighbors.add(
-    //     this.neighbors$.subscribe((data: FieldInfo) => {
-    //       this.neighbors = data;
-    //     })
-    //   );
-    // }
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // console.log();
-
     if (changes?.highlightAccess) {
       this.cdr.markForCheck();
     }
@@ -132,8 +125,6 @@ export class FieldComponent
   ngOnDestroy() {
     this.subscription.unsubscribe();
     this.subscriptionNeighbors.unsubscribe();
-    this.destroy.next();
-    this.destroy.complete();
   }
 
   toggleSelf() {
@@ -169,81 +160,5 @@ export class FieldComponent
 
     this.boardService.addNewBroodOnContextmenu(rndId, this.pos, 'red');
     this.cdr.markForCheck();
-  }
-
-  /**
-   * Observe mouse action (move, up, down)
-   */
-  private observeMouseMove() {
-    this.ngZone.runOutsideAngular(() => {
-      const mousemove$ = fromEvent<MouseEvent>(window, 'mousemove');
-
-      const mouseup$ = fromEvent<MouseEvent>(window, 'mouseup').pipe(
-        tap(() => this.onMouseUp()),
-        share()
-      );
-
-      const mousedown$ = fromEvent<MouseEvent>(window, 'mousedown').pipe(
-        filter((event) => event.button === 0),
-        tap((event) => this.onMouseDown(event)),
-        share()
-      );
-
-      const dragging$ = mousedown$.pipe(
-        filter(() => Boolean(true)),
-        switchMap(() => mousemove$.pipe(takeUntil(mouseup$))),
-        share()
-      );
-
-      const moveOnDrag$ = dragging$.pipe(
-        auditTime(AUDIT_TIME),
-        withLatestFrom(mousemove$, (selectBox, event: MouseEvent) => ({
-          selectBox,
-          event,
-        })),
-        map(({ event }) => event)
-      );
-
-      moveOnDrag$
-        .pipe(takeUntil(this.destroy))
-        .subscribe((event) => this.ngZone.run(() => this.moveParticle(event)));
-    });
-  }
-
-  onMouseUp() {
-    console.log('onMouseUp');
-  }
-  onMouseDown(event) {
-    console.log('onMouseDown');
-
-    const el = event.target as Element;
-    console.dir(el);
-    const elBox = el.getBoundingClientRect();
-    console.log(elBox);
-  }
-
-  moveParticle(event) {
-    const rect = (event.target as Element).getBoundingClientRect();
-    // console.log('moveParticle');
-    // console.log(rect);
-
-    console.log(rect.bottom - rect.top);
-    const mousePosition = {
-      x: event.clientX,
-      y: event.clientY,
-    };
-    // cons
-
-    const moveTo = {
-      startPoint: mousePosition,
-      boundinBox: {
-        top: mousePosition.y,
-        left: mousePosition.x,
-        width: 0,
-        height: 0,
-      },
-    };
-
-    console.log(moveTo);
   }
 }

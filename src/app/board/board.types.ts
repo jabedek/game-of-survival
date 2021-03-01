@@ -7,6 +7,7 @@ export interface BoardState {
   fields: BoardFields;
   particlesList: ParticleUnit[];
   broodsList: Brood[];
+  builderMode: boolean;
 }
 
 // *** Units, Particles
