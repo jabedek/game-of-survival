@@ -1,17 +1,16 @@
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
-import { BoardRoutingModule } from './board-routing.module';
-import { PanelComponent } from './panel/panel.component';
-import { FieldComponent } from './field/field.component';
+
 import * as fromBoardReducer from './board.reducer';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FieldsComponent } from './board/board.component';
-import { GameModule } from '../game/game.module';
+import { PanelComponent } from './panel/panel.component';
+import { BoardComponent } from './board/board.component';
+import { BoardRoutingModule } from './board-routing.module';
 
-const components = [PanelComponent, FieldComponent, FieldsComponent];
+const components = [PanelComponent, BoardComponent];
 @NgModule({
   declarations: components,
   imports: [

@@ -1,8 +1,8 @@
 import { createSelector } from '@ngrx/store';
 import { RootState } from '../root-state';
 
-import * as HELPERS from './board.helpers';
-import { Field, FieldPos } from './field/field.types';
+import * as HELPERS from './board/board.helpers';
+import { Field, FieldPos } from './board/field.types';
 import { BoardFields } from './board/board.types';
 import {
   BasicInitialBroodFields,
@@ -11,7 +11,7 @@ import {
   NeighborsRaport,
   ParticleUnit,
   ValidPotentialBroodSpace,
-} from './board.types';
+} from './board/board.types';
 
 export const selectBoard = (state: RootState) => state.board;
 

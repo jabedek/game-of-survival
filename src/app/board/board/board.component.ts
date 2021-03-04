@@ -17,10 +17,7 @@ import {
 import { Store } from '@ngrx/store';
 import { RootState } from 'src/app/root-state';
 import { UIService } from 'src/app/ui/ui.service';
-import { BoardService } from '../board.service';
-import { Field, FieldPos } from '../field/field.types';
-import { NeighborField, NeighborsRaport, Unit } from '../board.types';
-import { BoardFields } from './board.types';
+
 import { BoardDynamicCSS } from 'src/app/ui/ui.types';
 import { fromEvent, Observable, Subject, Subscription } from 'rxjs';
 import {
@@ -35,12 +32,22 @@ import {
   take,
 } from 'rxjs/operators';
 import { moveParticleFromTo, setField } from '../board.actions';
-import { BOARD_DIMENSIONS } from '../board.constants';
-import { selectBuilderMode, selectFieldNeighbors } from '../board.selectors';
+
 import {
   setAllFieldsHighlightFalse,
   setFieldsHighlightTrue,
-} from '../field/field.actions';
+} from '../field.actions';
+import { getRandom } from 'src/app/shared/helpers';
+import {
+  BoardFields,
+  NeighborsRaport,
+  ParticleUnit,
+  Unit,
+} from './board.types';
+import { Field, FieldPos } from './field.types';
+import { BOARD_DIMENSIONS, FIELD_SIZE } from '../board.constants';
+import { BoardService } from '../board.service';
+import { selectFieldNeighbors } from '../board.selectors';
 
 const AUDIT_TIME = 16;
 
@@ -48,9 +55,8 @@ const AUDIT_TIME = 16;
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() boardDimensions: number = null;
   @Input() fieldSize: number = null;
   @Input() fields: BoardFields = [];
@@ -65,9 +71,10 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren('div', { read: ElementRef }) div;
   @ViewChildren('fieldsTemplates', { read: ElementRef })
   fieldsTemplates: ElementRef;
-  @ViewChildren('fieldsRefs') fieldsRefs;
   dragStart;
   moveTo;
+  // fieldSize = FIELD_SIZE;
+  CSSsize = FIELD_SIZE * 0.8;
   sub: Subscription = new Subscription();
   currentFieldNeighbors$: Observable<NeighborsRaport> = null;
   // ### Functional flags
@@ -90,16 +97,16 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
       .nativeElement as Element).getBoundingClientRect();
 
     this.initBoardWithStylings();
+    this.observeMouseMove();
 
-    this.subscription.add(
-      this.store.select(selectBuilderMode).subscribe((data) => {
-        if (data === true) {
-          this.observeMouseMove();
-        } else {
-          this.destroy.next();
-        }
-      })
-    );
+    // this.subscription.add(
+    //   this.store.select(selectBuilderMode).subscribe((data) => {
+    //     if (data === true) {
+    //     } else {
+    //       this.destroy.next();
+    //     }
+    //   })
+    // );
   }
 
   ngOnDestroy(): void {
@@ -112,6 +119,7 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
       this.initBoardWithStylings();
     }
   }
+
   ngAfterViewInit() {
     this.refs = [...(this.fieldsTemplates as any).toArray()];
   }
@@ -186,9 +194,13 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onMouseUp(event) {
+    console.log('onMouseUp');
+
     this.sub.unsubscribe();
-    let startPos = null;
-    let endPos = null;
+    let startPos: FieldPos = null;
+    let endPos: FieldPos = null;
+
+    // console.log(this.dragStart, this.posStart);
 
     if (this.dragStart && this.posStart) {
       [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
@@ -212,40 +224,45 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
 
-      console.log(startPos, endPos);
+      // console.log(startPos, endPos);
 
       if (startPos && endPos) {
-        const fieldCopy = Object.assign(
-          {},
-          this.fields[endPos?.row][endPos?.column]
-        );
-        const result = this.accessibleNeighbors.find(
-          (f: Field) =>
-            f.pos.row === endPos?.row && f.pos.column === endPos?.column
-        );
-
-        console.log(result);
-
-        // bez tego warunku możemy przesuwać kropki o ile chcemy
-        if (result) {
-          this.store.dispatch(
-            moveParticleFromTo({ pos: startPos, newPos: endPos })
+        if (startPos.row === endPos.row && startPos.column === endPos.column) {
+          let field = Object.assign(
+            {},
+            this.fields[startPos.row][startPos.column]
           );
+
+          this.toggleField(field);
         } else {
-          // console.log(fieldCopy);
-          // this.store.dispatch(setField({ field: fieldCopy }));
+          /**
+           * Particle can only move in straight lines like '+' (correct), not 'x' (not correct).
+           */
+          const existingAndCorrect = this.accessibleNeighbors.find(
+            (f: Field) =>
+              f.pos.row === endPos?.row && f.pos.column === endPos?.column
+          );
+
+          /**
+           * Without this condition we can move Particles any way we want.
+           */
+          if (existingAndCorrect) {
+            this.store.dispatch(
+              moveParticleFromTo({ pos: startPos, newPos: endPos })
+            );
+          }
         }
+
+        this.store.dispatch(setAllFieldsHighlightFalse());
+
+        this.dragStart = null;
+        this.posStart = null;
       }
-
-      this.store.dispatch(setAllFieldsHighlightFalse());
-
-      this.dragStart = null;
-      this.posStart = null;
     }
   }
 
   onMouseDown(event) {
-    console.log('onMouseDown');
+    console.log('onMouseDown', event);
 
     let startPos = null;
 
@@ -258,28 +275,22 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
           column: i % BOARD_DIMENSIONS,
         };
 
-        if (!!this.fields[startPos.row][startPos.column]?.occupyingUnit?.id) {
-          this.dragStart = (event.target as Element).getBoundingClientRect();
+        if (!!this.fields[startPos.row][startPos.column]) {
+          this.dragStart = event.target.getBoundingClientRect();
           this.posStart = { x: event.x, y: event.y };
 
-          this.sub.add(
-            this.store
-              .select(selectFieldNeighbors, startPos)
-              .pipe(take(1))
-              .subscribe((data) => {
-                console.log(data);
-                const fields = data.accessibleToMove.map((a) => a.field);
-                this.accessibleNeighbors = fields;
-
-                // console.log(fields);
-
+          this.store
+            .select(selectFieldNeighbors, startPos)
+            .pipe(take(1))
+            .subscribe((data) => {
+              const fields = data.accessibleToMove.map((a) => a.field);
+              this.accessibleNeighbors = fields;
+              if (this.fields[startPos.row][startPos.column]?.occupyingUnit) {
                 this.store.dispatch(
                   setFieldsHighlightTrue({ fieldsToHighLight: fields })
                 );
-
-                this.cdr.markForCheck();
-              })
-          );
+              }
+            });
         }
       }
     });
@@ -300,5 +311,45 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
         height: 0,
       },
     };
+  }
+
+  toggleField(field) {
+    // 0 - empty, 1 - obsticle, 2 - particle
+    switch (field.mode) {
+      case 0:
+        this.boardService.setFieldObsticle(field.pos);
+        break;
+      case 1:
+        const unit: ParticleUnit = new ParticleUnit(
+          'puniton-0',
+          field.pos,
+          'blue',
+          'punitons'
+        );
+        this.boardService.addNewParticle(unit);
+
+        break;
+      case 2:
+        this.boardService.deleteUnit(field.pos);
+        break;
+    }
+  }
+
+  addBroodOnContextmenu(event) {
+    let startPos: FieldPos = null;
+
+    [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
+      const rect: DOMRect = t.nativeElement.getBoundingClientRect();
+
+      if (this.inRectBoundries(rect, event.x, event.y)) {
+        startPos = {
+          row: Math.floor(i / BOARD_DIMENSIONS),
+          column: i % BOARD_DIMENSIONS,
+        };
+      }
+    });
+
+    let rndId = `eviton-${getRandom(1000)}`;
+    this.boardService.addNewBroodOnContextmenu(rndId, startPos, 'red');
   }
 }

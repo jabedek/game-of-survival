@@ -16,17 +16,18 @@ import {
 } from '../board/board.selectors';
 import { countTurn, loadChangesAfterTurn, setTurnPhase } from './game.actions';
 import { getRandom } from '../shared/helpers';
+
+import { RootState } from '../root-state';
+import { TurnUpdate } from './game.types';
+import { Field } from '../board/board/field.types';
 import {
+  BoardFields,
   Brood,
   NeighborsRaport,
   ParticleUnit,
   Unit,
   ValidPotentialBroodSpace,
-} from '../board/board.types';
-import { RootState } from '../root-state';
-import { TurnUpdate } from './game.types';
-import { Field } from '../board/field/field.types';
-import { BoardFields } from '../board/board/board.types';
+} from '../board/board/board.types';
 
 @Injectable({
   providedIn: 'root',

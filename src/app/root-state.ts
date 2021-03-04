@@ -1,4 +1,4 @@
-import { BoardState } from './board/board.types';
+import { BoardState } from './board/board/board.types';
 import { GameState } from './game/game.types';
 import { UIState } from './ui/ui.types';
 

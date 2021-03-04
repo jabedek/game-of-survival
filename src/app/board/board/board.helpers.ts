@@ -1,11 +1,11 @@
-import { Field, FieldPos, FieldReference } from './field/field.types';
-import { BoardFields } from './board/board.types';
+import { BoardDynamicCSS_structurings } from 'src/app/ui/ui.types';
 import {
   BasicInitialBroodFields,
+  BoardFields,
   NeighborField,
   NeighborsRaport,
 } from './board.types';
-import { BoardDynamicCSS_structurings } from '../ui/ui.types';
+import { Field, FieldPos, FieldReference } from './field.types';
 
 export function getBoardSize_CSSpx(
   boardDimensions: number,
@@ -60,9 +60,22 @@ export function getInitialFields(boardDimensions: number): BoardFields {
   for (let row = 0; row < boardDimensions; row++) {
     fields[row] = [];
     for (let column = 0; column < boardDimensions; column++) {
-      fields[row][column] = new Field({ row, column }, false);
+      // console.log(row, column);
+
+      const field: Field = {
+        pos: { row, column },
+        blocked: false,
+        mode: 0,
+        occupyingUnit: null,
+        highlightAccessibility: false,
+        neighbors: null,
+      };
+
+      fields[row][column] = field;
     }
   }
+
+  // console.log(fields);
 
   return fields;
 }

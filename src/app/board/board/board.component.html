@@ -5,18 +5,61 @@
   [ngStyle]="CSS.structurings"
 >
   <ng-container *ngFor="let row of fields; let rowPos = index">
-    <app-field
+    <div
       #fieldsTemplates
-      #fieldsRefs
-      *ngFor="let column of row; let colPos = index; trackBy: trackByFn"
-      [pos]="{ row: rowPos, column: colPos }"
-      [highlightAccess]="column?.highlightAccess"
-      [fieldSize]="fieldSize"
-      name="{{ rowPos }}-{{ colPos }}"
-      key="{{ rowPos }}-{{ colPos }}"
-      [displayPos]="FIELD_DISPLAY_INFO"
-      [displayDetails]="FIELD_DISPLAY_INFO"
+      class="field-container accessible-border"
+      [style.width.px]="fieldSize"
+      *ngFor="let item of row; let colPos = index; trackBy: trackByFn"
+      [style.height.px]="fieldSize"
+      (contextmenu)="addBroodOnContextmenu($event)"
     >
-    </app-field>
+      <div
+        class="field"
+        name="{{ rowPos }}-{{ colPos }}"
+        key="{{ rowPos }}-{{ colPos }}"
+        [class.accessible-border]="item?.highlightAccessibility"
+      >
+        <div class="field__content" *ngIf="item?.blocked">
+          <ng-container
+            *ngIf="item?.occupyingUnit"
+            [ngTemplateOutlet]="particleUnit"
+            [ngTemplateOutletContext]="{
+              $implicit: item.pos,
+              color: item?.occupyingUnit.color
+            }"
+          >
+          </ng-container>
+
+          <ng-container
+            *ngIf="!item?.occupyingUnit"
+            [ngTemplateOutlet]="obsticleUnit"
+            [ngTemplateOutletContext]="{
+              $implicit: item.pos
+            }"
+          >
+          </ng-container>
+        </div>
+      </div>
+    </div>
   </ng-container>
 </div>
+
+<ng-template #loading>...</ng-template>
+
+<ng-template #particleUnit let-pos let-color="color">
+  <div [style.width.px]="CSSsize" [style.height.px]="CSSsize">
+    <div class="particle {{ 'particle--' + color }}">
+      <div *ngIf="true && pos" class="field__pos">
+        {{ pos.row }} x {{ pos.column }}
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #obsticleUnit let-pos>
+  <div class="obsticle" [style.width.px]="CSSsize" [style.height.px]="CSSsize">
+    <div *ngIf="true && pos" class="field__pos">
+      {{ pos.row }} x {{ pos.column }}
+    </div>
+  </div>
+</ng-template>

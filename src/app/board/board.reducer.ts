@@ -2,10 +2,10 @@ import { Action, createReducer, on } from '@ngrx/store';
 
 import * as boardActions from './board.actions';
 import * as broodActions from './brood.actions';
-import * as fieldActions from './field/field.actions';
-import { Field } from './field/field.types';
+import * as fieldActions from './field.actions';
+import { Field } from './board/field.types';
 import { BoardFields } from './board/board.types';
-import { BoardState, Brood } from './board.types';
+import { BoardState, Brood } from './board/board.types';
 
 export const featureKey = 'board';
 
@@ -64,13 +64,15 @@ const authReducer = createReducer(
 
   // *** BoardFields
   on(boardActions.loadBoardFields, (state, { fields }) => {
+    // console.log(fields);
+
     return {
       ...state,
       fields,
     };
   }),
   on(boardActions.setField, (state, { field }) => {
-    console.log('setField', field);
+    // console.log('setField', field);
 
     const fields = [...state.fields].map((row) => {
       return row.map((f) => {
@@ -108,7 +110,7 @@ const authReducer = createReducer(
       occupyingUnit: unit,
       blocked: true,
     };
-    console.log(field, newField);
+    // console.log(field, newField);
 
     const fields = [...state.fields].map((row: Field[]) => {
       return row.map((cell: Field) => {
@@ -137,6 +139,7 @@ const authReducer = createReducer(
             ...state.fields[pos.row][pos.column],
             blocked: true,
             occupyingUnit: unit,
+            mode: 2,
           };
         }
         return field;
@@ -159,7 +162,7 @@ const authReducer = createReducer(
       const { row, column } = f.pos;
       const field = {
         ...fields[row][column],
-        highlightAccess: true,
+        highlightAccessibility: true,
       };
       console.log(field);
 
@@ -177,7 +180,7 @@ const authReducer = createReducer(
       return row.map((f) => {
         return {
           ...f,
-          highlightAccess: false,
+          highlightAccessibility: false,
         };
       });
     });
@@ -186,7 +189,7 @@ const authReducer = createReducer(
     //   return row.forEach((f) => {
     //     const field = {
     //       ...f,
-    //       highlightAccess: false,
+    //       highlightAccessibility: false,
     //     };
 
     //     f = field;
@@ -206,6 +209,7 @@ const authReducer = createReducer(
           field = {
             ...state.fields[pos.row][pos.column],
             blocked: true,
+            mode: 1,
           };
         }
         return field;
@@ -236,10 +240,13 @@ const authReducer = createReducer(
         ...previousField,
         blocked: false,
         occupyingUnit: null,
+        mode: 0,
       };
 
       const fields: BoardFields = [...state.fields].map((data: Field[]) =>
         data.map((field: Field) => {
+          // console.log(field);
+
           if (field.pos.column === pos.column && field.pos.row === pos.row) {
             field = { ...newField };
           }

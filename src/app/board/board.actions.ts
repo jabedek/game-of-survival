@@ -1,7 +1,6 @@
 import { createAction, props } from '@ngrx/store';
-import { Field, FieldPos } from './field/field.types';
-import { BoardFields } from './board/board.types';
-import { Brood, ParticleUnit } from './board.types';
+import { Field, FieldPos } from './board/field.types';
+import { BoardFields, Brood, ParticleUnit } from './board/board.types';
 
 // *** Board Fields ***
 export const loadBoardFields = createAction(

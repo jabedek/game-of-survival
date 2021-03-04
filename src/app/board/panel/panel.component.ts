@@ -3,19 +3,19 @@ import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { GameService } from 'src/app/game/game.service';
 import { selectBoardFields, selectValidBroodSpaces } from '../board.selectors';
-import {
-  BOARD_DIMENSIONS,
-  FIELD_SIZE,
-  FIELD_DISPLAY_INFO,
-} from '../board.constants';
 
 import { BoardService } from '../board.service';
 import { getRandom } from 'src/app/shared/helpers';
 import { RootState } from 'src/app/root-state';
-import { ValidPotentialBroodSpace } from '../board.types';
 import { selectUI } from 'src/app/ui/ui.selectors';
 import { toggleUIPanelShowing } from 'src/app/ui/ui.actions';
 import { toggleBuilderMode } from '../board.actions';
+import { ValidPotentialBroodSpace } from '../board/board.types';
+import {
+  BOARD_DIMENSIONS,
+  FIELD_DISPLAY_INFO,
+  FIELD_SIZE,
+} from '../board.constants';
 
 @Component({
   selector: 'app-panel',
@@ -46,6 +46,8 @@ export class PanelComponent implements OnInit {
   borderObsticlesUp = false;
 
   ngOnInit(): void {
+    // this.fields$.subscribe((data) => console.log(data));
+
     this.subscription.add(
       this.ui$.subscribe((data) => {
         this.panelShowing = data.panelShowing;

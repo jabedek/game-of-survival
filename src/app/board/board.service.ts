@@ -1,43 +1,45 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+
+import { resetTurnCounter } from '../game/game.actions';
+import { getRandom } from '../shared/helpers';
+import { RootState } from '../root-state';
+
+import * as HELPERS from './board/board.helpers';
+
+import { Field, FieldPos, FieldReference } from './board/field.types';
 import {
-  selectEmptyFields,
+  BoardFields,
+  Brood,
+  ParticleColor,
+  ParticleUnit,
+  ValidPotentialBroodSpace,
+} from './board/board.types';
+import {
   selectBoardFields,
+  selectEmptyFields,
   selectValidBroodSpaces,
 } from './board.selectors';
-
 import {
   addBroodToList,
   addParticleToList,
-  deleteParticleFromList,
-  clearParticlesList,
   clearBroodsList,
+  clearParticlesList,
+  deleteParticleFromList,
   loadBoardFields,
 } from './board.actions';
 import { BOARD_DIMENSIONS } from './board.constants';
-import * as HELPERS from './board.helpers';
+import {
+  setFieldEmpty,
+  setFieldObsticle,
+  setFieldParticle,
+} from './field.actions';
 import {
   addMemberToBroodUnits,
   removeBroodMember,
   swapBroodMemberOnPos,
 } from './brood.actions';
-import {
-  setFieldEmpty,
-  setFieldObsticle,
-  setFieldParticle,
-} from './field/field.actions';
-import { resetTurnCounter } from '../game/game.actions';
-import { getRandom } from '../shared/helpers';
-import { RootState } from '../root-state';
-import {
-  Brood,
-  ParticleColor,
-  ParticleUnit,
-  ValidPotentialBroodSpace,
-} from './board.types';
-import { Field, FieldPos, FieldReference } from './field/field.types';
-import { BoardFields } from './board/board.types';
 
 @Injectable({
   providedIn: 'root',
@@ -69,11 +71,24 @@ export class BoardService {
 
   scenario2() {
     this.reloadBoard();
+
+    const boardOffset = 2;
+
     const redBrood: Brood = new Brood(
       'reds',
       [
-        new ParticleUnit('reds-0', { row: 0, column: 0 }, 'red', 'reds'),
-        new ParticleUnit('reds-0', { row: 0, column: 1 }, 'red', 'reds'),
+        new ParticleUnit(
+          'reds-0',
+          { row: 0 + boardOffset, column: 0 + boardOffset },
+          'red',
+          'reds'
+        ),
+        new ParticleUnit(
+          'reds-0',
+          { row: 0 + boardOffset, column: 1 + boardOffset },
+          'red',
+          'reds'
+        ),
       ],
       'red'
     );
@@ -83,13 +98,19 @@ export class BoardService {
       [
         new ParticleUnit(
           'blues-0',
-          { row: BOARD_DIMENSIONS - 1, column: BOARD_DIMENSIONS - 1 - 1 },
+          {
+            row: BOARD_DIMENSIONS - 1 - boardOffset,
+            column: BOARD_DIMENSIONS - 2 - boardOffset,
+          },
           'blue',
           'blues'
         ),
         new ParticleUnit(
           'blues-0',
-          { row: BOARD_DIMENSIONS - 1, column: BOARD_DIMENSIONS - 1 },
+          {
+            row: BOARD_DIMENSIONS - 1 - boardOffset,
+            column: BOARD_DIMENSIONS - 1 - boardOffset,
+          },
           'blue',
           'blues'
         ),

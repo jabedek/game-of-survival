@@ -5,12 +5,13 @@ import { interval } from 'rxjs';
 import { selectBoardSnapshot } from './board/board.selectors';
 
 import { BoardService } from './board/board.service';
-import { Field } from './board/field/field.types';
 import {
   Brood,
   ParticleUnit,
   ValidPotentialBroodSpace,
-} from './board/board.types';
+} from './board/board/board.types';
+import { Field } from './board/board/field.types';
+
 import { setTurnPhase } from './game/game.actions';
 import { selectTurnIndex, selectTurnPhase } from './game/game.selectors';
 import { GameService } from './game/game.service';
