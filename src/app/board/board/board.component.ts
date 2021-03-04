@@ -34,7 +34,7 @@ import {
   map,
   take,
 } from 'rxjs/operators';
-import { moveParticleFromTo } from '../board.actions';
+import { moveParticleFromTo, setField } from '../board.actions';
 import { BOARD_DIMENSIONS } from '../board.constants';
 import { selectBuilderMode, selectFieldNeighbors } from '../board.selectors';
 import {
@@ -173,12 +173,12 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
       y >= rect.top &&
       y <= rect.bottom
     ) {
-      console.log(
-        rect,
-        x,
-        y,
-        x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
-      );
+      // console.log(
+      //   rect,
+      //   x,
+      //   y,
+      //   x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+      // );
     }
     return (
       x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
@@ -186,7 +186,6 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onMouseUp(event) {
-    // this.currentFieldNeighbors$.;
     this.sub.unsubscribe();
     let startPos = null;
     let endPos = null;
@@ -216,16 +215,25 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log(startPos, endPos);
 
       if (startPos && endPos) {
+        const fieldCopy = Object.assign(
+          {},
+          this.fields[endPos?.row][endPos?.column]
+        );
         const result = this.accessibleNeighbors.find(
           (f: Field) =>
             f.pos.row === endPos?.row && f.pos.column === endPos?.column
         );
+
+        console.log(result);
 
         // bez tego warunku możemy przesuwać kropki o ile chcemy
         if (result) {
           this.store.dispatch(
             moveParticleFromTo({ pos: startPos, newPos: endPos })
           );
+        } else {
+          // console.log(fieldCopy);
+          // this.store.dispatch(setField({ field: fieldCopy }));
         }
       }
 
@@ -262,6 +270,7 @@ export class FieldsComponent implements OnInit, OnDestroy, AfterViewInit {
                 console.log(data);
                 const fields = data.accessibleToMove.map((a) => a.field);
                 this.accessibleNeighbors = fields;
+
                 // console.log(fields);
 
                 this.store.dispatch(

@@ -69,6 +69,24 @@ const authReducer = createReducer(
       fields,
     };
   }),
+  on(boardActions.setField, (state, { field }) => {
+    console.log('setField', field);
+
+    const fields = [...state.fields].map((row) => {
+      return row.map((f) => {
+        if (f.pos.row === field.pos.row && f.pos.column === field.pos.column) {
+          f = field;
+        }
+
+        return f;
+      });
+    });
+
+    return {
+      ...state,
+      fields,
+    };
+  }),
   on(boardActions.toggleBuilderMode, (state) => {
     return {
       ...state,

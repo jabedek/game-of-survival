@@ -14,6 +14,11 @@ export const moveParticleFromTo = createAction(
   props<{ pos: FieldPos; newPos: FieldPos }>()
 );
 
+export const setField = createAction(
+  '[Service] Set/Overwrite Field',
+  props<{ field: Field }>()
+);
+
 export const toggleBuilderMode = createAction('[Board] Toggle Builder Mode');
 
 // *** Particles List ***

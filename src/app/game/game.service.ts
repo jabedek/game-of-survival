@@ -187,7 +187,7 @@ export class GameService {
     let id = `${groupId}-${getRandom(100)}` || 'randomer';
     id = voidParticle ? 'voider' : id;
 
-    let color = (field?.occupyingUnit as ParticleUnit).color || 'blue';
+    let color = (field?.occupyingUnit as ParticleUnit)?.color || 'blue';
     color = voidParticle ? 'black' : color;
 
     if (n.accessible.length > 0) {
