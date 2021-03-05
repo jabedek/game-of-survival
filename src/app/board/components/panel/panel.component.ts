@@ -2,20 +2,23 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { GameService } from 'src/app/game/game.service';
-import { selectBoardFields, selectValidBroodSpaces } from '../board.selectors';
+import {
+  selectBoardFields,
+  selectValidBroodSpaces,
+} from '../../store/board.selectors';
 
-import { BoardService } from '../board.service';
+import { BoardService } from '../../board.service';
 import { getRandom } from 'src/app/shared/helpers';
 import { RootState } from 'src/app/root-state';
 import { selectUI } from 'src/app/ui/ui.selectors';
 import { toggleUIPanelShowing } from 'src/app/ui/ui.actions';
-import { toggleBuilderMode } from '../board.actions';
-import { ValidPotentialBroodSpace } from '../board/board.types';
+import { toggleBuilderMode } from '../../store/actions/board.actions';
+import { ValidPotentialBroodSpace } from '../../types/board.types';
 import {
   BOARD_DIMENSIONS,
   FIELD_DISPLAY_INFO,
   FIELD_SIZE,
-} from '../board.constants';
+} from '../../board.constants';
 
 @Component({
   selector: 'app-panel',

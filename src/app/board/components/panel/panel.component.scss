@@ -2,7 +2,7 @@
 //   display: block;
 // }
 
-@import "./../../shared/styles/mixins.scss";
+@import "./../../../shared/styles/mixins.scss";
 
 .game-panel {
   @include game-panel;

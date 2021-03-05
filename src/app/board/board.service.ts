@@ -6,21 +6,21 @@ import { resetTurnCounter } from '../game/game.actions';
 import { getRandom } from '../shared/helpers';
 import { RootState } from '../root-state';
 
-import * as HELPERS from './board/board.helpers';
+import * as HELPERS from './shared/board.helpers';
 
-import { Field, FieldPos, FieldReference } from './board/field.types';
+import { Field, FieldPos, FieldReference } from './types/field.types';
 import {
   BoardFields,
   Brood,
   ParticleColor,
   ParticleUnit,
   ValidPotentialBroodSpace,
-} from './board/board.types';
+} from './types/board.types';
 import {
   selectBoardFields,
   selectEmptyFields,
   selectValidBroodSpaces,
-} from './board.selectors';
+} from './store/board.selectors';
 import {
   addBroodToList,
   addParticleToList,
@@ -28,18 +28,18 @@ import {
   clearParticlesList,
   deleteParticleFromList,
   loadBoardFields,
-} from './board.actions';
+} from './store/actions/board.actions';
 import { BOARD_DIMENSIONS } from './board.constants';
 import {
   setFieldEmpty,
   setFieldObsticle,
   setFieldParticle,
-} from './field.actions';
+} from './store/actions/field.actions';
 import {
   addMemberToBroodUnits,
   removeBroodMember,
   swapBroodMemberOnPos,
-} from './brood.actions';
+} from './store/actions/brood.actions';
 
 @Injectable({
   providedIn: 'root',
@@ -142,8 +142,6 @@ export class BoardService {
       ],
       'green'
     );
-
-    console.log(redBrood, blueBrood, greenBrood);
 
     this.addBroodToList(redBrood);
     this.addBroodToList(blueBrood);

@@ -31,23 +31,26 @@ import {
   map,
   take,
 } from 'rxjs/operators';
-import { moveParticleFromTo, setField } from '../board.actions';
+import {
+  moveParticleFromTo,
+  setField,
+} from '../../store/actions/board.actions';
 
 import {
   setAllFieldsHighlightFalse,
   setFieldsHighlightTrue,
-} from '../field.actions';
+} from '../../store/actions/field.actions';
 import { getRandom } from 'src/app/shared/helpers';
 import {
   BoardFields,
   NeighborsRaport,
   ParticleUnit,
   Unit,
-} from './board.types';
-import { Field, FieldPos } from './field.types';
-import { BOARD_DIMENSIONS, FIELD_SIZE } from '../board.constants';
-import { BoardService } from '../board.service';
-import { selectFieldNeighbors } from '../board.selectors';
+} from '../../types/board.types';
+import { Field, FieldPos } from '../../types/field.types';
+import { BOARD_DIMENSIONS, FIELD_SIZE } from '../../board.constants';
+import { BoardService } from '../../board.service';
+import { selectFieldNeighbors } from '../../store/board.selectors';
 
 const AUDIT_TIME = 16;
 
@@ -235,21 +238,23 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
           this.toggleField(field);
         } else {
-          /**
-           * Particle can only move in straight lines like '+' (correct), not 'x' (not correct).
-           */
-          const existingAndCorrect = this.accessibleNeighbors.find(
-            (f: Field) =>
-              f.pos.row === endPos?.row && f.pos.column === endPos?.column
-          );
-
-          /**
-           * Without this condition we can move Particles any way we want.
-           */
-          if (existingAndCorrect) {
-            this.store.dispatch(
-              moveParticleFromTo({ pos: startPos, newPos: endPos })
+          if (this.fields[startPos.row][startPos.column]?.occupyingUnit) {
+            /**
+             * Particle can only move in straight lines like '+' (correct), not diagonal like 'x' (not correct).
+             */
+            const existingAndCorrect = this.accessibleNeighbors.find(
+              (f: Field) =>
+                f.pos.row === endPos?.row && f.pos.column === endPos?.column
             );
+
+            /**
+             * Without this condition we can move Particles any way we want.
+             */
+            if (existingAndCorrect) {
+              this.store.dispatch(
+                moveParticleFromTo({ pos: startPos, newPos: endPos })
+              );
+            }
           }
         }
 

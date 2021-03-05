@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as HELPERS from './../board/board/board.helpers';
+import * as HELPERS from './ui.helpers';
 import { BoardDynamicCSS } from './ui.types';
 
 @Injectable({

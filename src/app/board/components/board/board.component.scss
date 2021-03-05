@@ -96,7 +96,7 @@ $brightness-focus: 200%;
 }
 
 .accessible-border {
-  border-color: yellowgreen;
+  border-color: rgba(250, 250, 150, 0.5);
 }
 
 .particle {
@@ -111,9 +111,9 @@ $brightness-focus: 200%;
   user-select: none;
   cursor: pointer;
 
-  &:active {
-    filter: brightness($brightness-active);
-  }
+  // &:active {
+  //   filter: brightness($brightness-active);
+  // }
 
   &:focus {
     filter: brightness(($brightness-focus));
@@ -129,7 +129,7 @@ $brightness-focus: 200%;
       filter: drop-shadow(0 0 0.75rem $purple) brightness($brightness-hover);
     }
 
-    &:active {
+    &:focus {
       filter: drop-shadow(0 0 0.75rem $red) brightness($brightness-active);
     }
   }

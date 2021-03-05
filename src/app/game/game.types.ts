@@ -1,5 +1,5 @@
-import { ParticleUnit } from '../board/board/board.types';
-import { FieldPos } from '../board/board/field.types';
+import { ParticleUnit } from '../board/types/board.types';
+import { FieldPos } from '../board/types/field.types';
 
 export interface GameState {
   turn: TurnState;

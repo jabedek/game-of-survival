@@ -1,11 +1,11 @@
 import { Action, createReducer, on } from '@ngrx/store';
 
-import * as boardActions from './board.actions';
-import * as broodActions from './brood.actions';
-import * as fieldActions from './field.actions';
-import { Field } from './board/field.types';
-import { BoardFields } from './board/board.types';
-import { BoardState, Brood } from './board/board.types';
+// import * as actions.boardActions from './actions/board.actions';
+// import * as actions.broodActions from './actions/brood.actions';
+// import * as actions.fieldActions from './actions/field.actions';
+import * as actions from './actions';
+import { Field } from './../types/field.types';
+import { BoardState, Brood, BoardFields } from './../types/board.types';
 
 export const featureKey = 'board';
 
@@ -20,13 +20,13 @@ const authReducer = createReducer(
   initialBoardState,
 
   // *** Particles ***
-  on(boardActions.clearParticlesList, (state) => {
+  on(actions.boardActions.clearParticlesList, (state) => {
     return {
       ...state,
       particlesList: [],
     };
   }),
-  on(boardActions.addBroodToList, (state: BoardState, { brood }) => {
+  on(actions.boardActions.addBroodToList, (state: BoardState, { brood }) => {
     let broodsList: Brood[] = [...state.broodsList].map((b) => b);
     broodsList = [...state.broodsList.map((b) => b), brood];
     broodsList = [...broodsList].filter((b) => b.units.length > 0);
@@ -37,14 +37,14 @@ const authReducer = createReducer(
     };
   }),
 
-  on(boardActions.addParticleToList, (state, { unit }) => {
+  on(actions.boardActions.addParticleToList, (state, { unit }) => {
     return {
       ...state,
       particlesList: Array.from(new Set([...state.particlesList, unit])),
     };
   }),
 
-  on(boardActions.deleteParticleFromList, (state, { pos }) => {
+  on(actions.boardActions.deleteParticleFromList, (state, { pos }) => {
     const particlesList = [...state.particlesList].filter(
       (p) => !(p.pos.row === pos.row && p.pos.column === pos.column)
     );
@@ -55,7 +55,7 @@ const authReducer = createReducer(
     };
   }),
 
-  on(boardActions.clearBroodsList, (state) => {
+  on(actions.boardActions.clearBroodsList, (state) => {
     return {
       ...state,
       broodsList: [],
@@ -63,7 +63,7 @@ const authReducer = createReducer(
   }),
 
   // *** BoardFields
-  on(boardActions.loadBoardFields, (state, { fields }) => {
+  on(actions.boardActions.loadBoardFields, (state, { fields }) => {
     // console.log(fields);
 
     return {
@@ -71,7 +71,7 @@ const authReducer = createReducer(
       fields,
     };
   }),
-  on(boardActions.setField, (state, { field }) => {
+  on(actions.boardActions.setField, (state, { field }) => {
     // console.log('setField', field);
 
     const fields = [...state.fields].map((row) => {
@@ -89,14 +89,14 @@ const authReducer = createReducer(
       fields,
     };
   }),
-  on(boardActions.toggleBuilderMode, (state) => {
+  on(actions.boardActions.toggleBuilderMode, (state) => {
     return {
       ...state,
       builderMode: !state.builderMode,
     };
   }),
 
-  on(boardActions.moveParticleFromTo, (state, { pos, newPos }) => {
+  on(actions.boardActions.moveParticleFromTo, (state, { pos, newPos }) => {
     const unit = { ...state.fields[pos.row][pos.column]?.occupyingUnit };
 
     const field = {
@@ -129,7 +129,7 @@ const authReducer = createReducer(
     };
   }),
 
-  on(fieldActions.setFieldParticle, (state, { unit }) => {
+  on(actions.fieldActions.setFieldParticle, (state, { unit }) => {
     const { pos } = unit;
 
     const fields: BoardFields = [...state.fields].map((row: Field[]) =>
@@ -153,29 +153,32 @@ const authReducer = createReducer(
     };
   }),
 
-  on(fieldActions.setFieldsHighlightTrue, (state, { fieldsToHighLight }) => {
-    let fields = [...state.fields].map((row: Field[]) => {
-      return row.map((f) => f);
-    });
+  on(
+    actions.fieldActions.setFieldsHighlightTrue,
+    (state, { fieldsToHighLight }) => {
+      let fields = [...state.fields].map((row: Field[]) => {
+        return row.map((f) => f);
+      });
 
-    fieldsToHighLight.forEach((f) => {
-      const { row, column } = f.pos;
-      const field = {
-        ...fields[row][column],
-        highlightAccessibility: true,
+      fieldsToHighLight.forEach((f) => {
+        const { row, column } = f.pos;
+        const field = {
+          ...fields[row][column],
+          highlightAccessibility: true,
+        };
+        console.log(field);
+
+        fields[row][column] = field;
+      });
+      console.log(fieldsToHighLight);
+
+      return {
+        ...state,
+        fields,
       };
-      console.log(field);
-
-      fields[row][column] = field;
-    });
-    console.log(fieldsToHighLight);
-
-    return {
-      ...state,
-      fields,
-    };
-  }),
-  on(fieldActions.setAllFieldsHighlightFalse, (state) => {
+    }
+  ),
+  on(actions.fieldActions.setAllFieldsHighlightFalse, (state) => {
     let fields = [...state.fields].map((row: Field[]) => {
       return row.map((f) => {
         return {
@@ -202,7 +205,7 @@ const authReducer = createReducer(
     };
   }),
 
-  on(fieldActions.setFieldObsticle, (state, { pos }) => {
+  on(actions.fieldActions.setFieldObsticle, (state, { pos }) => {
     const fields: BoardFields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
         if (field.pos.column === pos.column && field.pos.row === pos.row) {
@@ -225,7 +228,7 @@ const authReducer = createReducer(
   /**
    * Sets field unblocked with occupying unit set to null, so it doesn't display any unit.
    */
-  on(fieldActions.setFieldEmpty, (state, { pos }) => {
+  on(actions.fieldActions.setFieldEmpty, (state, { pos }) => {
     if (state.fields[pos.row] && state.fields[pos.row][pos.column]) {
       const previousField: Field = { ...state.fields[pos.row][pos.column] };
 
@@ -294,7 +297,7 @@ const authReducer = createReducer(
    * Only updates info in a brood.
    * Doesn't update particle on a field on its own.
    */
-  on(broodActions.removeBroodMember, (state, { pos }) => {
+  on(actions.broodActions.removeBroodMember, (state, { pos }) => {
     let broodsList = [...state.broodsList].map((b) => {
       let brood = Object.assign({}, b);
 
@@ -310,7 +313,7 @@ const authReducer = createReducer(
     return { ...state, broodsList };
   }),
 
-  on(broodActions.addMemberToBroodUnits, (state, { unit }) => {
+  on(actions.broodActions.addMemberToBroodUnits, (state, { unit }) => {
     let broodsList = [...state.broodsList].map((b) => b);
     let broodToUpdate = null;
     broodsList.forEach((b) => {
@@ -338,7 +341,7 @@ const authReducer = createReducer(
     return { ...state, broodsList };
   }),
 
-  on(broodActions.swapBroodMemberOnPos, (state, { unit }) => {
+  on(actions.broodActions.swapBroodMemberOnPos, (state, { unit }) => {
     const broodsList = [...state.broodsList].map((b) => {
       b.units.forEach((u) => {
         if (u.pos === unit.pos) {

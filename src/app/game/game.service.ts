@@ -13,13 +13,13 @@ import {
   selectBoardSnapshot,
   selectParticlesAndBroods,
   selectUnitsNeighbors,
-} from '../board/board.selectors';
+} from '../board/store/board.selectors';
 import { countTurn, loadChangesAfterTurn, setTurnPhase } from './game.actions';
 import { getRandom } from '../shared/helpers';
 
 import { RootState } from '../root-state';
 import { TurnUpdate } from './game.types';
-import { Field } from '../board/board/field.types';
+import { Field } from '../board/types/field.types';
 import {
   BoardFields,
   Brood,
@@ -27,7 +27,7 @@ import {
   ParticleUnit,
   Unit,
   ValidPotentialBroodSpace,
-} from '../board/board/board.types';
+} from '../board/types/board.types';
 
 @Injectable({
   providedIn: 'root',

@@ -2,15 +2,15 @@ import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { interval } from 'rxjs';
-import { selectBoardSnapshot } from './board/board.selectors';
+import { selectBoardSnapshot } from './board/store/board.selectors';
 
 import { BoardService } from './board/board.service';
 import {
   Brood,
   ParticleUnit,
   ValidPotentialBroodSpace,
-} from './board/board/board.types';
-import { Field } from './board/board/field.types';
+} from './board/types/board.types';
+import { Field } from './board/types/field.types';
 
 import { setTurnPhase } from './game/game.actions';
 import { selectTurnIndex, selectTurnPhase } from './game/game.selectors';
