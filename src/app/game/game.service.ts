@@ -152,7 +152,7 @@ export class GameService {
                   });
                 }
 
-                const voidChance = getRandom(500) === 1;
+                const voidChance = getRandom(600) === 1;
 
                 if (voidChance) {
                   const voidParticle = this.getMultipliedMember(n, null, true);

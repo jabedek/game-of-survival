@@ -1,8 +1,5 @@
 import { Action, createReducer, on } from '@ngrx/store';
 
-// import * as actions.boardActions from './actions/board.actions';
-// import * as actions.broodActions from './actions/brood.actions';
-// import * as actions.fieldActions from './actions/field.actions';
 import * as actions from './actions';
 import { Field } from './../types/field.types';
 import { BoardState, Brood, BoardFields } from './../types/board.types';
@@ -64,16 +61,12 @@ const authReducer = createReducer(
 
   // *** BoardFields
   on(actions.boardActions.loadBoardFields, (state, { fields }) => {
-    // console.log(fields);
-
     return {
       ...state,
       fields,
     };
   }),
   on(actions.boardActions.setField, (state, { field }) => {
-    // console.log('setField', field);
-
     const fields = [...state.fields].map((row) => {
       return row.map((f) => {
         if (f.pos.row === field.pos.row && f.pos.column === field.pos.column) {
@@ -110,7 +103,6 @@ const authReducer = createReducer(
       occupyingUnit: unit,
       blocked: true,
     };
-    // console.log(field, newField);
 
     const fields = [...state.fields].map((row: Field[]) => {
       return row.map((cell: Field) => {
@@ -188,17 +180,6 @@ const authReducer = createReducer(
       });
     });
 
-    // fields.forEach((row: Field[]) => {
-    //   return row.forEach((f) => {
-    //     const field = {
-    //       ...f,
-    //       highlightAccessibility: false,
-    //     };
-
-    //     f = field;
-    //   });
-    // });
-
     return {
       ...state,
       fields,
@@ -248,8 +229,6 @@ const authReducer = createReducer(
 
       const fields: BoardFields = [...state.fields].map((data: Field[]) =>
         data.map((field: Field) => {
-          // console.log(field);
-
           if (field.pos.column === pos.column && field.pos.row === pos.row) {
             field = { ...newField };
           }
@@ -259,7 +238,9 @@ const authReducer = createReducer(
 
       let broodsList: Brood[] = [...state.broodsList].map((p) => p);
 
-      // Check if it was particle and if was in brood then delete it from there
+      /**
+       * Check if it was particle and if was in brood then delete it from there
+       */
       if (
         !!previousField.occupyingUnit &&
         previousField.occupyingUnit?.groupId

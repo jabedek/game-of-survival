@@ -13,8 +13,8 @@ export interface BoardState {
 
 // *** Units, Particles
 export interface Unit {
-  id: string; // name-like identifier, like 'proton-0' or simply '0'
-  groupId: string; // name-like group identifier like 'protons'
+  id: string; // ordinal number, like 'protons444-0'
+  groupId: string; // alpha-numeric name-like like 'protons444'
   pos: FieldPos;
 }
 

@@ -80,7 +80,7 @@ export class PanelComponent implements OnInit {
   scenario1() {
     this.initBoard();
     this.toggleBordersUp();
-    this.addUnits(2, 2);
+    this.addUnitsRandomly(2, 2);
   }
 
   toggleBorders(): void {
@@ -113,7 +113,7 @@ export class PanelComponent implements OnInit {
     }
   }
 
-  private addUnits(particles: number, obsticles = 0) {
+  private addUnitsRandomly(particles: number, obsticles: number) {
     this.boardService.addUnitsRandomly(particles, obsticles);
   }
 

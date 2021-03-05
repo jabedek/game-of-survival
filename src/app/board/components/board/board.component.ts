@@ -284,10 +284,9 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
         break;
       case 1:
         const unit: ParticleUnit = new ParticleUnit(
-          'punitons0',
+          `solo${getRandom(1000)}`,
           field.pos,
-          'blue',
-          'punitons'
+          'blue'
         );
         this.boardService.addNewParticle(unit);
 
