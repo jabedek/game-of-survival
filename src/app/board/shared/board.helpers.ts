@@ -1,23 +1,16 @@
+import { getRandom } from 'src/app/shared/helpers';
 import { BoardDynamicCSS_structurings } from 'src/app/ui/ui.types';
+import { BOARD_DIMENSIONS } from '../board.constants';
 import {
   BasicInitialBroodFields,
   BoardFields,
+  Brood,
   NeighborField,
   NeighborsRaport,
+  ParticleColor,
+  ParticleUnit,
 } from '../types/board.types';
 import { Field, FieldPos, FieldReference } from '../types/field.types';
-
-export function getInitialBoard(boardDimensions: number): FieldReference[][] {
-  let board: FieldReference[][] = [];
-  for (let x = 0; x < boardDimensions; x++) {
-    board[x] = [];
-    for (let y = 0; y < boardDimensions; y++) {
-      board[x][y] = `${x}:${y}`;
-    }
-  }
-
-  return board;
-}
 
 export function getInitialFields(boardDimensions: number): BoardFields {
   let fields: BoardFields = [];
@@ -43,6 +36,62 @@ export function getInitialFields(boardDimensions: number): BoardFields {
   // console.log(fields);
 
   return fields;
+}
+
+export function getPreparedBroodBase(
+  pos: FieldPos,
+  id?: string,
+  color?: ParticleColor
+) {
+  const dimensions = BOARD_DIMENSIONS;
+
+  const broodId = id || `reds-${getRandom(1000)}`;
+  const broodColor = color || 'red';
+
+  const units = [
+    new ParticleUnit(
+      `${id}-0`,
+      {
+        row: pos.row,
+        column: pos.column,
+      },
+      broodColor,
+      broodId
+    ),
+    new ParticleUnit(
+      `${id}-1`,
+      {
+        row: pos.row,
+        column: pos.column + 1,
+      },
+      broodColor,
+      broodId
+    ),
+    new ParticleUnit(
+      `${id}-2`,
+      {
+        row: pos.row + 1,
+        column: pos.column,
+      },
+      broodColor,
+      broodId
+    ),
+    new ParticleUnit(
+      `${id}-3`,
+      {
+        row: pos.row + 1,
+        column: pos.column + 1,
+      },
+      broodColor,
+      broodId
+    ),
+  ];
+
+  const broodUnits = units.filter((u) =>
+    isFieldInBoardBoundries(dimensions, u.pos)
+  );
+
+  return new Brood(broodId, broodUnits, broodColor);
 }
 
 export function isValidBroodRoot(
@@ -116,7 +165,16 @@ export function isValidBroodRoot(
   } else return null;
 }
 
-export function isInBoundries(boardDimensions: number, pos: FieldPos) {
+export function isClickInRectBoundries(rect: DOMRect, x: number, y: number) {
+  if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+  }
+  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+
+export function isFieldInBoardBoundries(
+  boardDimensions: number,
+  pos: FieldPos
+) {
   if (
     +pos.row >= 0 &&
     +pos.column >= 0 &&
@@ -127,7 +185,7 @@ export function isInBoundries(boardDimensions: number, pos: FieldPos) {
   } else return false;
 }
 
-export function getNeighbors(
+export function getFieldNeighbors(
   fields: BoardFields,
   props: FieldPos
 ): NeighborsRaport {
@@ -141,7 +199,9 @@ export function getNeighbors(
   // DIR: ROW, COL
 
   // NW: -1, -1
-  if (isInBoundries(fields.length, { row: row - 1, column: col - 1 })) {
+  if (
+    isFieldInBoardBoundries(fields.length, { row: row - 1, column: col - 1 })
+  ) {
     neighbouringFields.push({
       field: fields[row - 1][col - 1],
       at: 'north-west',
@@ -154,7 +214,7 @@ export function getNeighbors(
   }
 
   // N: -1, 0
-  if (isInBoundries(fields.length, { row: row - 1, column: col })) {
+  if (isFieldInBoardBoundries(fields.length, { row: row - 1, column: col })) {
     neighbouringFields.push({
       field: fields[row - 1][col],
       at: 'north',
@@ -167,7 +227,9 @@ export function getNeighbors(
   }
 
   // NE: -1, +1
-  if (isInBoundries(fields.length, { row: row - 1, column: col + 1 })) {
+  if (
+    isFieldInBoardBoundries(fields.length, { row: row - 1, column: col + 1 })
+  ) {
     neighbouringFields.push({
       field: fields[row - 1][col + 1],
       at: 'north-east',
@@ -180,7 +242,7 @@ export function getNeighbors(
   }
 
   // W: 0, +1
-  if (isInBoundries(fields.length, { row: row, column: col - 1 })) {
+  if (isFieldInBoardBoundries(fields.length, { row: row, column: col - 1 })) {
     neighbouringFields.push({
       field: fields[row][col - 1],
       at: 'west',
@@ -193,7 +255,7 @@ export function getNeighbors(
   }
 
   // E: 0, +1
-  if (isInBoundries(fields.length, { row: row, column: col + 1 })) {
+  if (isFieldInBoardBoundries(fields.length, { row: row, column: col + 1 })) {
     neighbouringFields.push({
       field: fields[row][col + 1],
       at: 'east',
@@ -206,7 +268,9 @@ export function getNeighbors(
   }
 
   // SW: +1, -1
-  if (isInBoundries(fields.length, { row: row + 1, column: col - 1 })) {
+  if (
+    isFieldInBoardBoundries(fields.length, { row: row + 1, column: col - 1 })
+  ) {
     neighbouringFields.push({
       field: fields[row + 1][col - 1],
       at: 'south-west',
@@ -219,7 +283,7 @@ export function getNeighbors(
   }
 
   // S: +1, 0
-  if (isInBoundries(fields.length, { row: row + 1, column: col })) {
+  if (isFieldInBoardBoundries(fields.length, { row: row + 1, column: col })) {
     neighbouringFields.push({
       field: fields[row + 1][col],
       at: 'south',
@@ -232,7 +296,9 @@ export function getNeighbors(
   }
 
   // SE: +1, +1
-  if (isInBoundries(fields.length, { row: row + 1, column: col + 1 })) {
+  if (
+    isFieldInBoardBoundries(fields.length, { row: row + 1, column: col + 1 })
+  ) {
     neighbouringFields.push({
       field: fields[row + 1][col + 1],
       at: 'south-east',

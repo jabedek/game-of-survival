@@ -103,7 +103,7 @@ export class PanelComponent implements OnInit {
     if (!!this.validBroodSpaces.length && this.validBroodSpaces.length > 0) {
       let randomValidIndex = getRandom(this.validBroodSpaces.length);
 
-      let rndId = `uniton-${getRandom(1000)}`;
+      let rndId = `unitons${getRandom(1000)}`;
 
       this.boardService.addNewBroodOnContextmenu(
         rndId,

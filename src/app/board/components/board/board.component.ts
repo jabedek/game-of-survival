@@ -51,6 +51,7 @@ import { Field, FieldPos } from '../../types/field.types';
 import { BOARD_DIMENSIONS, FIELD_SIZE } from '../../board.constants';
 import { BoardService } from '../../board.service';
 import { selectFieldNeighbors } from '../../store/board.selectors';
+import * as HELPERS from './../../shared/board.helpers';
 
 const AUDIT_TIME = 16;
 
@@ -91,8 +92,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     public boardService: BoardService,
     private uiService: UIService,
     private ngZone: NgZone,
-    private host: ElementRef,
-    private cdr: ChangeDetectorRef
+    private host: ElementRef
   ) {}
 
   ngOnInit(): void {
@@ -168,19 +168,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  inRectBoundries(rect: DOMRect, x: number, y: number) {
-    if (
-      x >= rect.left &&
-      x <= rect.right &&
-      y >= rect.top &&
-      y <= rect.bottom
-    ) {
-    }
-    return (
-      x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
-    );
-  }
-
   onMouseUp(event) {
     this.sub.unsubscribe();
     let startPos: FieldPos = null;
@@ -190,7 +177,9 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
       [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
         const rect: DOMRect = t.nativeElement.getBoundingClientRect();
 
-        if (this.inRectBoundries(rect, this.posStart.x, this.posStart.y)) {
+        if (
+          HELPERS.isClickInRectBoundries(rect, this.posStart.x, this.posStart.y)
+        ) {
           startPos = {
             row: Math.floor(i / BOARD_DIMENSIONS),
             column: i % BOARD_DIMENSIONS,
@@ -200,7 +189,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
       [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
         const rect: DOMRect = t.nativeElement.getBoundingClientRect();
-        if (this.inRectBoundries(rect, event.x, event.y)) {
+        if (HELPERS.isClickInRectBoundries(rect, event.x, event.y)) {
           endPos = {
             row: Math.floor(i / BOARD_DIMENSIONS),
             column: i % BOARD_DIMENSIONS,
@@ -253,7 +242,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
       const rect: DOMRect = t.nativeElement.getBoundingClientRect();
 
-      if (this.inRectBoundries(rect, event.x, event.y)) {
+      if (HELPERS.isClickInRectBoundries(rect, event.x, event.y)) {
         startPos = {
           row: Math.floor(i / BOARD_DIMENSIONS),
           column: i % BOARD_DIMENSIONS,
@@ -284,20 +273,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   moveParticle(event) {
-    const mousePosition = {
-      x: event.clientX,
-      y: event.clientY,
-    };
-
-    this.moveTo = {
-      startPoint: mousePosition,
-      boundinBox: {
-        top: mousePosition.y,
-        left: mousePosition.x,
-        width: 0,
-        height: 0,
-      },
-    };
+    // console.log(event);
   }
 
   toggleField(field) {
@@ -308,7 +284,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
         break;
       case 1:
         const unit: ParticleUnit = new ParticleUnit(
-          'puniton-0',
+          'punitons0',
           field.pos,
           'blue',
           'punitons'
@@ -328,7 +304,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
       const rect: DOMRect = t.nativeElement.getBoundingClientRect();
 
-      if (this.inRectBoundries(rect, event.x, event.y)) {
+      if (HELPERS.isClickInRectBoundries(rect, event.x, event.y)) {
         startPos = {
           row: Math.floor(i / BOARD_DIMENSIONS),
           column: i % BOARD_DIMENSIONS,
@@ -336,7 +312,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    let rndId = `eviton-${getRandom(1000)}`;
+    let rndId = `evitons${getRandom(1000)}`;
     this.boardService.addNewBroodOnContextmenu(rndId, startPos, 'red');
   }
 }

@@ -103,7 +103,10 @@ export const selectBoardField = createSelector(
 export const selectFieldNeighbors = createSelector(
   selectBoardFields,
   (fields: BoardFields, props: FieldPos) => {
-    const neighbors: NeighborsRaport = HELPERS.getNeighbors([...fields], props);
+    const neighbors: NeighborsRaport = HELPERS.getFieldNeighbors(
+      [...fields],
+      props
+    );
 
     return neighbors;
   }
@@ -123,7 +126,7 @@ export const selectAllUnitsNeighbors = createSelector(
   selectParticlesList,
   (fields: BoardFields, particles: ParticleUnit[]) => {
     const fieldsNeighbors: NeighborsRaport[] = particles.map((p) => {
-      return HELPERS.getNeighbors([...fields], p.pos);
+      return HELPERS.getFieldNeighbors([...fields], p.pos);
     });
 
     return fieldsNeighbors;
@@ -135,7 +138,7 @@ export const selectAllUnitsNeighborsAndBroodsList = createSelector(
   selectBroodsList,
   (fields: BoardFields, particles: ParticleUnit[], broods: Brood[]) => {
     const fieldsNeighbors: NeighborsRaport[] = particles.map((p) => {
-      return HELPERS.getNeighbors([...fields], p.pos);
+      return HELPERS.getFieldNeighbors([...fields], p.pos);
     });
 
     return { fieldsNeighbors, broodsList: broods };
@@ -146,7 +149,7 @@ export const selectUnitsNeighbors = createSelector(
   selectBoardFields,
   (fields: BoardFields, props: ParticleUnit[]) => {
     const fieldsNeighbors: NeighborsRaport[] = props.map((p) => {
-      return HELPERS.getNeighbors([...fields], p.pos);
+      return HELPERS.getFieldNeighbors([...fields], p.pos);
     });
 
     return fieldsNeighbors;

@@ -222,7 +222,7 @@ export class BoardService {
                 success = true;
                 this.addNewParticle(
                   new ParticleUnit(
-                    `randomiton-${rndIndex}`,
+                    `randomitons${rndIndex}`,
                     rndmlySelectedField.pos,
                     'black',
                     'randomitons'
@@ -384,52 +384,52 @@ export class BoardService {
     pos: FieldPos,
     color: ParticleColor = 'red'
   ) {
-    const broodId = id;
-    const dimensions = BOARD_DIMENSIONS;
-    const fallbackUnits = [
-      new ParticleUnit(
-        `${id}-0`,
-        {
-          row: pos.row,
-          column: pos.column,
-        },
-        color,
-        broodId
-      ),
-      new ParticleUnit(
-        `${id}-1`,
-        {
-          row: pos.row,
-          column: pos.column + 1,
-        },
-        color,
-        broodId
-      ),
-      new ParticleUnit(
-        `${id}-2`,
-        {
-          row: pos.row + 1,
-          column: pos.column,
-        },
-        color,
-        broodId
-      ),
-      new ParticleUnit(
-        `${id}-3`,
-        {
-          row: pos.row + 1,
-          column: pos.column + 1,
-        },
-        color,
-        broodId
-      ),
-    ];
+    // const broodId = id;
+    // const dimensions = BOARD_DIMENSIONS;
+    // const fallbackUnits = [
+    //   new ParticleUnit(
+    //     `${id}-0`,
+    //     {
+    //       row: pos.row,
+    //       column: pos.column,
+    //     },
+    //     color,
+    //     broodId
+    //   ),
+    //   new ParticleUnit(
+    //     `${id}-1`,
+    //     {
+    //       row: pos.row,
+    //       column: pos.column + 1,
+    //     },
+    //     color,
+    //     broodId
+    //   ),
+    //   new ParticleUnit(
+    //     `${id}-2`,
+    //     {
+    //       row: pos.row + 1,
+    //       column: pos.column,
+    //     },
+    //     color,
+    //     broodId
+    //   ),
+    //   new ParticleUnit(
+    //     `${id}-3`,
+    //     {
+    //       row: pos.row + 1,
+    //       column: pos.column + 1,
+    //     },
+    //     color,
+    //     broodId
+    //   ),
+    // ];
 
-    const units = fallbackUnits.filter((u) =>
-      HELPERS.isInBoundries(dimensions, u.pos)
-    );
-    const brood = new Brood(broodId, units, color);
-
+    // const units = fallbackUnits.filter((u) =>
+    //   HELPERS.isFieldInBoardBoundries(dimensions, u.pos)
+    // );
+    // const brood = new Brood(broodId, units, color);
+    const brood = HELPERS.getPreparedBroodBase(pos, id, color);
     this.addBroodToList(brood);
   }
 
@@ -439,10 +439,6 @@ export class BoardService {
 
   getAllFields$() {
     return this.store.select(selectBoardFields);
-  }
-
-  getInitialBoard(boardDimensions): FieldReference[][] {
-    return HELPERS.getInitialBoard(boardDimensions);
   }
 
   getInitialFields(boardDimensions): BoardFields {
