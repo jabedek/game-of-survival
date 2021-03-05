@@ -101,15 +101,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.initBoardWithStylings();
     this.observeMouseMove();
-
-    // this.subscription.add(
-    //   this.store.select(selectBuilderMode).subscribe((data) => {
-    //     if (data === true) {
-    //     } else {
-    //       this.destroy.next();
-    //     }
-    //   })
-    // );
   }
 
   ngOnDestroy(): void {
@@ -184,12 +175,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
       y >= rect.top &&
       y <= rect.bottom
     ) {
-      // console.log(
-      //   rect,
-      //   x,
-      //   y,
-      //   x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
-      // );
     }
     return (
       x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
@@ -197,13 +182,9 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onMouseUp(event) {
-    console.log('onMouseUp');
-
     this.sub.unsubscribe();
     let startPos: FieldPos = null;
     let endPos: FieldPos = null;
-
-    // console.log(this.dragStart, this.posStart);
 
     if (this.dragStart && this.posStart) {
       [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
@@ -267,8 +248,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onMouseDown(event) {
-    console.log('onMouseDown', event);
-
     let startPos = null;
 
     [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
@@ -288,11 +267,14 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
             .select(selectFieldNeighbors, startPos)
             .pipe(take(1))
             .subscribe((data) => {
-              const fields = data.accessibleToMove.map((a) => a.field);
-              this.accessibleNeighbors = fields;
+              this.accessibleNeighbors = data.accessibleToMove.map(
+                (a) => a.field
+              );
               if (this.fields[startPos.row][startPos.column]?.occupyingUnit) {
                 this.store.dispatch(
-                  setFieldsHighlightTrue({ fieldsToHighLight: fields })
+                  setFieldsHighlightTrue({
+                    fieldsToHighLight: this.accessibleNeighbors,
+                  })
                 );
               }
             });
