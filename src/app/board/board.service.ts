@@ -304,6 +304,7 @@ export class BoardService {
       color: null,
       id: null,
       state: null,
+      type: null,
     });
     this.setFieldEmpty(pos);
   }

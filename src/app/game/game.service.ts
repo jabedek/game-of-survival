@@ -95,68 +95,43 @@ export class GameService {
 
               // 2. prepare Update and filter particles based on their neighbors amount
               neighbors.forEach((n, i) => {
-                switch (n.particles.length) {
-                  case 0: {
-                    let willSpawn = this.willSpawn(data, n, 1, true);
-                    if (willSpawn) {
-                      // const unit = this.getMultipliedMember(
-                      //   n,
-                      //   n.centerField?.occupyingUnit?.groupId
-                      // );
-                      // if (unit) {
-                      //   unitsToAdd.push(unit);
-                      // }
-                      unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
-                    }
-                    break;
-                  }
-                  case 1: {
-                    let willSpawn = this.willSpawn(data, n, 10);
-                    // let added = false;
+                const unitType = n.centerField.occupyingUnit?.type;
 
-                    if (willSpawn) {
-                      unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
-
-                      // while (!added) {
-                      //   const unit = this.getMultipliedMember(
-                      //     n,
-                      //     n.centerField?.occupyingUnit?.groupId
-                      //   );
-                      //   if (unit) {
-                      //     const posAlreadyTaken: boolean = unitsToAdd.find(
-                      //       (u) =>
-                      //         u.row === unit.pos.row &&
-                      //         u.column === unit.pos.row
-                      //     );
-
-                      //     if (!posAlreadyTaken) {
-                      //       unitsToAdd.push(unit);
-                      //       added = true;
-                      //     }
-                      //   }
-                      // }
+                if (!unitType || unitType !== 'void') {
+                  switch (n.particles.length) {
+                    // SECTION: REPRO
+                    case 0: {
+                      let willSpawn = this.willSpawn(data, n, 1, true);
+                      if (willSpawn) {
+                        unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
+                      }
+                      break;
                     }
-                    break;
-                  }
-                  case 2: {
-                    let willSpawn = this.willSpawn(data, n, -2);
-                    if (willSpawn) {
-                      // const unit = this.getMultipliedMember(n);
-                      // if (unit) {
-                      //   unitsToAdd.push(unit);
-                      // }
-                      unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
+                    case 1: {
+                      let willSpawn = this.willSpawn(data, n, 10);
+
+                      if (willSpawn) {
+                        unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
+                      }
+                      break;
                     }
-                    break;
-                  }
-                  case 3:
-                  case 4: {
-                    unitsToDel.push(n.centerField.pos);
-                    break;
-                  }
-                  default: {
-                    unitsToDel.push(n.centerField.pos);
-                    break;
+                    case 2: {
+                      let willSpawn = this.willSpawn(data, n, -2);
+                      if (willSpawn) {
+                        unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
+                      }
+                      break;
+                    }
+                    // SECTION: DYING
+                    case 3:
+                    case 4: {
+                      unitsToDel.push(n.centerField.pos);
+                      break;
+                    }
+                    default: {
+                      unitsToDel.push(n.centerField.pos);
+                      break;
+                    }
                   }
                 }
 
@@ -169,7 +144,8 @@ export class GameService {
                 }
 
                 /**
-                 * In general the more particles are on board the more voids will spawn.
+                 * Void particles appear randomly and can't multiply or die due to neighbors presence.
+                 * In general the more particles are on board the more often voids will spawn.
                  */
                 const voidSpawn = getRandom(800) === 1;
 
@@ -232,11 +208,13 @@ export class GameService {
     let color = (field?.occupyingUnit as ParticleUnit)?.color || 'blue';
     color = voidParticle ? 'black' : color;
 
+    let type: 'void' | 'regular' = voidParticle ? 'void' : 'regular';
+
     if (n.accessible.length > 0) {
       const pos = n.accessible[getRandom(n.accessible.length - 1)].field.pos;
       // console.log(new ParticleUnit(id, pos, color, groupId, null));
 
-      return new ParticleUnit(id, pos, color, groupId, null);
+      return new ParticleUnit(id, pos, color, groupId, null, type);
     }
 
     return null;

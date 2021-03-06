@@ -16,13 +16,21 @@ export interface Unit {
   id: string; // ordinal number, like 'protons444-0'
   groupId: string; // alpha-numeric name-like like 'protons444'
   pos: FieldPos;
+
+  type: 'void' | 'regular';
 }
 
 export class Unit implements Unit {
-  constructor(id: string, groupId: string, pos: FieldPos) {
+  constructor(
+    id: string,
+    groupId: string,
+    pos: FieldPos,
+    type?: 'void' | 'regular'
+  ) {
     this.id = id;
     this.groupId = groupId || null;
     this.pos = pos;
+    this.type = type;
   }
 }
 
@@ -40,13 +48,15 @@ export class ParticleUnit implements ParticleUnit {
     pos: FieldPos,
     color: ParticleColor,
     groupId?: string,
-    state?: ParticleState
+    state?: ParticleState,
+    type?: 'void' | 'regular'
   ) {
     this.id = id;
     this.groupId = groupId || null;
     this.pos = pos;
     this.color = color;
     this.state = state;
+    this.type = type;
   }
 }
 
