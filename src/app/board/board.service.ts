@@ -268,7 +268,7 @@ export class BoardService {
   }
 
   private setFieldParticle(unit: ParticleUnit) {
-    console.log(unit);
+    // console.log(unit);
 
     this.store.dispatch(setFieldParticle({ unit }));
   }
@@ -289,7 +289,7 @@ export class BoardService {
     // if (!!unit.groupId && unit.groupId.length > 0) {
     //   this.setParticleBroodBelonging(unit, unit.groupId);
     // }
-    console.log(unit);
+    // console.log(unit);
     this.updateParticlesOnBoard('add', unit);
   };
 
@@ -363,7 +363,7 @@ export class BoardService {
 
     // 2. Update particle's internal groupId
     const updatedUnit = { ...unit, groupId };
-    console.log(updatedUnit);
+    // console.log(updatedUnit);
 
     // 3. Update brood units
     this.swapBroodMemberOnPos(updatedUnit);

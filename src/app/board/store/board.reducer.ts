@@ -40,7 +40,7 @@ const authReducer = createReducer(
   }),
 
   on(actions.boardActions.addParticleToList, (state, { unit }) => {
-    console.log(Array.from(new Set([...state.particlesList, unit])));
+    // console.log(Array.from(new Set([...state.particlesList, unit])));
 
     const broodsList = [...state.broodsList].map((b) => {
       if (b.id === unit.groupId) {
@@ -138,7 +138,7 @@ const authReducer = createReducer(
 
       const units = brood.units.map((u) => {
         if (u.pos.row === pos.row && u.pos.column === pos.column) {
-          console.log('pos');
+          // console.log('pos');
 
           const unit = {
             ...u,
@@ -153,7 +153,7 @@ const authReducer = createReducer(
       //  brood.units = brood.units.filter(
       //    (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
       //  );
-      console.log(units);
+      // console.log(units);
       brood.units = units;
       // brood.units = units;
       return brood;
@@ -338,11 +338,11 @@ const authReducer = createReducer(
     });
 
     // console.log("brood:",brood);
-    console.log(broodsList);
+    // console.log(broodsList);
 
     broodsList = broodsList.filter((b) => b.units.length !== 0);
-    console.log(broodsList);
-
+    // console.log(broodsList);
+    //
     return { ...state, broodsList };
   }),
 

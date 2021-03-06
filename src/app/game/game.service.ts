@@ -99,37 +99,53 @@ export class GameService {
                   case 0: {
                     let willSpawn = this.willSpawn(data, n, 1, true);
                     if (willSpawn) {
-                      const unit = this.getMultipliedMember(
-                        n,
-                        n.centerField?.occupyingUnit?.groupId
-                      );
-                      if (unit) {
-                        unitsToAdd.push(unit);
-                      }
+                      // const unit = this.getMultipliedMember(
+                      //   n,
+                      //   n.centerField?.occupyingUnit?.groupId
+                      // );
+                      // if (unit) {
+                      //   unitsToAdd.push(unit);
+                      // }
+                      unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
                     }
                     break;
                   }
                   case 1: {
-                    let willSpawn = this.willSpawn(data, n, 30);
+                    let willSpawn = this.willSpawn(data, n, 10);
+                    // let added = false;
 
                     if (willSpawn) {
-                      const unit = this.getMultipliedMember(
-                        n,
-                        n.centerField?.occupyingUnit?.groupId
-                      );
-                      if (unit) {
-                        unitsToAdd.push(unit);
-                      }
+                      unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
+
+                      // while (!added) {
+                      //   const unit = this.getMultipliedMember(
+                      //     n,
+                      //     n.centerField?.occupyingUnit?.groupId
+                      //   );
+                      //   if (unit) {
+                      //     const posAlreadyTaken: boolean = unitsToAdd.find(
+                      //       (u) =>
+                      //         u.row === unit.pos.row &&
+                      //         u.column === unit.pos.row
+                      //     );
+
+                      //     if (!posAlreadyTaken) {
+                      //       unitsToAdd.push(unit);
+                      //       added = true;
+                      //     }
+                      //   }
+                      // }
                     }
                     break;
                   }
                   case 2: {
                     let willSpawn = this.willSpawn(data, n, -2);
                     if (willSpawn) {
-                      const unit = this.getMultipliedMember(n);
-                      if (unit) {
-                        unitsToAdd.push(unit);
-                      }
+                      // const unit = this.getMultipliedMember(n);
+                      // if (unit) {
+                      //   unitsToAdd.push(unit);
+                      // }
+                      unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
                     }
                     break;
                   }
@@ -152,9 +168,12 @@ export class GameService {
                   });
                 }
 
-                const voidChance = getRandom(600) === 1;
+                /**
+                 * In general the more particles are on board the more voids will spawn.
+                 */
+                const voidSpawn = getRandom(800) === 1;
 
-                if (voidChance) {
+                if (voidSpawn) {
                   const voidParticle = this.getMultipliedMember(n, null, true);
                   unitsToAdd.push(voidParticle);
                 }
@@ -175,13 +194,34 @@ export class GameService {
     return;
   }
 
+  private updateUnitsToAdd(n, unitsToAdd) {
+    let added = false;
+    let unit = null;
+
+    while (!added) {
+      unit = this.getMultipliedMember(n, n.centerField?.occupyingUnit?.groupId);
+      if (unit) {
+        const posAlreadyTaken: boolean = unitsToAdd.find(
+          (u) => u.row === unit.pos.row && u.column === unit.pos.row
+        );
+
+        if (!posAlreadyTaken) {
+          unitsToAdd.push(unit);
+          added = true;
+        }
+      }
+    }
+
+    return unitsToAdd;
+  }
+
   private getMultipliedMember(
     n: NeighborsRaport,
     forcedGroupId?: string,
     voidParticle?: boolean
   ): ParticleUnit {
     const field = n.centerField;
-    console.log('groupId', forcedGroupId);
+    // console.log('groupId', forcedGroupId);
 
     let groupId = forcedGroupId || field?.occupyingUnit?.groupId;
     groupId = voidParticle ? null : groupId;
@@ -194,7 +234,7 @@ export class GameService {
 
     if (n.accessible.length > 0) {
       const pos = n.accessible[getRandom(n.accessible.length - 1)].field.pos;
-      console.log(new ParticleUnit(id, pos, color, groupId, null));
+      // console.log(new ParticleUnit(id, pos, color, groupId, null));
 
       return new ParticleUnit(id, pos, color, groupId, null);
     }
@@ -225,9 +265,7 @@ export class GameService {
   }
 
   updateBoard(update: TurnUpdate): void {
-    console.log('update', update);
-
-    // console.log(update);
+    console.log('update', !!update);
 
     if (update) {
       update.unitsToDel.forEach((u) => {
@@ -237,7 +275,6 @@ export class GameService {
       update.unitsToAdd.forEach((u) => {
         this.boardService.addNewParticle(u);
       });
-      // this.store.dispatch(setTurnDone());
     }
 
     this.store.dispatch(countTurn());
