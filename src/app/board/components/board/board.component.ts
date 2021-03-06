@@ -164,7 +164,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
       moveOnDrag$
         .pipe(takeUntil(this.destroy))
-        .subscribe((event) => this.ngZone.run(() => this.moveParticle(event)));
+        .subscribe((event) => this.ngZone.run(() => this.onDrag(event)));
     });
   }
 
@@ -221,9 +221,11 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
              * Without this condition we can move Particles any way we want.
              */
             if (existingAndCorrect) {
-              this.store.dispatch(
-                moveParticleFromTo({ pos: startPos, newPos: endPos })
-              );
+              // this.store.dispatch(
+              //   moveParticleFromTo({ pos: startPos, newPos: endPos })
+
+              // );
+              this.boardService.moveParticle(startPos, endPos);
             }
           }
         }
@@ -272,7 +274,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  moveParticle(event) {
+  onDrag(event) {
     // console.log(event);
   }
 

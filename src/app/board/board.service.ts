@@ -28,6 +28,7 @@ import {
   clearParticlesList,
   deleteParticleFromList,
   loadBoardFields,
+  moveParticleFromTo,
 } from './store/actions/board.actions';
 import { BOARD_DIMENSIONS } from './board.constants';
 import {
@@ -267,6 +268,8 @@ export class BoardService {
   }
 
   private setFieldParticle(unit: ParticleUnit) {
+    console.log(unit);
+
     this.store.dispatch(setFieldParticle({ unit }));
   }
 
@@ -282,11 +285,12 @@ export class BoardService {
   addNewParticle = (unit: ParticleUnit) => {
     this.setFieldEmpty(unit.pos);
     this.setFieldParticle(unit);
-    this.updateParticlesOnBoard('add', unit);
 
-    if (!!unit.groupId && unit.groupId.length > 0) {
-      this.setParticleBroodBelonging(unit, unit.groupId);
-    }
+    // if (!!unit.groupId && unit.groupId.length > 0) {
+    //   this.setParticleBroodBelonging(unit, unit.groupId);
+    // }
+    console.log(unit);
+    this.updateParticlesOnBoard('add', unit);
   };
 
   /**
@@ -319,6 +323,10 @@ export class BoardService {
     });
 
     this.store.dispatch(addBroodToList({ brood }));
+  }
+
+  moveParticle(pos: FieldPos, newPos: FieldPos) {
+    this.store.dispatch(moveParticleFromTo({ pos, newPos }));
   }
 
   /**
@@ -355,6 +363,7 @@ export class BoardService {
 
     // 2. Update particle's internal groupId
     const updatedUnit = { ...unit, groupId };
+    console.log(updatedUnit);
 
     // 3. Update brood units
     this.swapBroodMemberOnPos(updatedUnit);

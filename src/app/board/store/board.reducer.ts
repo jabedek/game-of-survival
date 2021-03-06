@@ -2,7 +2,12 @@ import { Action, createReducer, on } from '@ngrx/store';
 
 import * as actions from './actions';
 import { Field } from './../types/field.types';
-import { BoardState, Brood, BoardFields } from './../types/board.types';
+import {
+  BoardState,
+  Brood,
+  BoardFields,
+  ParticleUnit,
+} from './../types/board.types';
 
 export const featureKey = 'board';
 
@@ -35,9 +40,22 @@ const authReducer = createReducer(
   }),
 
   on(actions.boardActions.addParticleToList, (state, { unit }) => {
+    console.log(Array.from(new Set([...state.particlesList, unit])));
+
+    const broodsList = [...state.broodsList].map((b) => {
+      if (b.id === unit.groupId) {
+        // b =
+        let brood = Object.assign({}, b);
+        brood.units = [...brood.units, unit];
+        b = brood;
+      }
+      return b;
+    });
+
     return {
       ...state,
       particlesList: Array.from(new Set([...state.particlesList, unit])),
+      broodsList,
     };
   }),
 
@@ -115,9 +133,38 @@ const authReducer = createReducer(
       });
     });
 
+    let broodsList = [...state.broodsList].map((b) => {
+      let brood: Brood = Object.assign({}, b);
+
+      const units = brood.units.map((u) => {
+        if (u.pos.row === pos.row && u.pos.column === pos.column) {
+          console.log('pos');
+
+          const unit = {
+            ...u,
+            pos: { row: newPos.row, column: newPos.column },
+          };
+          u = unit;
+          // console.log(u);
+        }
+        return u;
+      });
+
+      //  brood.units = brood.units.filter(
+      //    (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
+      //  );
+      console.log(units);
+      brood.units = units;
+      // brood.units = units;
+      return brood;
+    });
+
+    // console.log(broodsList);
+
     return {
       ...state,
       fields,
+      broodsList,
     };
   }),
 
@@ -158,11 +205,11 @@ const authReducer = createReducer(
           ...fields[row][column],
           highlightAccessibility: true,
         };
-        console.log(field);
+        // console.log(field);
 
         fields[row][column] = field;
       });
-      console.log(fieldsToHighLight);
+      // console.log(fieldsToHighLight);
 
       return {
         ...state,
@@ -286,10 +333,15 @@ const authReducer = createReducer(
         (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
       );
 
+      // console.log(brood);
       return brood;
     });
 
+    // console.log("brood:",brood);
+    console.log(broodsList);
+
     broodsList = broodsList.filter((b) => b.units.length !== 0);
+    console.log(broodsList);
 
     return { ...state, broodsList };
   }),
@@ -323,10 +375,17 @@ const authReducer = createReducer(
   }),
 
   on(actions.broodActions.swapBroodMemberOnPos, (state, { unit }) => {
+    // console.log(unit);
+
     const broodsList = [...state.broodsList].map((b) => {
-      b.units.forEach((u) => {
-        if (u.pos === unit.pos) {
+      const brood: Brood = Object.assign({}, b);
+
+      brood.units.forEach((u) => {
+        // console.log(u);
+
+        if (u.pos.row === unit.pos.row && u.pos.column === unit.pos.column) {
           u = unit;
+          // console.log(u);
         }
       });
 

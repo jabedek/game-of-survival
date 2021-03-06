@@ -97,8 +97,8 @@ export class GameService {
               neighbors.forEach((n, i) => {
                 switch (n.particles.length) {
                   case 0: {
-                    let willMultiply = this.willMultiply(data, n, 1, true);
-                    if (willMultiply) {
+                    let willSpawn = this.willSpawn(data, n, 1, true);
+                    if (willSpawn) {
                       const unit = this.getMultipliedMember(
                         n,
                         n.centerField?.occupyingUnit?.groupId
@@ -110,9 +110,9 @@ export class GameService {
                     break;
                   }
                   case 1: {
-                    let willMultiply = this.willMultiply(data, n, 1);
+                    let willSpawn = this.willSpawn(data, n, 30);
 
-                    if (willMultiply) {
+                    if (willSpawn) {
                       const unit = this.getMultipliedMember(
                         n,
                         n.centerField?.occupyingUnit?.groupId
@@ -124,8 +124,8 @@ export class GameService {
                     break;
                   }
                   case 2: {
-                    let willMultiply = this.willMultiply(data, n, -2);
-                    if (willMultiply) {
+                    let willSpawn = this.willSpawn(data, n, -2);
+                    if (willSpawn) {
                       const unit = this.getMultipliedMember(n);
                       if (unit) {
                         unitsToAdd.push(unit);
@@ -170,7 +170,7 @@ export class GameService {
       .unsubscribe();
 
     // 3. update board
-    this.update(update);
+    this.updateBoard(update);
 
     return;
   }
@@ -181,6 +181,7 @@ export class GameService {
     voidParticle?: boolean
   ): ParticleUnit {
     const field = n.centerField;
+    console.log('groupId', forcedGroupId);
 
     let groupId = forcedGroupId || field?.occupyingUnit?.groupId;
     groupId = voidParticle ? null : groupId;
@@ -193,6 +194,7 @@ export class GameService {
 
     if (n.accessible.length > 0) {
       const pos = n.accessible[getRandom(n.accessible.length - 1)].field.pos;
+      console.log(new ParticleUnit(id, pos, color, groupId, null));
 
       return new ParticleUnit(id, pos, color, groupId, null);
     }
@@ -200,7 +202,7 @@ export class GameService {
     return null;
   }
 
-  private willMultiply(data, n, bonus = 0, noNeighbors?: boolean): boolean {
+  private willSpawn(data, n, bonus = 0, noNeighbors?: boolean): boolean {
     const brood = data.broodsList.find((b) =>
       b.units.find((u) => u.pos === n.centerPos)
     );
@@ -216,12 +218,15 @@ export class GameService {
     for (let i = 0; i < probArray.length; i++) {
       probArray[i] = i < probability + bonus ? true : false;
     }
-
     const randomOutcome = probArray[getRandom(100)];
+    // console.log(data, n, bonus, randomOutcome);
+
     return randomOutcome;
   }
 
-  update(update: TurnUpdate): void {
+  updateBoard(update: TurnUpdate): void {
+    console.log('update', update);
+
     // console.log(update);
 
     if (update) {
@@ -234,10 +239,9 @@ export class GameService {
       });
       // this.store.dispatch(setTurnDone());
     }
+
     this.store.dispatch(countTurn());
-
     this.store.dispatch(loadChangesAfterTurn({ update }));
-
     this.store.dispatch(setTurnPhase({ phase: 'all done' }));
   }
 }
