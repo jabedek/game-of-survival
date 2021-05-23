@@ -9,8 +9,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PanelComponent } from './components/panel/panel.component';
 import { BoardComponent } from './components/board/board.component';
 import { BoardRoutingModule } from './board-routing.module';
+import { ShowPositionDirective } from './directives/show-position.directive';
+import { BoxComponent } from './box/box.component';
 
-const components = [PanelComponent, BoardComponent];
+const components = [
+  PanelComponent,
+  BoardComponent,
+  ShowPositionDirective,
+  BoxComponent,
+];
 @NgModule({
   declarations: components,
   imports: [

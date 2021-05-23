@@ -9,7 +9,7 @@
       #fieldsTemplates
       class="field-container accessible-border"
       [style.width.px]="fieldSize"
-      *ngFor="let item of row; let colPos = index; trackBy: trackByFn"
+      *ngFor="let field of row; let colPos = index; trackBy: trackByFn"
       [style.height.px]="fieldSize"
       (contextmenu)="addBroodOnContextmenu($event)"
     >
@@ -17,26 +17,33 @@
         class="field"
         name="{{ rowPos }}-{{ colPos }}"
         key="{{ rowPos }}-{{ colPos }}"
-        [class.accessible-border]="item?.highlightAccessibility"
+        [class.accessible-border]="field?.highlightAccessibility"
       >
-        <div class="field__content" *ngIf="item?.blocked">
-          <ng-container
-            *ngIf="item?.occupyingUnit"
-            [ngTemplateOutlet]="particleUnit"
-            [ngTemplateOutletContext]="{
-              $implicit: item.pos,
-              color: item?.occupyingUnit.color
-            }"
-          >
-          </ng-container>
-
-          <ng-container
-            *ngIf="!item?.occupyingUnit"
-            [ngTemplateOutlet]="obsticleUnit"
-            [ngTemplateOutletContext]="{
-              $implicit: item.pos
-            }"
-          >
+        <div class="field__content" *ngIf="field">
+          <ng-container [ngSwitch]="field.mode">
+            <ng-container
+              *ngSwitchCase="'particle'"
+              [ngTemplateOutlet]="particleUnit"
+              [ngTemplateOutletContext]="{
+                $implicit: field.pos,
+                color: field?.occupyingUnit.color
+              }"
+            ></ng-container>
+            <ng-container
+              *ngSwitchCase="'obsticle'"
+              [ngTemplateOutlet]="obsticleUnit"
+              [ngTemplateOutletContext]="{
+                $implicit: field.pos
+              }"
+            ></ng-container>
+            <ng-container
+              *ngSwitchCase="'other'"
+              [ngTemplateOutlet]="otherUnit"
+              [ngTemplateOutletContext]="{
+                $implicit: field
+              }"
+            ></ng-container>
+            <ng-container *ngSwitchCase="'empty'"></ng-container>
           </ng-container>
         </div>
       </div>
@@ -60,6 +67,14 @@
   <div class="obsticle" [style.width.px]="CSSsize" [style.height.px]="CSSsize">
     <div *ngIf="true && pos" class="field__pos">
       {{ pos.row }} x {{ pos.column }}
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #otherUnit let-item>
+  <div class="box" [style.width.px]="CSSsize" [style.height.px]="CSSsize">
+    <div *ngIf="true && item.pos" class="field__pos box__content">
+      {{ item.pos.row }} x {{ item.pos.column }}
     </div>
   </div>
 </ng-template>

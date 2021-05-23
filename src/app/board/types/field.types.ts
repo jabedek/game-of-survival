@@ -2,7 +2,8 @@ import { NeighborsRaport, Unit } from './board.types';
 
 // *** Fields
 export type FieldReference = string;
-export type FieldMode = 0 | 1 | 2; // 0 - empty, 1 - obsticle, 2 - particle
+// export type FieldMode =  0 | 1 | 2 | 3; // 0 - empty, 1 - obsticle, 2 - particle, NEW: 3 - other like box
+export type FieldMode = 'obsticle' | 'particle' | 'other' | 'empty';
 export interface FieldPos {
   column: number;
   row: number;

@@ -32,6 +32,7 @@ import {
 } from './store/actions/board.actions';
 import { BOARD_DIMENSIONS } from './board.constants';
 import {
+  setFieldBox,
   setFieldEmpty,
   setFieldObsticle,
   setFieldParticle,
@@ -258,6 +259,10 @@ export class BoardService {
    */
   setFieldObsticle(pos: FieldPos) {
     this.store.dispatch(setFieldObsticle({ pos }));
+  }
+
+  setFieldBox(pos: FieldPos) {
+    this.store.dispatch(setFieldBox({ pos }));
   }
 
   /**

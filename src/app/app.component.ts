@@ -39,7 +39,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   validBroodSpaces: ValidPotentialBroodSpace[] = null;
   subscription: Subscription = new Subscription();
   mockTurnSub: Subscription = null;
-
   turnCounter = 0;
 
   constructor(

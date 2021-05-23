@@ -4,7 +4,7 @@ export const BASE_CHANCES_TO_PARTICLE_MULTIPLY_WITH_NEIGHBORS = 5;
 export const RANDOM_ADDITIONAL_LIMIT = 5;
 
 // ### BOARD ###
-export const BOARD_DIMENSIONS = 16; // do 15-16 działa bez straty płynności, głównie przy togglowaniu borderów
+export const BOARD_DIMENSIONS = 20; // do 15 działa bez straty płynności, głównie przy togglowaniu borderów
 
 // ### FIELD ###
 export const FIELD_DISPLAY_INFO = false;

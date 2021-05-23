@@ -23,7 +23,7 @@ export function getInitialFields(boardDimensions: number): BoardFields {
       const field: Field = {
         pos: { row, column },
         blocked: false,
-        mode: 0,
+        mode: 'empty',
         occupyingUnit: null,
         highlightAccessibility: false,
         neighbors: null,

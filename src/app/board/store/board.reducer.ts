@@ -110,16 +110,18 @@ const authReducer = createReducer(
   on(actions.boardActions.moveParticleFromTo, (state, { pos, newPos }) => {
     const unit = { ...state.fields[pos.row][pos.column]?.occupyingUnit };
 
-    const field = {
+    const field: Field = {
       ...state.fields[pos.row][pos.column],
       occupyingUnit: null,
       blocked: false,
+      mode: 'empty',
     };
 
-    const newField = {
+    const newField: Field = {
       ...state.fields[newPos.row][newPos.column],
       occupyingUnit: unit,
       blocked: true,
+      mode: 'particle',
     };
 
     const fields = [...state.fields].map((row: Field[]) => {
@@ -178,7 +180,7 @@ const authReducer = createReducer(
             ...state.fields[pos.row][pos.column],
             blocked: true,
             occupyingUnit: unit,
-            mode: 2,
+            mode: 'particle',
           };
         }
         return field;
@@ -240,7 +242,27 @@ const authReducer = createReducer(
           field = {
             ...state.fields[pos.row][pos.column],
             blocked: true,
-            mode: 1,
+            mode: 'obsticle',
+          };
+        }
+        return field;
+      })
+    );
+
+    return {
+      ...state,
+      fields,
+    };
+  }),
+
+  on(actions.fieldActions.setFieldBox, (state, { pos }) => {
+    const fields: BoardFields = [...state.fields].map((data: Field[]) =>
+      data.map((field: Field) => {
+        if (field.pos.column === pos.column && field.pos.row === pos.row) {
+          field = {
+            ...state.fields[pos.row][pos.column],
+            blocked: true,
+            mode: 'other',
           };
         }
         return field;
@@ -271,7 +293,7 @@ const authReducer = createReducer(
         ...previousField,
         blocked: false,
         occupyingUnit: null,
-        mode: 0,
+        mode: 'empty',
       };
 
       const fields: BoardFields = [...state.fields].map((data: Field[]) =>

@@ -21,6 +21,7 @@
     "@angular/router": "~10.1.6",
     "@ngrx/store": "^10.0.1",
     "@ngrx/store-devtools": "^11.0.1",
+    "fastdom": "^1.0.10",
     "ngrx": "0.0.1-security",
     "rxjs": "^6.6.3",
     "tslib": "^2.0.0",

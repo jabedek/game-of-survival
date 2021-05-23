@@ -210,6 +210,61 @@ $brightness-focus: 200%;
     color: rgba(255, 255, 0, 0.8);
   }
 }
+
+.box {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 100%;
+  user-select: none;
+  cursor: pointer;
+  // background: rgb(20, 198, 245);
+  // background: linear-gradient(
+  //   126deg,
+  //   rgba(20, 198, 245, 1) 0%,
+  //   rgba(67, 220, 0, 1) 64%
+  // );
+  // border: 0.12rem solid white;
+
+  &__content {
+    height: 100%;
+    border-radius: 100%;
+    background: rgb(28, 27, 28);
+    background: radial-gradient(
+      circle,
+      rgba(28, 27, 28, 1) 33%,
+      rgba(189, 75, 75, 1) 58%,
+      rgba(176, 70, 70, 1) 68%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  }
+  &:focus {
+    filter: brightness(($brightness-focus));
+  }
+
+  &--black {
+    filter: drop-shadow(0 0 0.75rem $purple);
+    background: $red;
+
+    background: rgb(0, 0, 0);
+
+    &:hover {
+      filter: drop-shadow(0 0 0.75rem $purple) brightness($brightness-hover);
+    }
+
+    &:focus {
+      filter: drop-shadow(0 0 0.75rem $red) brightness($brightness-active);
+    }
+  }
+
+  transform-style: preserve-3d;
+  transform: rotateX(0deg) rotateZ(0deg);
+}
+
 .obsticle {
   display: flex;
   flex-direction: column;

@@ -14,6 +14,8 @@ import {
   SimpleChanges,
   ViewChildren,
 } from '@angular/core';
+
+import * as fastdom from 'fastdom';
 import { Store } from '@ngrx/store';
 import { RootState } from 'src/app/root-state';
 import { UIService } from 'src/app/ui/ui.service';
@@ -30,6 +32,7 @@ import {
   withLatestFrom,
   map,
   take,
+  throwIfEmpty,
 } from 'rxjs/operators';
 import {
   moveParticleFromTo,
@@ -38,6 +41,7 @@ import {
 
 import {
   setAllFieldsHighlightFalse,
+  setFieldBox,
   setFieldsHighlightTrue,
 } from '../../store/actions/field.actions';
 import { getRandom } from 'src/app/shared/helpers';
@@ -87,12 +91,14 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   subscription: Subscription = new Subscription();
   accessibleNeighbors: any[] = null;
   posStart = null;
+  fieldsLoaded = false;
   constructor(
     public store: Store<RootState>,
     public boardService: BoardService,
     private uiService: UIService,
     private ngZone: NgZone,
-    private host: ElementRef
+    private host: ElementRef,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -118,8 +124,21 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.refs = [...(this.fieldsTemplates as any).toArray()];
   }
 
-  trackByFn(_, item: Field) {
+  trackByFn(index, item: Field) {
+    console.info(index, '===', this);
+
+    if (index === this.boardDimensions - 1) {
+      this.fieldsLoaded = true;
+      // this.CSS.structurings.display = 'initial';
+      this.cdr.markForCheck();
+    }
     return `${item.pos.row}${item.pos.column}`;
+  }
+
+  getDisplay() {
+    console.log(this.fieldsLoaded ? 'initial' : 'none');
+
+    return this.fieldsLoaded ? 'initial' : 'none';
   }
 
   private initBoardWithStylings() {
@@ -127,6 +146,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
       this.boardDimensions,
       this.fieldSize
     );
+    // this.CSS.structurings.display = 'none';
   }
 
   /**
@@ -134,37 +154,41 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   private observeMouseMove() {
     this.ngZone.runOutsideAngular(() => {
-      const mousemove$ = fromEvent<MouseEvent>(window, 'mousemove');
+      fastdom.measure(() => {
+        const mousemove$ = fromEvent<MouseEvent>(window, 'mousemove');
 
-      const mouseup$ = fromEvent<MouseEvent>(window, 'mouseup').pipe(
-        tap((event) => this.onMouseUp(event)),
-        share()
-      );
+        const mouseup$ = fromEvent<MouseEvent>(window, 'mouseup').pipe(
+          tap((event) => this.onMouseUp(event)),
+          share()
+        );
 
-      const mousedown$ = fromEvent<MouseEvent>(window, 'mousedown').pipe(
-        filter((event) => event.button === 0),
-        tap((event) => this.onMouseDown(event)),
-        share()
-      );
+        const mousedown$ = fromEvent<MouseEvent>(window, 'mousedown').pipe(
+          filter((event) => event.button === 0),
+          tap((event) => this.onMouseDown(event)),
+          share()
+        );
 
-      const dragging$ = mousedown$.pipe(
-        filter(() => Boolean(true)),
-        switchMap(() => mousemove$.pipe(takeUntil(mouseup$))),
-        share()
-      );
+        const dragging$ = mousedown$.pipe(
+          filter(() => Boolean(true)),
+          switchMap(() => mousemove$.pipe(takeUntil(mouseup$))),
+          share()
+        );
 
-      const moveOnDrag$ = dragging$.pipe(
-        auditTime(AUDIT_TIME),
-        withLatestFrom(mousemove$, (selectBox, event: MouseEvent) => ({
-          selectBox,
-          event,
-        })),
-        map(({ event }) => event)
-      );
+        const moveOnDrag$ = dragging$.pipe(
+          auditTime(AUDIT_TIME),
+          withLatestFrom(mousemove$, (selectBox, event: MouseEvent) => ({
+            selectBox,
+            event,
+          })),
+          map(({ event }) => event)
+        );
 
-      moveOnDrag$
-        .pipe(takeUntil(this.destroy))
-        .subscribe((event) => this.ngZone.run(() => this.onDrag(event)));
+        fastdom.mutate(() => {
+          moveOnDrag$
+            .pipe(takeUntil(this.destroy))
+            .subscribe((event) => this.ngZone.run(() => this.onDrag(event)));
+        });
+      });
     });
   }
 
@@ -197,8 +221,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       });
 
-      // console.log(startPos, endPos);
-
       if (startPos && endPos) {
         if (startPos.row === endPos.row && startPos.column === endPos.column) {
           let field = Object.assign(
@@ -208,7 +230,10 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
           this.toggleField(field);
         } else {
-          if (this.fields[startPos.row][startPos.column]?.occupyingUnit) {
+          if (
+            this.fields[startPos.row][startPos.column]?.occupyingUnit &&
+            this.fields[startPos.row][startPos.column]?.mode !== 'other'
+          ) {
             /**
              * Particle can only move in straight lines like '+' (correct), not diagonal like 'x' (not correct).
              */
@@ -221,10 +246,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
              * Without this condition we can move Particles any way we want.
              */
             if (existingAndCorrect) {
-              // this.store.dispatch(
-              //   moveParticleFromTo({ pos: startPos, newPos: endPos })
-
-              // );
               this.boardService.moveParticle(startPos, endPos);
             }
           }
@@ -261,7 +282,10 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
               this.accessibleNeighbors = data.accessibleToMove.map(
                 (a) => a.field
               );
-              if (this.fields[startPos.row][startPos.column]?.occupyingUnit) {
+              if (
+                this.fields[startPos.row][startPos.column]?.occupyingUnit &&
+                this.fields[startPos.row][startPos.column].mode !== 'other'
+              ) {
                 this.store.dispatch(
                   setFieldsHighlightTrue({
                     fieldsToHighLight: this.accessibleNeighbors,
@@ -278,22 +302,27 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     // console.log(event);
   }
 
+  /**
+   * Determines NEXT mode change based on field's current state.
+   */
   toggleField(field) {
-    // 0 - empty, 1 - obsticle, 2 - particle
     switch (field.mode) {
-      case 0:
+      case 'empty':
         this.boardService.setFieldObsticle(field.pos);
         break;
-      case 1:
+      case 'obsticle':
         const unit: ParticleUnit = new ParticleUnit(
           `solo${getRandom(1000)}`,
           field.pos,
           'blue'
         );
         this.boardService.addNewParticle(unit);
-
         break;
-      case 2:
+      case 'particle':
+        this.boardService.setFieldBox(field.pos);
+        break;
+      case 'other':
+      default:
         this.boardService.deleteUnit(field.pos);
         break;
     }

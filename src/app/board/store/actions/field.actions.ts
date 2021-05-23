@@ -12,6 +12,11 @@ export const setFieldObsticle = createAction(
   props<{ pos: FieldPos }>()
 );
 
+export const setFieldBox = createAction(
+  '[Board/Field] Set Box on Field ',
+  props<{ pos: FieldPos }>()
+);
+
 export const setFieldEmpty = createAction(
   '[Board/Field] Set Field empty',
   props<{ pos: FieldPos }>()
