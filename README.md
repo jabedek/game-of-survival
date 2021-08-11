@@ -5,11 +5,13 @@
 You can watch all sorts of interesting data on a right panel while everything moves. On the same panel are couple of buttons to aid simulation/building actions.
 
 Also, you can interact with field/unit by clicking on it and change it's state. List of available actions:
+
 Circular actions:
 - single click on empty field will set it to unit with type 'obsticle'
 - single click on an obsticle wil set it to unit with type 'particle'
 - single click on a particle wil set it to unit with type 'other'
 - single click on other unit wil set it to empty field
+
 Other actions:
 - drag will move unit if it's moveable and field is reachable for the unit and accesible
 - right slick will spawn unit broods, with a base of 4 units and then the brood will grow 
