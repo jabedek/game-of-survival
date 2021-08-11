@@ -2,13 +2,15 @@
 **Project of a game based on 'Game of Life' with some variations and additional features like non-moving units and broods (4-units groups). Currently, this project consists of builder mode and simple simulator.** 
 
 Also you can: 
-- toggle unit types (on click), 
-- drag units (if unit is moveable and field is accesible),
-- spawn unit broods (on right click) 
+- toggle unit types (single click), 
+- delete units (double click)
+- move unit if it is moveable and field is accesible (drag),
+- spawn unit broods (right click) 
 - watch all sorts of interesting data on a right panel while everything moves**
 
 General focus in this work is on creating algorithms allowing to simulate interesting behaviors and on learning ngrx/store arch and how to optimize UI / browser responsiveness (in process).
- 
+
+Not all buttons on the panel work correctly yet.
 
 
 
