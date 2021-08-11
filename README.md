@@ -4,7 +4,7 @@
 
 You can watch all sorts of interesting data on a right panel while everything moves. On the same panel are couple of buttons to aid simulation/building actions.
 
-Also, you can interact with field/unit by clicking on it and change it's state. List of available actions:
+Also, you can interact with field/unit by clicking on it and changing it's state. List of available actions:
 
 Circular actions:
 - single click on empty field will set it to unit with type 'obsticle'
