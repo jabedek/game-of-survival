@@ -7,7 +7,7 @@ Also you can:
 - watch all sorts of interesting data on a right panel while everything moves**
 
 General focus in this work is on creating algorithms allowing to simulate interesting behaviors and on learning ngrx/store arch and how to optimize UI / browser responsiveness (in process).**
-
+ 
 
 
 
