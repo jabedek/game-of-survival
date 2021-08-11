@@ -1,4 +1,5 @@
 # GameOfSurvival
+################################
 **Project of a game based on 'Game of Life' with some variations and additional features like non-moving units and broods (4-units groups). Currently, this project consists of builder mode and simple simulator.** 
 
 Also you can: 
@@ -11,7 +12,7 @@ Also you can:
 General focus in this work is on creating algorithms allowing to simulate interesting behaviors and on learning ngrx/store arch and how to optimize UI / browser responsiveness (in process).
 
 Not all buttons on the panel work correctly yet.
-
+################################
 
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.1.7.
