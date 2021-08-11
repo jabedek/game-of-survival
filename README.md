@@ -2,12 +2,18 @@
 #
 **Project of a game based on 'Game of Life' with some variations and additional features like non-moving units and broods (4-units groups). Currently, this project consists of builder mode and simple simulator.** 
 
-Also you can: 
-- toggle unit types (single click), 
-- delete units (double click)
-- move unit if it is moveable and field is accesible (drag),
-- spawn unit broods (right click) 
-- watch all sorts of interesting data on a right panel while everything moves**
+You can watch all sorts of interesting data on a right panel while everything moves. On the same panel are couple of buttons to aid simulation/building actions.
+
+Also, you can interact with field/unit by clicking on it and change it's state. List of available actions:
+Circular actions:
+- single click on empty field will set it to unit with type 'obsticle'
+- single click on an obsticle wil set it to unit with type 'particle'
+- single click on a particle wil set it to unit with type 'other'
+- single click on other unit wil set it to empty field
+Other actions:
+- drag will move unit if it's moveable and field is reachable for the unit and accesible
+- right slick will spawn unit broods, with a base of 4 units and then the brood will grow 
+
 
 General focus in this work is on creating algorithms allowing to simulate interesting behaviors and on learning ngrx/store arch and how to optimize UI / browser responsiveness (in process).
 
