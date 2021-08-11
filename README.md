@@ -13,7 +13,7 @@ Circular actions:
 - single click on other unit wil set it to empty field
 
 Other actions:
-- drag will move unit if it's moveable and field is reachable for the unit and accesible
+- drag will move unit if it's moveable and field is reachable and accessible for the unit 
 - right slick will spawn unit broods, with a base of 4 units and then the brood will grow 
 
 
