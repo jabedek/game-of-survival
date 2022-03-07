@@ -2,22 +2,28 @@ import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { interval } from 'rxjs';
-import { selectBoardSnapshot } from './board/store/board.selectors';
+import { selectBoardSnapshot } from '@/src/app/core/state/board/board.selectors';
 
-import { BoardService } from './board/board.service';
+import { BoardService } from '@/src/app/core/services/board.service';
 import {
   Brood,
   ParticleUnit,
   ValidPotentialBroodSpace,
-} from './board/types/board.types';
-import { Field } from './board/types/field.types';
+} from '@/src/app/shared/types/board.types';
+import { Field } from '@/src/app/shared/types/field.types';
 
-import { setTurnPhase } from './game/game.actions';
-import { selectTurnIndex, selectTurnPhase } from './game/game.selectors';
-import { GameService } from './game/game.service';
-import { RootState } from './root-state';
-import { toggleUIDecorShowing, toggleUIPanelShowing } from './ui/ui.actions';
-import { selectUI } from './ui/ui.selectors';
+import { setTurnPhase } from '@/src/app/core/state/game/game.actions';
+import {
+  selectTurnIndex,
+  selectTurnPhase,
+} from '@/src/app/core/state/game/game.selectors';
+import { GameService } from './core/services/game.service';
+import { RootState } from '@/src/app/core/state/root-state';
+import {
+  toggleUIDecorShowing,
+  toggleUIPanelShowing,
+} from '@/src/app/core/state/ui/ui.actions';
+import { selectUI } from '@/src/app/core/state/ui/ui.selectors';
 
 @Component({
   selector: 'app-root',

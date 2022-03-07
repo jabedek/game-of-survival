@@ -1,40 +1,37 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { BoardModule } from './board/board.module';
 import { StoreModule } from '@ngrx/store';
-import { CommonModule } from '@angular/common';
-import { BoardRoutingModule } from './board/board-routing.module';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
-import { GameService } from './game/game.service';
-import { BoardService } from './board/board.service';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
 
-import { GameModule } from './game/game.module';
-import { UIModule } from './ui/ui.module';
+import { SharedModule } from './shared/shared.module';
+import { CoreModule } from './core/core.module';
+
+import { gameReducer as game } from '@/src/app/core/state/game/game.reducer';
+import { uiReducer as ui } from '@/src/app/core/state/ui/ui.reducer';
+import { boardReducer as board } from '@/src/app/core/state/board/board.reducer';
 
 @NgModule({
   declarations: [AppComponent],
   imports: [
     AppRoutingModule,
-    CommonModule,
-    BrowserModule,
-    BoardRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    BoardModule,
-    GameModule,
-    UIModule,
-    StoreModule.forRoot({}),
+    // CommonModule,
+    // BrowserModule,
+    // BoardRoutingModule,
+    // FormsModule,
+    // ReactiveFormsModule,
+    SharedModule,
+    CoreModule,
+    // BoardModule,
+    // GameModule,
+    // UIModule,
+    StoreModule.forRoot({ ui, board, game }),
     StoreDevtoolsModule.instrument({
       maxAge: 25,
       logOnly: environment.production,
     }),
   ],
-  providers: [GameService, BoardService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
