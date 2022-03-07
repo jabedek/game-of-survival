@@ -7,18 +7,18 @@ import {
   selectValidBroodSpaces,
 } from '@/src/app/core/state/board/board.selectors';
 
-import { BoardService } from '../../../core/services/board.service';
+import { BoardService } from '@/src/app/core/services/board.service';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state//root-state';
 import { selectUI } from '@/src/app/core/state/ui/ui.selectors';
 import { toggleUIPanelShowing } from '@/src/app/core/state/ui/ui.actions';
 import { toggleBuilderMode } from '@/src/app/core/state/board/actions/board.actions';
-import { ValidPotentialBroodSpace } from '../../../shared/types/board.types';
+import { ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
 import {
   BOARD_DIMENSIONS,
   FIELD_DISPLAY_INFO,
   FIELD_SIZE,
-} from '../../../shared/constants/board.constants';
+} from '@/src/app/shared/constants/board.constants';
 
 @Component({
   selector: 'app-panel',

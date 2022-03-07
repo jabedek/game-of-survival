@@ -45,17 +45,17 @@ import {
   NeighborsRaport,
   ParticleUnit,
   Unit,
-} from '../../../shared/types/board.types';
-import { Field, FieldPos } from '../../types/field.types';
+} from '@/src/app/shared/types/board.types';
+import { Field, FieldPos } from '@/src/app/shared/types/field.types';
 import {
   BOARD_DIMENSIONS,
   FIELD_SIZE,
-} from '../../../shared/constants/board.constants';
-import { BoardService } from '../../../core/services/board.service';
+} from '@/src/app/shared/constants/board.constants';
+import { BoardService } from '@/src/app/core/services/board.service';
 import { RootState } from '@/src/app/core/state/root-state';
 import { selectFieldNeighbors } from '@/src/app/core/state/board/board.selectors';
 // import { selectFieldNeighbors } from '../../store/board.selectors';
-import * as HELPERS from '../../../shared/helpers/board.helpers';
+import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 
 const AUDIT_TIME = 16;
 
