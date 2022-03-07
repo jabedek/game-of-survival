@@ -58,6 +58,7 @@
     <div class="particle {{ 'particle--' + color }}">
       <div *ngIf="true && pos" class="field__pos">
         {{ pos.row }} x {{ pos.column }}
+        {{ color }}
       </div>
     </div>
   </div>
@@ -72,8 +73,12 @@
 </ng-template>
 
 <ng-template #otherUnit let-item>
-  <div class="box" [style.width.px]="CSSsize" [style.height.px]="CSSsize">
-    <div *ngIf="true && item.pos" class="field__pos box__content">
+  <div
+    class="other-unit"
+    [style.width.px]="CSSsize"
+    [style.height.px]="CSSsize"
+  >
+    <div *ngIf="true && item.pos" class="field__pos other-unit__content">
       {{ item.pos.row }} x {{ item.pos.column }}
     </div>
   </div>

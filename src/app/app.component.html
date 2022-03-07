@@ -3,32 +3,33 @@
     <div class="info-list">
       <button
         [disabled]="turnButtonBlocked"
-        (click)="nextTurn()"
-        class="global-button key"
-      >
-        <p class="val">next turn</p>
-      </button>
-
-      <button
-        [disabled]="turnButtonBlocked"
         (click)="startAuto()"
         class="global-button key"
       >
-        <p class="val">start auto</p>
+        <p class="val">Restart Simulation</p>
       </button>
       <button
         [disabled]="turnButtonBlocked"
         (click)="stopAuto()"
         class="global-button key"
       >
-        <p class="val">stop auto</p>
+        <p class="val">End simulation</p>
       </button>
+
+      <button
+        [disabled]="turnButtonBlocked"
+        (click)="nextTurn()"
+        class="global-button key"
+      >
+        <p class="val">next turn manually</p>
+      </button>
+
       <button
         [disabled]="turnButtonBlocked"
         (click)="toggleDecor()"
         class="global-button key"
       >
-        <p class="val">Pokaż grafikę</p>
+        <p class="val">Toggle background artwork</p>
       </button>
     </div>
   </app-panel>

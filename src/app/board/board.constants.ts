@@ -9,8 +9,8 @@ export const BOARD_DIMENSIONS = 20; // do 15 działa bez straty płynności, gł
 // ### FIELD ###
 export const FIELD_DISPLAY_INFO = false;
 
+export const PX_MULTIPLIER = 6;
 /**
- * BOARD_FIELD_SIZE's value is passed down to Field component
- * as a number of pixels for each Field's height and width.
+ * Value passed down to Board component as a number of pixels for each Field's height and width.
  */
-export const FIELD_SIZE = 6 * 6; // 6 * x
+export const FIELD_SIZE = PX_MULTIPLIER * 5;

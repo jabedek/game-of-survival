@@ -1,0 +1,22 @@
+@import "/src/assets/styles/reusables/units";
+@import "/src/assets/styles/variables";
+
+.particle {
+  @extend %unit;
+
+  &--red {
+    @include unit-variant($red, $red, $red, $red, $red);
+  }
+
+  &--blue {
+    @include unit-variant($blue, $blue, $blue, $blue, $blue);
+  }
+
+  &--green {
+    @include unit-variant($green, $green, $green, $green, $green);
+  }
+
+  &--black {
+    @include unit-variant($red, $purple, $purple, $red, black);
+  }
+}

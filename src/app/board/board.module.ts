@@ -9,17 +9,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PanelComponent } from './components/panel/panel.component';
 import { BoardComponent } from './components/board/board.component';
 import { BoardRoutingModule } from './board-routing.module';
-import { ShowPositionDirective } from './directives/show-position.directive';
-import { BoxComponent } from './box/box.component';
 
-const components = [
-  PanelComponent,
-  BoardComponent,
-  ShowPositionDirective,
-  BoxComponent,
-];
 @NgModule({
-  declarations: components,
+  declarations: [PanelComponent, BoardComponent],
   imports: [
     CommonModule,
     BrowserModule,
@@ -32,7 +24,7 @@ const components = [
       fromBoardReducer.reducer
     ),
   ],
-  exports: components,
+  exports: [PanelComponent, BoardComponent],
   providers: [],
 })
 export class BoardModule {}

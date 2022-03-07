@@ -34,10 +34,6 @@ import {
   take,
   throwIfEmpty,
 } from 'rxjs/operators';
-import {
-  moveParticleFromTo,
-  setField,
-} from '../../store/actions/board.actions';
 
 import {
   setAllFieldsHighlightFalse,
@@ -102,8 +98,9 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.hostRect = (this.host
-      .nativeElement as Element).getBoundingClientRect();
+    this.hostRect = (
+      this.host.nativeElement as Element
+    ).getBoundingClientRect();
 
     this.initBoardWithStylings();
     this.observeMouseMove();
@@ -154,41 +151,41 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   private observeMouseMove() {
     this.ngZone.runOutsideAngular(() => {
-      fastdom.measure(() => {
-        const mousemove$ = fromEvent<MouseEvent>(window, 'mousemove');
+      // fastdom.measure(() => {
+      const mousemove$ = fromEvent<MouseEvent>(window, 'mousemove');
 
-        const mouseup$ = fromEvent<MouseEvent>(window, 'mouseup').pipe(
-          tap((event) => this.onMouseUp(event)),
-          share()
-        );
+      const mouseup$ = fromEvent<MouseEvent>(window, 'mouseup').pipe(
+        tap((event) => this.onMouseUp(event)),
+        share()
+      );
 
-        const mousedown$ = fromEvent<MouseEvent>(window, 'mousedown').pipe(
-          filter((event) => event.button === 0),
-          tap((event) => this.onMouseDown(event)),
-          share()
-        );
+      const mousedown$ = fromEvent<MouseEvent>(window, 'mousedown').pipe(
+        filter((event) => event.button === 0),
+        tap((event) => this.onMouseDown(event)),
+        share()
+      );
 
-        const dragging$ = mousedown$.pipe(
-          filter(() => Boolean(true)),
-          switchMap(() => mousemove$.pipe(takeUntil(mouseup$))),
-          share()
-        );
+      const dragging$ = mousedown$.pipe(
+        filter(() => Boolean(true)),
+        switchMap(() => mousemove$.pipe(takeUntil(mouseup$))),
+        share()
+      );
 
-        const moveOnDrag$ = dragging$.pipe(
-          auditTime(AUDIT_TIME),
-          withLatestFrom(mousemove$, (selectBox, event: MouseEvent) => ({
-            selectBox,
-            event,
-          })),
-          map(({ event }) => event)
-        );
+      const moveOnDrag$ = dragging$.pipe(
+        auditTime(AUDIT_TIME),
+        withLatestFrom(mousemove$, (selectBox, event: MouseEvent) => ({
+          selectBox,
+          event,
+        })),
+        map(({ event }) => event)
+      );
 
-        fastdom.mutate(() => {
-          moveOnDrag$
-            .pipe(takeUntil(this.destroy))
-            .subscribe((event) => this.ngZone.run(() => this.onDrag(event)));
-        });
-      });
+      // fastdom.mutate(() => {
+      moveOnDrag$
+        .pipe(takeUntil(this.destroy))
+        .subscribe((event) => this.ngZone.run(() => this.onDrag(event)));
+      //   });
+      // });
     });
   }
 
