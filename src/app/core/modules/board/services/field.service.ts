@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { FieldPos } from '@/src/app/shared/types/field.types';
-import { RootState } from '@/src/app/core/state/root-state';
+import { RootState } from '@/src/app/core/state/root-state.types';
 import { BoardModule } from '../board.module';
 
 import { setFieldObject, setFieldEmpty, setFieldObsticle, setFieldUnit } from '@/src/app/core/state/board/actions/field.actions';

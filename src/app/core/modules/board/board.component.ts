@@ -29,7 +29,7 @@ import { BoardFields, NeighborsRaport } from '@/src/app/shared/types/board.types
 import { Field, FieldPos } from '@/src/app/shared/types/field.types';
 import { BOARD_DIMENSIONS, FIELD_SIZE } from '@/src/app/shared/constants/board.constants';
 import { BoardService } from '@/src/app/core/modules/board/board.service';
-import { RootState } from '@/src/app/core/state/root-state';
+import { RootState } from '@/src/app/core/state/root-state.types';
 import { selectFieldNeighbors } from '@/src/app/core/state/board/board.selectors';
 // import { selectFieldNeighbors } from '../../store/board.selectors';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
@@ -44,12 +44,12 @@ const AUDIT_TIME = 16;
   // providers: [BoardService],
 })
 export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() boardDimensions: number = null;
-  @Input() fieldSize: number = null;
+  @Input() boardDimensions: number = undefined;
+  @Input() fieldSize: number = undefined;
   @Input() fields: BoardFields = [];
-  CSS: BoardDynamicCSS = null;
+  CSS: BoardDynamicCSS = undefined;
 
-  hostRect: DOMRect = null;
+  hostRect: DOMRect = undefined;
 
   @Output() setUnitEvent: EventEmitter<Unit> = new EventEmitter();
   @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
@@ -61,13 +61,13 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   // fieldSize = FIELD_SIZE;
   CSSsize = FIELD_SIZE * 0.8;
   sub: Subscription = new Subscription();
-  currentFieldNeighbors$: Observable<NeighborsRaport> = null;
+  currentFieldNeighbors$: Observable<NeighborsRaport> = undefined;
   // ### Functional flags
   borderObsticlesUp = false;
-  refs: ElementRef[] = null;
+  refs: ElementRef[] = undefined;
   subscription: Subscription = new Subscription();
-  accessibleNeighbors: any[] = null;
-  posStart = null;
+  accessibleNeighbors: any[] = undefined;
+  posStart = undefined;
   fieldsLoaded = false;
 
   private destroy$ = new Subject<void>();
@@ -165,8 +165,8 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onMouseUp(event) {
     this.sub.unsubscribe();
-    let startPos: FieldPos = null;
-    let endPos: FieldPos = null;
+    let startPos: FieldPos = undefined;
+    let endPos: FieldPos = undefined;
 
     if (this.dragStart && this.posStart) {
       [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
@@ -214,14 +214,14 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.store.dispatch(setAllFieldsHighlightFalse());
 
-        this.dragStart = null;
-        this.posStart = null;
+        this.dragStart = undefined;
+        this.posStart = undefined;
       }
     }
   }
 
   onMouseDown(event) {
-    let startPos = null;
+    let startPos = undefined;
 
     [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
       const rect: DOMRect = t.nativeElement.getBoundingClientRect();
@@ -267,7 +267,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   addBroodOnContextmenu(event) {
-    let startPos: FieldPos = null;
+    let startPos: FieldPos = undefined;
 
     [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
       const rect: DOMRect = t.nativeElement.getBoundingClientRect();

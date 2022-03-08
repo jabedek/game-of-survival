@@ -4,11 +4,11 @@ import { Observable } from 'rxjs';
 
 import { resetTurnCounter } from '@/src/app/core/state/game/game.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import { RootState } from '@/src/app/core/state/root-state';
+import { RootState } from '@/src/app/core/state/root-state.types';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 
 import { Field, FieldPos } from '@/src/app/shared/types/field.types';
-import { BoardFields, Brood, ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
+import { BoardFields, ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
 import { selectBoardFields, selectEmptyFields, selectValidBroodSpaces } from '@/src/app/core/state/board/board.selectors';
 import { addBroodToList, loadBoardFields } from '@/src/app/core/state/board/actions/board.actions';
 import { BOARD_DIMENSIONS } from '@/src/app/shared/constants/board.constants';
@@ -17,6 +17,7 @@ import { FieldService } from './services/field.service';
 import { UnitsService } from './services/units.service';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
 import { UnitColor } from '@/src/app/shared/types/board/unit-base.types';
+import { Brood } from '@/src/app/shared/types/board/brood.types';
 
 @Injectable({
   providedIn: 'root',
@@ -256,11 +257,11 @@ export class BoardService {
     this.unitsService.removeBroodMember(pos);
     this.unitsService.updateUnitsList('del', {
       pos,
-      broodId: null,
-      color: null,
-      id: null,
-      state: null,
-      type: null,
+      broodId: undefined,
+      color: undefined,
+      id: undefined,
+      state: undefined,
+      type: undefined,
     });
     this.fieldService.setFieldEmpty(pos);
   }

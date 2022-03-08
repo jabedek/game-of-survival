@@ -1,6 +1,6 @@
 import { Store } from '@ngrx/store';
 import { Injectable } from '@angular/core';
-import { RootState } from '@/src/app/core/state/root-state';
+import { RootState } from '@/src/app/core/state/root-state.types';
 import {
   addBroodToList,
   addUnitToList,
