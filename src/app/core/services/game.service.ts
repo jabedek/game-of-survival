@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { BoardService } from '@/src/app/core/services/board.service';
+import { BoardService } from '@/src/app/core/modules/board/board.service';
 
 import * as CONSTS from '@/src/app/shared/constants/board.constants';
 
@@ -14,24 +14,13 @@ import {
   selectParticlesAndBroods,
   selectUnitsNeighbors,
 } from '@/src/app/core/state/board/board.selectors';
-import {
-  countTurn,
-  loadChangesAfterTurn,
-  setTurnPhase,
-} from '@/src/app/core/state/game/game.actions';
+import { countTurn, loadChangesAfterTurn, setTurnPhase } from '@/src/app/core/state/game/game.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 
 import { RootState } from '@/src/app/core/state/root-state';
 import { TurnUpdate } from '@/src/app/shared/types/game.types';
 import { Field } from '@/src/app/shared/types/field.types';
-import {
-  BoardFields,
-  Brood,
-  NeighborsRaport,
-  ParticleUnit,
-  Unit,
-  ValidPotentialBroodSpace,
-} from '@/src/app/shared/types/board.types';
+import { BoardFields, Brood, NeighborsRaport, ParticleUnit, Unit, ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
 import { CoreModule } from '../core.module';
 
 @Injectable({
@@ -55,10 +44,7 @@ export class GameService {
 
   broodId = '';
 
-  constructor(
-    public store: Store<RootState>,
-    public boardService: BoardService
-  ) {}
+  constructor(public store: Store<RootState>, public boardService: BoardService) {}
 
   addNewParticleToBrood = (particle) => {
     this.addNewParticle(particle);
@@ -182,9 +168,7 @@ export class GameService {
     while (!added) {
       unit = this.getMultipliedMember(n, n.centerField?.occupyingUnit?.groupId);
       if (unit) {
-        const posAlreadyTaken: boolean = unitsToAdd.find(
-          (u) => u.row === unit.pos.row && u.column === unit.pos.row
-        );
+        const posAlreadyTaken: boolean = unitsToAdd.find((u) => u.row === unit.pos.row && u.column === unit.pos.row);
 
         if (!posAlreadyTaken) {
           unitsToAdd.push(unit);
@@ -196,11 +180,7 @@ export class GameService {
     return unitsToAdd;
   }
 
-  private getMultipliedMember(
-    n: NeighborsRaport,
-    forcedGroupId?: string,
-    voidParticle?: boolean
-  ): ParticleUnit {
+  private getMultipliedMember(n: NeighborsRaport, forcedGroupId?: string, voidParticle?: boolean): ParticleUnit {
     const field = n.centerField;
     // console.log('groupId', forcedGroupId);
 
@@ -226,15 +206,11 @@ export class GameService {
   }
 
   private willSpawn(data, n, bonus = 0, noNeighbors?: boolean): boolean {
-    const brood = data.broodsList.find((b) =>
-      b.units.find((u) => u.pos === n.centerPos)
-    );
+    const brood = data.broodsList.find((b) => b.units.find((u) => u.pos === n.centerPos));
 
     const broodStrength = brood?.units?.length || 0;
     const rnd = getRandom(CONSTS.RANDOM_ADDITIONAL_LIMIT, true);
-    const base = noNeighbors
-      ? 0
-      : CONSTS.BASE_CHANCES_TO_PARTICLE_MULTIPLY_WITH_NEIGHBORS;
+    const base = noNeighbors ? 0 : CONSTS.BASE_CHANCES_TO_PARTICLE_MULTIPLY_WITH_NEIGHBORS;
     const probability = Math.round(base + rnd + broodStrength);
 
     let probArray: boolean[] = Array.from({ length: 100 });

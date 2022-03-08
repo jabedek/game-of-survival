@@ -2,13 +2,7 @@ import { Action, createReducer, on } from '@ngrx/store';
 
 import * as actions from '@/src/app/core/state/board/actions';
 import { Field } from '@/src/app/shared/types/field.types';
-import {
-  BoardState,
-  Brood,
-  BoardFields,
-} from '@/src/app/shared/types/board.types';
-
-export const featureKey = 'board';
+import { BoardState, Brood, BoardFields } from '@/src/app/shared/types/board.types';
 
 export const initialBoardState: BoardState = {
   fields: [],
@@ -59,9 +53,7 @@ export const boardReducer = createReducer(
   }),
 
   on(actions.boardActions.deleteParticleFromList, (state, { pos }) => {
-    const particlesList = [...state.particlesList].filter(
-      (p) => !(p.pos.row === pos.row && p.pos.column === pos.column)
-    );
+    const particlesList = [...state.particlesList].filter((p) => !(p.pos.row === pos.row && p.pos.column === pos.column));
 
     return {
       ...state,
@@ -125,10 +117,8 @@ export const boardReducer = createReducer(
 
     const fields = [...state.fields].map((row: Field[]) => {
       return row.map((cell: Field) => {
-        if (cell.pos.row === pos.row && cell.pos.column === pos.column)
-          return field;
-        if (cell.pos.row === newPos.row && cell.pos.column === newPos.column)
-          return newField;
+        if (cell.pos.row === pos.row && cell.pos.column === pos.column) return field;
+        if (cell.pos.row === newPos.row && cell.pos.column === newPos.column) return newField;
 
         return cell;
       });
@@ -193,31 +183,28 @@ export const boardReducer = createReducer(
     };
   }),
 
-  on(
-    actions.fieldActions.setFieldsHighlightTrue,
-    (state, { fieldsToHighLight }) => {
-      let fields = [...state.fields].map((row: Field[]) => {
-        return row.map((f) => f);
-      });
+  on(actions.fieldActions.setFieldsHighlightTrue, (state, { fieldsToHighLight }) => {
+    let fields = [...state.fields].map((row: Field[]) => {
+      return row.map((f) => f);
+    });
 
-      fieldsToHighLight.forEach((f) => {
-        const { row, column } = f.pos;
-        const field = {
-          ...fields[row][column],
-          highlightAccessibility: true,
-        };
-        // console.log(field);
-
-        fields[row][column] = field;
-      });
-      // console.log(fieldsToHighLight);
-
-      return {
-        ...state,
-        fields,
+    fieldsToHighLight.forEach((f) => {
+      const { row, column } = f.pos;
+      const field = {
+        ...fields[row][column],
+        highlightAccessibility: true,
       };
-    }
-  ),
+      // console.log(field);
+
+      fields[row][column] = field;
+    });
+    // console.log(fieldsToHighLight);
+
+    return {
+      ...state,
+      fields,
+    };
+  }),
   on(actions.fieldActions.setAllFieldsHighlightFalse, (state) => {
     let fields = [...state.fields].map((row: Field[]) => {
       return row.map((f) => {
@@ -309,10 +296,7 @@ export const boardReducer = createReducer(
       /**
        * Check if it was particle and if was in brood then delete it from there
        */
-      if (
-        !!previousField.occupyingUnit &&
-        previousField.occupyingUnit?.groupId
-      ) {
+      if (!!previousField.occupyingUnit && previousField.occupyingUnit?.groupId) {
         const { occupyingUnit } = previousField;
 
         // brzydki syntax ale ngrx nie przepuści bez skopiowania obiektu / tablicy
@@ -325,9 +309,7 @@ export const boardReducer = createReducer(
         };
 
         if (broodToUpdate && broodToUpdate.units) {
-          broodToUpdate.units = broodToUpdate.units?.filter(
-            (u) => u.pos !== occupyingUnit.pos
-          );
+          broodToUpdate.units = broodToUpdate.units?.filter((u) => u.pos !== occupyingUnit.pos);
 
           broodsList[indexToUpdate] = broodToUpdate;
         }
@@ -350,9 +332,7 @@ export const boardReducer = createReducer(
     let broodsList = [...state.broodsList].map((b) => {
       let brood = Object.assign({}, b);
 
-      brood.units = brood.units.filter(
-        (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
-      );
+      brood.units = brood.units.filter((u) => !(u.pos.row === pos.row && u.pos.column === pos.column));
 
       // console.log(brood);
       return brood;
@@ -416,7 +396,3 @@ export const boardReducer = createReducer(
     return { ...state, broodsList };
   })
 );
-
-function reducer(state: BoardState | undefined, action: Action) {
-  return boardReducer(state, action);
-}

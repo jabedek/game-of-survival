@@ -2,23 +2,16 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { GameService } from '@/src/app/core/services/game.service';
-import {
-  selectBoardFields,
-  selectValidBroodSpaces,
-} from '@/src/app/core/state/board/board.selectors';
+import { selectBoardFields, selectValidBroodSpaces } from '@/src/app/core/state/board/board.selectors';
 
-import { BoardService } from '@/src/app/core/services/board.service';
+import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state//root-state';
 import { selectUI } from '@/src/app/core/state/ui/ui.selectors';
 import { toggleUIPanelShowing } from '@/src/app/core/state/ui/ui.actions';
 import { toggleBuilderMode } from '@/src/app/core/state/board/actions/board.actions';
 import { ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
-import {
-  BOARD_DIMENSIONS,
-  FIELD_DISPLAY_INFO,
-  FIELD_SIZE,
-} from '@/src/app/shared/constants/board.constants';
+import { BOARD_DIMENSIONS, FIELD_DISPLAY_INFO, FIELD_SIZE } from '@/src/app/shared/constants/board.constants';
 
 @Component({
   selector: 'app-panel',
@@ -84,10 +77,7 @@ export class PanelComponent implements OnInit {
   }
 
   toggleBorders(): void {
-    this.boardService.toggleBorders(
-      this.boardDimensions,
-      this.borderObsticlesUp
-    );
+    this.boardService.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
     this.borderObsticlesUp = !this.borderObsticlesUp;
   }
 
@@ -105,11 +95,7 @@ export class PanelComponent implements OnInit {
 
       let rndId = `unitons${getRandom(1000)}`;
 
-      this.boardService.addNewBroodOnContextmenu(
-        rndId,
-        this.validBroodSpaces[randomValidIndex]?.startingPos,
-        'green'
-      );
+      this.boardService.addNewBroodOnContextmenu(rndId, this.validBroodSpaces[randomValidIndex]?.startingPos, 'green');
     }
   }
 
@@ -124,19 +110,13 @@ export class PanelComponent implements OnInit {
 
   private toggleBordersDown() {
     this.borderObsticlesUp = true;
-    this.boardService.toggleBorders(
-      this.boardDimensions,
-      this.borderObsticlesUp
-    );
+    this.boardService.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
     this.borderObsticlesUp = false;
   }
 
   private toggleBordersUp() {
     this.borderObsticlesUp = false;
-    this.boardService.toggleBorders(
-      this.boardDimensions,
-      this.borderObsticlesUp
-    );
+    this.boardService.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
     this.borderObsticlesUp = true;
   }
 }

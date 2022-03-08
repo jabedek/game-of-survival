@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { interval } from 'rxjs';
 import { selectBoardSnapshot } from '@/src/app/core/state/board/board.selectors';
 
-import { BoardService } from '@/src/app/core/services/board.service';
+import { BoardService } from '@/src/app/core/modules/board/board.service';
 import {
   Brood,
   ParticleUnit,

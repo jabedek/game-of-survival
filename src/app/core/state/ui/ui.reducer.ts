@@ -3,8 +3,6 @@ import { UIState } from '@/src/app/shared/types/ui.types';
 
 import * as uiActions from '@/src/app/core/state/ui/ui.actions';
 
-export const featureKey = 'ui';
-
 export const initialUIState = {
   decorShowing: true,
   panelShowing: true,
@@ -31,7 +29,3 @@ export const uiReducer = createReducer(
     };
   })
 );
-
-function reducer(state: UIState | undefined, action: Action) {
-  return uiReducer(state, action);
-}

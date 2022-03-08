@@ -7,23 +7,9 @@ import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state/root-state';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 
-import {
-  Field,
-  FieldPos,
-  FieldReference,
-} from '@/src/app/shared/types/field.types';
-import {
-  BoardFields,
-  Brood,
-  ParticleColor,
-  ParticleUnit,
-  ValidPotentialBroodSpace,
-} from '@/src/app/shared/types/board.types';
-import {
-  selectBoardFields,
-  selectEmptyFields,
-  selectValidBroodSpaces,
-} from '@/src/app/core/state/board/board.selectors';
+import { Field, FieldPos, FieldReference } from '@/src/app/shared/types/field.types';
+import { BoardFields, Brood, ParticleColor, ParticleUnit, ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
+import { selectBoardFields, selectEmptyFields, selectValidBroodSpaces } from '@/src/app/core/state/board/board.selectors';
 import {
   addBroodToList,
   addParticleToList,
@@ -34,18 +20,9 @@ import {
   moveParticleFromTo,
 } from '@/src/app/core/state/board/actions/board.actions';
 import { BOARD_DIMENSIONS } from '@/src/app/shared/constants/board.constants';
-import {
-  setFieldBox,
-  setFieldEmpty,
-  setFieldObsticle,
-  setFieldParticle,
-} from '@/src/app/core/state/board/actions/field.actions';
-import {
-  addMemberToBroodUnits,
-  removeBroodMember,
-  swapBroodMemberOnPos,
-} from '@/src/app/core/state/board/actions/brood.actions';
-import { CoreModule } from '../core.module';
+import { setFieldBox, setFieldEmpty, setFieldObsticle, setFieldParticle } from '@/src/app/core/state/board/actions/field.actions';
+import { addMemberToBroodUnits, removeBroodMember, swapBroodMemberOnPos } from '@/src/app/core/state/board/actions/brood.actions';
+import { CoreModule } from '../../core.module';
 
 @Injectable({
   providedIn: 'root',
@@ -59,9 +36,7 @@ export class BoardService {
 
   emptyBoardFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
 
-  validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(
-    selectValidBroodSpaces
-  );
+  validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(selectValidBroodSpaces);
 
   reloadBoard() {
     this.store.dispatch(
@@ -83,18 +58,8 @@ export class BoardService {
     const redBrood: Brood = new Brood(
       'reds',
       [
-        new ParticleUnit(
-          'reds-0',
-          { row: 0 + boardOffset, column: 0 + boardOffset },
-          'red',
-          'reds'
-        ),
-        new ParticleUnit(
-          'reds-0',
-          { row: 0 + boardOffset, column: 1 + boardOffset },
-          'red',
-          'reds'
-        ),
+        new ParticleUnit('reds-0', { row: 0 + boardOffset, column: 0 + boardOffset }, 'red', 'reds'),
+        new ParticleUnit('reds-0', { row: 0 + boardOffset, column: 1 + boardOffset }, 'red', 'reds'),
       ],
       'red'
     );
@@ -165,19 +130,12 @@ export class BoardService {
 
     for (let row = 0; row < boardDimensions; row++) {
       for (let column = 0; column < boardDimensions; column++) {
-        if (
-          row == 0 ||
-          column == 0 ||
-          row == boardDimensions - 1 ||
-          column == boardDimensions - 1
-        ) {
+        if (row == 0 || column == 0 || row == boardDimensions - 1 || column == boardDimensions - 1) {
           const pos: FieldPos = { row, column };
           let actionTrue = setFieldObsticle({ pos });
           let actionFalse = setFieldEmpty({ pos });
 
-          borderObsticlesUp
-            ? this.store.dispatch(actionTrue)
-            : this.store.dispatch(actionFalse);
+          borderObsticlesUp ? this.store.dispatch(actionTrue) : this.store.dispatch(actionFalse);
         }
       }
     }
@@ -226,14 +184,7 @@ export class BoardService {
             if (!rndmlySelectedField.blocked) {
               if (type === 'particle') {
                 success = true;
-                this.addNewParticle(
-                  new ParticleUnit(
-                    `randomitons${rndIndex}`,
-                    rndmlySelectedField.pos,
-                    'black',
-                    'randomitons'
-                  )
-                );
+                this.addNewParticle(new ParticleUnit(`randomitons${rndIndex}`, rndmlySelectedField.pos, 'black', 'randomitons'));
               }
 
               if (type === 'obsticle') {
@@ -283,9 +234,7 @@ export class BoardService {
   }
 
   updateParticlesOnBoard(action: 'add' | 'del', unit: ParticleUnit) {
-    action === 'add'
-      ? this.store.dispatch(addParticleToList({ unit }))
-      : this.store.dispatch(deleteParticleFromList({ pos: unit.pos }));
+    action === 'add' ? this.store.dispatch(addParticleToList({ unit })) : this.store.dispatch(deleteParticleFromList({ pos: unit.pos }));
   }
 
   /**
@@ -379,18 +328,12 @@ export class BoardService {
     this.swapBroodMemberOnPos(updatedUnit);
   }
 
-  addNewBroodBSRRoot(
-    id: string,
-    potentialSpaces: ValidPotentialBroodSpace,
-    color: ParticleColor
-  ) {
+  addNewBroodBSRRoot(id: string, potentialSpaces: ValidPotentialBroodSpace, color: ParticleColor) {
     if (potentialSpaces) {
       const broodId = id;
-      const fallbackUnits: ParticleUnit[] = potentialSpaces.space.map(
-        (s, index) => {
-          return new ParticleUnit(`${id}-${index}`, s.pos, color, broodId);
-        }
-      );
+      const fallbackUnits: ParticleUnit[] = potentialSpaces.space.map((s, index) => {
+        return new ParticleUnit(`${id}-${index}`, s.pos, color, broodId);
+      });
 
       let brood = new Brood(broodId, fallbackUnits, color);
 
@@ -398,11 +341,7 @@ export class BoardService {
     }
   }
 
-  addNewBroodOnContextmenu(
-    id: string,
-    pos: FieldPos,
-    color: ParticleColor = 'red'
-  ) {
+  addNewBroodOnContextmenu(id: string, pos: FieldPos, color: ParticleColor = 'red') {
     // const broodId = id;
     // const dimensions = BOARD_DIMENSIONS;
     // const fallbackUnits = [

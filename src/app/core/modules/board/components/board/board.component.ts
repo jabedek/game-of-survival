@@ -21,37 +21,14 @@ import { UIService } from '@/src/app/core/services/ui.service';
 
 import { BoardDynamicCSS } from '@/src/app/shared/types/ui.types';
 import { fromEvent, Observable, Subject, Subscription } from 'rxjs';
-import {
-  tap,
-  share,
-  switchMap,
-  filter,
-  takeUntil,
-  auditTime,
-  withLatestFrom,
-  map,
-  take,
-  throwIfEmpty,
-} from 'rxjs/operators';
+import { tap, share, switchMap, filter, takeUntil, auditTime, withLatestFrom, map, take, throwIfEmpty } from 'rxjs/operators';
 
-import {
-  setAllFieldsHighlightFalse,
-  setFieldBox,
-  setFieldsHighlightTrue,
-} from '@/src/app/core/state/board/actions/field.actions';
+import { setAllFieldsHighlightFalse, setFieldBox, setFieldsHighlightTrue } from '@/src/app/core/state/board/actions/field.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import {
-  BoardFields,
-  NeighborsRaport,
-  ParticleUnit,
-  Unit,
-} from '@/src/app/shared/types/board.types';
+import { BoardFields, NeighborsRaport, ParticleUnit, Unit } from '@/src/app/shared/types/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/field.types';
-import {
-  BOARD_DIMENSIONS,
-  FIELD_SIZE,
-} from '@/src/app/shared/constants/board.constants';
-import { BoardService } from '@/src/app/core/services/board.service';
+import { BOARD_DIMENSIONS, FIELD_SIZE } from '@/src/app/shared/constants/board.constants';
+import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { RootState } from '@/src/app/core/state/root-state';
 import { selectFieldNeighbors } from '@/src/app/core/state/board/board.selectors';
 // import { selectFieldNeighbors } from '../../store/board.selectors';
@@ -102,17 +79,10 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.hostRect = (
-      this.host.nativeElement as Element
-    ).getBoundingClientRect();
+    this.hostRect = (this.host.nativeElement as Element).getBoundingClientRect();
 
     this.initBoardWithStylings();
     this.observeMouseMove();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy.next();
-    this.destroy.complete();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -121,8 +91,17 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
-    this.refs = [...(this.fieldsTemplates as any).toArray()];
+  ngOnDestroy(): void {
+    this.destroy.next();
+    this.destroy.complete();
+  }
+
+  ngAfterViewInit(): void {
+    fastdom.measure(() => {
+      fastdom.mutate(() => {
+        this.refs = [...(this.fieldsTemplates as any).toArray()];
+      });
+    });
   }
 
   trackByFn(index, item: Field) {
@@ -143,10 +122,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private initBoardWithStylings() {
-    this.CSS = this.uiService.getStylingsDetails(
-      this.boardDimensions,
-      this.fieldSize
-    );
+    this.CSS = this.uiService.getStylingsDetails(this.boardDimensions, this.fieldSize);
     // this.CSS.structurings.display = 'none';
   }
 
@@ -155,7 +131,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
    */
   private observeMouseMove() {
     this.ngZone.runOutsideAngular(() => {
-      // fastdom.measure(() => {
       const mousemove$ = fromEvent<MouseEvent>(window, 'mousemove');
 
       const mouseup$ = fromEvent<MouseEvent>(window, 'mouseup').pipe(
@@ -184,12 +159,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
         map(({ event }) => event)
       );
 
-      // fastdom.mutate(() => {
-      moveOnDrag$
-        .pipe(takeUntil(this.destroy))
-        .subscribe((event) => this.ngZone.run(() => this.onDrag(event)));
-      //   });
-      // });
+      moveOnDrag$.pipe(takeUntil(this.destroy)).subscribe((event) => this.ngZone.run(() => this.onDrag(event)));
     });
   }
 
@@ -202,9 +172,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
       [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
         const rect: DOMRect = t.nativeElement.getBoundingClientRect();
 
-        if (
-          HELPERS.isClickInRectBoundries(rect, this.posStart.x, this.posStart.y)
-        ) {
+        if (HELPERS.isClickInRectBoundries(rect, this.posStart.x, this.posStart.y)) {
           startPos = {
             row: Math.floor(i / BOARD_DIMENSIONS),
             column: i % BOARD_DIMENSIONS,
@@ -224,23 +192,16 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
       if (startPos && endPos) {
         if (startPos.row === endPos.row && startPos.column === endPos.column) {
-          let field = Object.assign(
-            {},
-            this.fields[startPos.row][startPos.column]
-          );
+          let field = Object.assign({}, this.fields[startPos.row][startPos.column]);
 
           this.toggleField(field);
         } else {
-          if (
-            this.fields[startPos.row][startPos.column]?.occupyingUnit &&
-            this.fields[startPos.row][startPos.column]?.mode !== 'other'
-          ) {
+          if (this.fields[startPos.row][startPos.column]?.occupyingUnit && this.fields[startPos.row][startPos.column]?.mode !== 'other') {
             /**
              * Particle can only move in straight lines like '+' (correct), not diagonal like 'x' (not correct).
              */
             const existingAndCorrect = this.accessibleNeighbors.find(
-              (f: Field) =>
-                f.pos.row === endPos?.row && f.pos.column === endPos?.column
+              (f: Field) => f.pos.row === endPos?.row && f.pos.column === endPos?.column
             );
 
             /**
@@ -280,9 +241,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
             .select(selectFieldNeighbors, startPos)
             .pipe(take(1))
             .subscribe((data) => {
-              this.accessibleNeighbors = data.accessibleToMove.map(
-                (a) => a.field
-              );
+              this.accessibleNeighbors = data.accessibleToMove.map((a) => a.field);
               if (
                 this.fields[startPos.row][startPos.column]?.occupyingUnit &&
                 this.fields[startPos.row][startPos.column].mode !== 'other'
@@ -312,11 +271,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
         this.boardService.setFieldObsticle(field.pos);
         break;
       case 'obsticle':
-        const unit: ParticleUnit = new ParticleUnit(
-          `solo${getRandom(1000)}`,
-          field.pos,
-          'blue'
-        );
+        const unit: ParticleUnit = new ParticleUnit(`solo${getRandom(1000)}`, field.pos, 'blue');
         this.boardService.addNewParticle(unit);
         break;
       case 'particle':

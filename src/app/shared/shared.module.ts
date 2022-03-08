@@ -4,9 +4,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ButtonComponent } from './components/button/button.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [ButtonComponent],
   imports: [
     BrowserAnimationsModule,
     CommonModule,

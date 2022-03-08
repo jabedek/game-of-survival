@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BoardComponent } from '@/src/app/core/components/board/board.component';
 import { PanelComponent } from '@/src/app/core/components/panel/panel.component';
 import { SharedModule } from '@/src/app/shared/shared.module';
+import { BoardModule } from '@/src/app/core/modules/board/board.module';
 
 @NgModule({
-  declarations: [BoardComponent, PanelComponent],
-  imports: [CommonModule, SharedModule],
-  exports: [BoardComponent, PanelComponent],
+  declarations: [PanelComponent],
+  imports: [CommonModule, SharedModule, BoardModule],
+  exports: [PanelComponent, BoardModule],
 })
 export class CoreModule {}
