@@ -13,11 +13,11 @@ import { selectBoardFields, selectEmptyFields, selectValidBroodSpaces } from '@/
 import { addBroodToList, loadBoardFields } from '@/src/app/core/state/board/actions/board.actions';
 import { BOARD_DIMENSIONS } from '@/src/app/shared/constants/board.constants';
 import { BoardModule } from './board.module';
-import { FieldService } from './field.service';
-import { ParticlesService } from './particles.service';
+import { FieldService } from './services/field.service';
+import { ParticlesService } from './services/particles.service';
 
 @Injectable({
-  providedIn: BoardModule,
+  providedIn: 'root',
 })
 export class BoardService {
   constructor(public store: Store<RootState>, private fieldService: FieldService, private particlesService: ParticlesService) {}
@@ -138,13 +138,7 @@ export class BoardService {
     for (let row = 0; row < boardDimensions; row++) {
       for (let column = 0; column < boardDimensions; column++) {
         if (row == 0 || column == 0 || row == boardDimensions - 1 || column == boardDimensions - 1) {
-          const pos: FieldPos = { row, column };
-
-          if (borderObsticlesUp) {
-            this.fieldService.setFieldObsticle(pos);
-          } else {
-            this.fieldService.setFieldEmpty(pos);
-          }
+          borderObsticlesUp ? this.fieldService.setFieldObsticle({ row, column }) : this.fieldService.setFieldEmpty({ row, column });
         }
       }
     }
@@ -206,7 +200,7 @@ export class BoardService {
     return this.store.select(selectBoardFields);
   }
 
-  getInitialFields(boardDimensions): BoardFields {
+  private getInitialFields(boardDimensions): BoardFields {
     return HELPERS.getInitialFields(boardDimensions);
   }
 
@@ -214,7 +208,7 @@ export class BoardService {
     return this.emptyFields$;
   }
 
-  private putUnitOnEmptyFieldRandomly(type) {
+  putUnitOnEmptyFieldRandomly(type) {
     let success = false;
     let board: Field[] = [];
 
@@ -243,20 +237,20 @@ export class BoardService {
             }
           }
         } else {
-          console.log('no available fields');
+          console.warn('no available fields');
           throw new Error('No available fields.');
         }
       })
       .unsubscribe();
   }
 
-  private addNewParticle = (unit: ParticleUnit) => {
+  addNewParticle = (unit: ParticleUnit) => {
     this.fieldService.setFieldEmpty(unit.pos);
     this.fieldService.setFieldParticle(unit);
     this.particlesService.updateParticlesList('add', unit);
   };
 
-  private deleteParticle(pos: FieldPos) {
+  deleteParticle(pos: FieldPos) {
     this.particlesService.removeBroodMember(pos);
     this.particlesService.updateParticlesList('del', {
       pos,

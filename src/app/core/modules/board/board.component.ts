@@ -40,6 +40,7 @@ const AUDIT_TIME = 16;
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
+  // providers: [BoardService],
 })
 export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() boardDimensions: number = null;
@@ -49,13 +50,11 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   hostRect: DOMRect = null;
 
-  private destroy = new Subject<void>();
   @Output() setParticleEvent: EventEmitter<Unit> = new EventEmitter();
   @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
   @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
   @ViewChildren('div', { read: ElementRef }) div;
-  @ViewChildren('fieldsTemplates', { read: ElementRef })
-  fieldsTemplates: ElementRef;
+  @ViewChildren('fieldsTemplates', { read: ElementRef }) fieldsTemplates: ElementRef;
   dragStart;
   moveTo;
   // fieldSize = FIELD_SIZE;
@@ -69,6 +68,9 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   accessibleNeighbors: any[] = null;
   posStart = null;
   fieldsLoaded = false;
+
+  private destroy$ = new Subject<void>();
+
   constructor(
     public store: Store<RootState>,
     public boardService: BoardService,
@@ -80,6 +82,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit(): void {
     this.hostRect = (this.host.nativeElement as Element).getBoundingClientRect();
+    console.log(this.hostRect);
 
     this.initBoardWithStylings();
     this.observeMouseMove();
@@ -92,8 +95,8 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
-    this.destroy.next();
-    this.destroy.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngAfterViewInit(): void {
@@ -105,8 +108,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   trackByFn(index, item: Field) {
-    console.info(index, '===', this);
-
     if (index === this.boardDimensions - 1) {
       this.fieldsLoaded = true;
       // this.CSS.structurings.display = 'initial';
@@ -115,11 +116,9 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     return `${item.pos.row}${item.pos.column}`;
   }
 
-  getDisplay() {
-    console.log(this.fieldsLoaded ? 'initial' : 'none');
-
-    return this.fieldsLoaded ? 'initial' : 'none';
-  }
+  // getDisplay() {
+  //   return this.fieldsLoaded ? 'initial' : 'none';
+  // }
 
   private initBoardWithStylings() {
     this.CSS = this.uiService.getStylingsDetails(this.boardDimensions, this.fieldSize);
@@ -159,7 +158,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
         map(({ event }) => event)
       );
 
-      moveOnDrag$.pipe(takeUntil(this.destroy)).subscribe((event) => this.ngZone.run(() => this.onDrag(event)));
+      moveOnDrag$.pipe(takeUntil(this.destroy$)).subscribe((event) => this.ngZone.run(() => this.onDrag(event)));
     });
   }
 
@@ -171,7 +170,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.dragStart && this.posStart) {
       [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
         const rect: DOMRect = t.nativeElement.getBoundingClientRect();
-
         if (HELPERS.isClickInRectBoundries(rect, this.posStart.x, this.posStart.y)) {
           startPos = {
             row: Math.floor(i / BOARD_DIMENSIONS),
@@ -258,9 +256,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  onDrag(event) {
-    // console.log(event);
-  }
+  onDrag(event) {}
 
   /**
    * Determines NEXT mode change based on field's current state.

@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { FieldPos } from '@/src/app/shared/types/field.types';
 import { RootState } from '@/src/app/core/state/root-state';
-import { BoardModule } from './board.module';
+import { BoardModule } from '../board.module';
 
 import { setFieldBox, setFieldEmpty, setFieldObsticle, setFieldParticle } from '@/src/app/core/state/board/actions/field.actions';
-import { moveParticleFromTo } from '../../state/board/actions/board.actions';
+import { moveParticleFromTo } from '../../../state/board/actions/board.actions';
 import { ParticleUnit } from '@/src/app/shared/types/board.types';
 
 @Injectable({
-  providedIn: BoardModule,
+  providedIn: 'root',
 })
 export class FieldService {
   constructor(public store: Store<RootState>) {}

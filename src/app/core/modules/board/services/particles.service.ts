@@ -11,7 +11,7 @@ import {
   loadBoardFields,
   moveParticleFromTo,
 } from '@/src/app/core/state/board/actions/board.actions';
-import { addMemberToBroodUnits, removeBroodMember, swapBroodMemberOnPos } from '../../state/board/actions/brood.actions';
+import { addMemberToBroodUnits, removeBroodMember, swapBroodMemberOnPos } from '@/src/app/core/state/board/actions/brood.actions';
 import { FieldPos } from '@/src/app/shared/types/field.types';
 @Injectable({
   providedIn: 'root',
