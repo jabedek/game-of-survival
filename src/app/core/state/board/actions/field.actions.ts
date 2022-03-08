@@ -1,31 +1,15 @@
 import { createAction, props } from '@ngrx/store';
-import { ParticleUnit } from '@/src/app/shared/types/board.types';
-import { Field, FieldPos } from '@/src/app/shared/types/field.types';
+import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
+import { Unit } from '@/src/app/shared/types/board/unit.types';
 
-export const setFieldParticle = createAction(
-  '[Board/Field] Set Particle on Field ',
-  props<{ unit: ParticleUnit }>()
-);
+export const setFieldUnit = createAction('[Board/Field] Set Unit on Field ', props<{ unit: Unit }>());
 
-export const setFieldObsticle = createAction(
-  '[Board/Field] Set Obsticle on Field ',
-  props<{ pos: FieldPos }>()
-);
+export const setFieldObsticle = createAction('[Board/Field] Set Obsticle on Field ', props<{ pos: FieldPos }>());
 
-export const setFieldBox = createAction(
-  '[Board/Field] Set Box on Field ',
-  props<{ pos: FieldPos }>()
-);
+export const setFieldObject = createAction('[Board/Field] Set Object on Field ', props<{ pos: FieldPos }>());
 
-export const setFieldEmpty = createAction(
-  '[Board/Field] Set Field empty',
-  props<{ pos: FieldPos }>()
-);
+export const setFieldEmpty = createAction('[Board/Field] Set Field empty', props<{ pos: FieldPos }>());
 
-export const setFieldsHighlightTrue = createAction(
-  "[Board] Set Fields' Highlight True",
-  props<{ fieldsToHighLight: Field[] }>()
-);
-export const setAllFieldsHighlightFalse = createAction(
-  "[Board] Set All Fields' Highlight False"
-);
+export const setFieldsHighlightTrue = createAction("[Board] Set Fields' Highlight True", props<{ fieldsToHighLight: Field[] }>());
+
+export const setAllFieldsHighlightFalse = createAction("[Board] Set All Fields' Highlight False");

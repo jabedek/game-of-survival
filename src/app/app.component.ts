@@ -1,29 +1,22 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { interval } from 'rxjs';
 import { selectBoardSnapshot } from '@/src/app/core/state/board/board.selectors';
 
 import { BoardService } from '@/src/app/core/modules/board/board.service';
-import {
-  Brood,
-  ParticleUnit,
-  ValidPotentialBroodSpace,
-} from '@/src/app/shared/types/board.types';
-import { Field } from '@/src/app/shared/types/field.types';
+import { ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
+import { Field } from '@/src/app/shared/types/board/field.types';
 
 import { setTurnPhase } from '@/src/app/core/state/game/game.actions';
-import {
-  selectTurnIndex,
-  selectTurnPhase,
-} from '@/src/app/core/state/game/game.selectors';
+import { selectTurnIndex, selectTurnPhase } from '@/src/app/core/state/game/game.selectors';
 import { GameService } from './core/services/game.service';
-import { RootState } from '@/src/app/core/state/root-state';
-import {
-  toggleUIDecorShowing,
-  toggleUIPanelShowing,
-} from '@/src/app/core/state/ui/ui.actions';
+import { RootState } from '@/src/app/core/state/root-state.types';
+import { toggleUIDecorShowing, toggleUIPanelShowing } from '@/src/app/core/state/ui/ui.actions';
 import { selectUI } from '@/src/app/core/state/ui/ui.selectors';
+import { Unit } from './shared/types/board/unit.types';
+import { Brood } from './shared/types/board/brood.types';
+import { filter, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -35,23 +28,27 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   decorShowing = true;
   panelShowing = true;
 
+  // simulationPaused = false;
+  // simulationPause$: Subject<boolean> = new Subject();
+  // paused(event: any) {
+  //   this.simulationPaused = event;
+
+  //   this.simulationPause$.next(this.simulationPaused);
+  // }
+
   turnButtonBlocked = false;
 
-  boardSnapshot$ = this.store.select(selectBoardSnapshot);
+  // boardSnapshot$ = this.store.select(selectBoardSnapshot);
 
-  particlesList: ParticleUnit[] = [];
-  broodsList: Brood[] = [];
-  emptyFields: Field[] = [];
-  validBroodSpaces: ValidPotentialBroodSpace[] = null;
+  // unitsList: Unit[] = [];
+  // broodsList: Brood[] = [];
+  // emptyFields: Field[] = [];
+  // validBroodSpaces: ValidPotentialBroodSpace[] = undefined;
+  // mockTurnSub: Subscription = undefined;
   subscription: Subscription = new Subscription();
-  mockTurnSub: Subscription = null;
-  turnCounter = 0;
+  // turnCounter = 0;
 
-  constructor(
-    public store: Store<RootState>,
-    private game: GameService,
-    public boardService: BoardService
-  ) {
+  constructor(public store: Store<RootState>, private game: GameService, public boardService: BoardService) {
     this.subscription.add(
       this.ui$.subscribe((data) => {
         if (data) {
@@ -61,14 +58,14 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       })
     );
 
-    this.subscription.add(
-      this.boardSnapshot$.subscribe((data) => {
-        this.particlesList = data.occupied.particlesList;
-        this.broodsList = data.occupied.broodsList;
-        this.emptyFields = data.available.emptyFields;
-        this.validBroodSpaces = data.available.validBroodSpaces;
-      })
-    );
+    // this.subscription.add(
+    //   this.boardSnapshot$.subscribe((data) => {
+    //     this.unitsList = data.occupied.unitsList;
+    //     this.broodsList = data.occupied.broodsList;
+    //     this.emptyFields = data.available.emptyFields;
+    //     this.validBroodSpaces = data.available.validBroodSpaces;
+    //   })
+    // );
 
     this.subscription.add(
       this.store.select(selectTurnPhase).subscribe((data) => {
@@ -76,13 +73,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       })
     );
 
-    this.subscription.add(
-      this.store.select(selectTurnIndex).subscribe((data) => {
-        // console.log('new turn', data);
+    // this.subscription.add(
+    //   this.store.select(selectTurnIndex).subscribe((data) => {
+    //     // console.log('new turn', data);
 
-        this.turnCounter = data;
-      })
-    );
+    //     this.turnCounter = data;
+    //   })
+    // );
   }
 
   ngOnInit() {}
@@ -92,37 +89,45 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   ngAfterViewInit() {}
 
-  startAuto() {
-    this.boardService.scenario2();
-    if (this.mockTurnSub === null) {
-      this.mockTurnSub = interval(600).subscribe(() => {
-        this.nextTurn();
-        if (this.particlesList.length === 0) {
-          this.stopAuto();
-        }
-      });
-    }
-  }
+  // startAuto() {
+  //   this.boardService.scenario2();
+  //   if (this.mockTurnSub === undefined) {
+  //     this.mockTurnSub = interval(600)
+  //       .pipe(
+  //         filter((s) => {
+  //           console.log(this.simulationPaused);
 
-  stopAuto() {
-    if (this.mockTurnSub) {
-      this.mockTurnSub.unsubscribe();
-      this.mockTurnSub = null;
-    }
-  }
+  //           return this.simulationPaused === false;
+  //         })
+  //       )
+  //       .subscribe(() => {
+  //         this.nextTurn();
+  //         if (this.unitsList.length === 0) {
+  //           this.stopAuto();
+  //         }
+  //       });
+  //   }
+  // }
 
-  async nextTurn() {
-    // chyab trza zamontownac observable na flage skonczonść tur broodów
-    this.store.dispatch(setTurnPhase({ phase: 'pending' }));
-    if (this.broodsList.length > 0) {
-      this.broodsList.forEach((brood) => {
-        this.game.nextTurnSingle(brood);
-      });
-      // this.game.nextTurn(this.broodsList);
-    }
+  // stopAuto() {
+  //   if (this.mockTurnSub) {
+  //     this.mockTurnSub.unsubscribe();
+  //     this.mockTurnSub = undefined;
+  //   }
+  // }
 
-    this.game.computeResults();
-  }
+  // async nextTurn() {
+  //   // chyab trza zamontownac observable na flage skonczonść tur broodów
+  //   this.store.dispatch(setTurnPhase({ phase: 'pending' }));
+  //   if (this.broodsList.length > 0) {
+  //     this.broodsList.forEach((brood) => {
+  //       this.game.nextTurnSingle(brood);
+  //     });
+  //     // this.game.nextTurn(this.broodsList);
+  //   }
+
+  //   this.game.computeResults();
+  // }
 
   toggleDecor() {
     this.store.dispatch(toggleUIDecorShowing());

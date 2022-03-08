@@ -11,17 +11,21 @@ import {
   selectBoard,
   selectBoardFields,
   selectBoardSnapshot,
-  selectParticlesAndBroods,
+  selectUnitsAndBroods,
   selectUnitsNeighbors,
 } from '@/src/app/core/state/board/board.selectors';
 import { countTurn, loadChangesAfterTurn, setTurnPhase } from '@/src/app/core/state/game/game.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 
-import { RootState } from '@/src/app/core/state/root-state';
+import { RootState } from '@/src/app/core/state/root-state.types';
 import { TurnUpdate } from '@/src/app/shared/types/game.types';
-import { Field } from '@/src/app/shared/types/field.types';
-import { BoardFields, Brood, NeighborsRaport, ParticleUnit, Unit, ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
+import { Field } from '@/src/app/shared/types/board/field.types';
+import { BoardFields, NeighborsRaport, ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
 import { CoreModule } from '../core.module';
+import { UnitsService } from '../modules/board/services/units.service';
+import { UnitBase } from '../../shared/types/board/unit-base.types';
+import { Unit } from '../../shared/types/board/unit.types';
+import { Brood } from '../../shared/types/board/brood.types';
 
 @Injectable({
   providedIn: 'root',
@@ -29,15 +33,15 @@ import { CoreModule } from '../core.module';
 export class GameService {
   // Observables
   fields$: Observable<BoardFields> = this.store.select(selectBoardFields);
-  particlesAndBroods$ = this.store.select(selectParticlesAndBroods);
+  unitsAndBroods$ = this.store.select(selectUnitsAndBroods);
   availableFieldsAndSpaces$ = this.store.select(selectAvailableFieldsAndSpaces);
   boardSnapshot$ = this.store.select(selectBoardSnapshot);
   boardState$ = this.store.select(selectBoard);
   // Observable data
-  particlesList: ParticleUnit[] = [];
-  broodsList: Brood[] = [];
-  emptyFields: Field[] = [];
-  validBroodSpaces: ValidPotentialBroodSpace[] = null;
+  // unitsList: Unit[] = [];
+  // broodsList: Brood[] = [];
+  // emptyFields: Field[] = [];
+  // validBroodSpaces: ValidPotentialBroodSpace[] =undefined;
 
   // Subscriptions
   subscription: Subscription = new Subscription();
@@ -46,11 +50,11 @@ export class GameService {
 
   constructor(public store: Store<RootState>, public boardService: BoardService) {}
 
-  addNewParticleToBrood = (particle) => {
-    this.addNewParticle(particle);
+  addNewUnitToBrood = (unit) => {
+    this.addNewUnit(unit);
   };
 
-  addNewParticle = (particle) => {};
+  addNewUnit = (unit) => {};
 
   nextTurn(broods: Brood[]) {
     broods.forEach((brood) => {
@@ -65,15 +69,15 @@ export class GameService {
       .subscribe((data) => {
         brood.beginTurn({
           neighbors: data,
-          cb: this.addNewParticleToBrood,
+          cb: this.addNewUnitToBrood,
         });
       })
       .unsubscribe();
   }
 
   computeResults() {
-    // 1. Get all particles' neighbors
-    let update: TurnUpdate = null;
+    // 1. Get all units' neighbors
+    let update: TurnUpdate = undefined;
     this.fields$
       .subscribe((data) => {
         if (data) {
@@ -84,12 +88,12 @@ export class GameService {
               let unitsToAdd = [];
               let unitsToDel = [];
 
-              // 2. prepare Update and filter particles based on their neighbors amount
+              // 2. prepare Update and filter units based on their neighbors amount
               neighbors.forEach((n, i) => {
                 const unitType = n.centerField.occupyingUnit?.type;
 
                 if (!unitType || unitType !== 'void') {
-                  switch (n.particles.length) {
+                  switch (n.units.length) {
                     // SECTION: REPRO
                     case 0: {
                       let willSpawn = this.willSpawn(data, n, 1, true);
@@ -130,19 +134,19 @@ export class GameService {
 
                 if (updatedN.accessible.length > 0) {
                   updatedN.accessible = updatedN.accessible.filter((f) => {
-                    return !unitsToAdd.find((u: Unit) => u.pos === f.field.pos);
+                    return !unitsToAdd.find((u: UnitBase) => u.pos === f.field.pos);
                   });
                 }
 
                 /**
-                 * Void particles appear randomly and can't multiply or die due to neighbors presence.
-                 * In general the more particles are on board the more often voids will spawn.
+                 * Void units appear randomly and can't multiply or die due to neighbors presence.
+                 * In general the more units are on board the more often voids will spawn.
                  */
                 const voidSpawn = getRandom(800) === 1;
 
                 if (voidSpawn) {
-                  const voidParticle = this.getMultipliedMember(n, null, true);
-                  unitsToAdd.push(voidParticle);
+                  const voidUnit = this.getMultipliedMember(n, undefined, true);
+                  unitsToAdd.push(voidUnit);
                 }
               });
 
@@ -163,10 +167,10 @@ export class GameService {
 
   private updateUnitsToAdd(n, unitsToAdd) {
     let added = false;
-    let unit = null;
+    let unit = undefined;
 
     while (!added) {
-      unit = this.getMultipliedMember(n, n.centerField?.occupyingUnit?.groupId);
+      unit = this.getMultipliedMember(n, n.centerField?.occupyingUnit?.broodId);
       if (unit) {
         const posAlreadyTaken: boolean = unitsToAdd.find((u) => u.row === unit.pos.row && u.column === unit.pos.row);
 
@@ -180,29 +184,29 @@ export class GameService {
     return unitsToAdd;
   }
 
-  private getMultipliedMember(n: NeighborsRaport, forcedGroupId?: string, voidParticle?: boolean): ParticleUnit {
+  private getMultipliedMember(n: NeighborsRaport, forcedGroupId?: string, voidUnit?: boolean): Unit {
     const field = n.centerField;
-    // console.log('groupId', forcedGroupId);
+    // console.log('broodId', forcedGroupId);
 
-    let groupId = forcedGroupId || field?.occupyingUnit?.groupId;
-    groupId = voidParticle ? null : groupId;
+    let broodId = forcedGroupId || field?.occupyingUnit?.broodId;
+    broodId = voidUnit ? undefined : broodId;
 
-    let id = `${groupId}-${getRandom(100)}` || 'randomer';
-    id = voidParticle ? 'voider' : id;
+    let id = `${broodId}-${getRandom(100)}` || 'randomer';
+    id = voidUnit ? 'voider' : id;
 
-    let color = (field?.occupyingUnit as ParticleUnit)?.color || 'blue';
-    color = voidParticle ? 'black' : color;
+    let color = (field?.occupyingUnit as Unit)?.color || 'blue';
+    color = voidUnit ? 'black' : color;
 
-    let type: 'void' | 'regular' = voidParticle ? 'void' : 'regular';
+    let type: 'void' | 'regular' = voidUnit ? 'void' : 'regular';
 
     if (n.accessible.length > 0) {
       const pos = n.accessible[getRandom(n.accessible.length - 1)].field.pos;
-      // console.log(new ParticleUnit(id, pos, color, groupId, null));
+      // console.log(new Unit(id, pos, color, broodId,undefined));
 
-      return new ParticleUnit(id, pos, color, groupId, null, type);
+      return new Unit(id, pos, color, broodId, undefined, type);
     }
 
-    return null;
+    return undefined;
   }
 
   private willSpawn(data, n, bonus = 0, noNeighbors?: boolean): boolean {
@@ -224,7 +228,7 @@ export class GameService {
   }
 
   updateBoard(update: TurnUpdate): void {
-    console.log('update', !!update);
+    // console.log('update', !!update);
 
     if (update) {
       update.unitsToDel.forEach((u) => {
@@ -232,7 +236,7 @@ export class GameService {
       });
 
       update.unitsToAdd.forEach((u) => {
-        this.boardService.addNewParticle(u);
+        this.boardService.addNewUnit(u);
       });
     }
 

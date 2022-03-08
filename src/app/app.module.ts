@@ -13,6 +13,7 @@ import { uiReducer as ui } from '@/src/app/core/state/ui/ui.reducer';
 import { boardReducer as board } from '@/src/app/core/state/board/board.reducer';
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FeaturesModule } from './features/features.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,6 +23,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     AppRoutingModule,
     SharedModule,
     CoreModule,
+    FeaturesModule,
     StoreModule.forRoot({ ui, board, game }),
     StoreDevtoolsModule.instrument({
       maxAge: 25,

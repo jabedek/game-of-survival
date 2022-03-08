@@ -1,0 +1,41 @@
+<app-panel>
+  <div class="info-list">
+    <button (click)="start()" class="global-button key">
+      <p class="val">Restart Simulation</p>
+    </button>
+    <button (click)="stop()" class="global-button key">
+      <p class="val">End simulation</p>
+    </button>
+
+    <input type="checkbox" [ngModel]="pauseToggle" (ngModelChange)="changePause($event)" name="" id="" />
+
+    <button (click)="nextTurn()" class="global-button key">
+      <p class="val">next turn manually</p>
+    </button>
+  </div>
+
+  <!-- <div class="game-panel">
+    <div class="info-list">
+      <div class="info">
+        <p class="key">Turn:</p>
+        <p class="val">{{ turnCounter + 1 }}</p>
+      </div>
+      <div class="info">
+        <p class="key">Empty Fields:</p>
+        <p class="val">{{ emptyFields.length }}</p>
+      </div>
+      <div class="info">
+        <p class="key">VALID BROOD ROOTS:</p>
+        <p class="val">{{ validBroodSpaces.length }}</p>
+      </div>
+      <div class="info">
+        <p class="key">All Broods:</p>
+        <p class="val">{{ broodsList.length }}</p>
+      </div>
+      <div class="info">
+        <p class="key">All units:</p>
+        <p class="val">{{ unitsList.length }}</p>
+      </div>
+    </div>
+  </div> -->
+</app-panel>

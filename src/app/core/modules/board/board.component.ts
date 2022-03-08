@@ -25,8 +25,8 @@ import { tap, share, switchMap, filter, takeUntil, auditTime, withLatestFrom, ma
 
 import { setAllFieldsHighlightFalse, setFieldObject, setFieldsHighlightTrue } from '@/src/app/core/state/board/actions/field.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import { BoardFields, NeighborsRaport } from '@/src/app/shared/types/board.types';
-import { Field, FieldPos } from '@/src/app/shared/types/field.types';
+import { BoardFields, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
+import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
 import { BOARD_DIMENSIONS, FIELD_SIZE } from '@/src/app/shared/constants/board.constants';
 import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { RootState } from '@/src/app/core/state/root-state.types';

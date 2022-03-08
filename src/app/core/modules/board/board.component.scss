@@ -77,21 +77,3 @@
   border-width: 0.14vw;
   cursor: grabbing;
 }
-
-.animation-blurring {
-  animation: animation-blurring 4s linear infinite;
-}
-
-@keyframes animation-blurring {
-  0% {
-    color: rgba(255, 255, 0, 0.8);
-  }
-
-  46% {
-    color: rgba(255, 255, 0, 0.2);
-  }
-
-  51% {
-    color: rgba(255, 255, 0, 0.8);
-  }
-}

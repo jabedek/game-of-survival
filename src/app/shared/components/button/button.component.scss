@@ -1,0 +1,25 @@
+.btn {
+  background: rgba(40, 40, 255, 0.25);
+  filter: brightness(150%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  text-align: center;
+  cursor: pointer;
+  color: white;
+  min-width: 72px;
+  padding: 1.2em 3em;
+  border-radius: 0.2rem;
+  border: 0.05rem solid black;
+  margin: 1rem;
+  text-transform: uppercase;
+  text-shadow: 0.11rem 0.11rem 0.1rem black;
+  &:hover {
+    background: rgba(40, 40, 255, 0.4);
+  }
+
+  &:active {
+    background: rgba(40, 40, 255, 0.45);
+  }
+}

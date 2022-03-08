@@ -1,31 +1,19 @@
 <div>
-  <app-board
-    [boardDimensions]="boardDimensions"
-    [fieldSize]="fieldSize"
-    [fields]="fields$ | async"
-  >
-  </app-board>
+  <app-board [boardDimensions]="boardDimensions" [fieldSize]="fieldSize" [fields]="fields$ | async"></app-board>
 
   <ng-content></ng-content>
   <button (click)="togglePanel()" class="global-button">Pokaż panel</button>
 
   <div *ngIf="panelShowing" class="game-panel">
-    <p class="board__button" (click)="handleClick('reloadBoard')">Reload</p>
+    <app-button (clicked)="handleClick('reloadBoard')" label="Reload"></app-button>
+    <app-button (clicked)="handleClick('toggleBorders')" label="Toggle obsticle borders"></app-button>
+    <app-button (clicked)="handleClick('scenario1')" label="Borders & units & additional obsticles"></app-button>
+    <app-button (clicked)="handleClick('addNewBroodValidRootRandomly')" label="Add new Brood randomly"></app-button>
+    <app-button (clicked)="handleClick('toggleBuilderMode')" label="Toggle: Build obsticle on Click"></app-button>
 
-    <p class="board__button" (click)="handleClick('toggleBorders')">
-      Toggle obsticle borders
-    </p>
-    <p class="board__button" (click)="handleClick('scenario1')">
-      Borders & particles & additional obsticles
-    </p>
-    <p
-      class="board__button"
-      (click)="handleClick('addNewBroodValidRootRandomly')"
-    >
-      Add new Brood randomly
-    </p>
-    <p class="board__button" (click)="handleClick('toggleBuilderMode')">
-      Toggle: Build obsticle on Click
-    </p>
+    <!-- <p class="board__button" (click)="handleClick('toggleBorders')">Toggle obsticle borders</p>
+    <p class="board__button" (click)="handleClick('scenario1')">Borders & units & additional obsticles</p>
+    <p class="board__button" (click)="handleClick('addNewBroodValidRootRandomly')">Add new Brood randomly</p>
+    <p class="board__button" (click)="handleClick('toggleBuilderMode')">Toggle: Build obsticle on Click</p> -->
   </div>
 </div>

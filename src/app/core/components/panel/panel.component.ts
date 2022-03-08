@@ -6,11 +6,11 @@ import { selectBoardFields, selectValidBroodSpaces } from '@/src/app/core/state/
 
 import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import { RootState } from '@/src/app/core/state//root-state';
+import { RootState } from '@/src/app/core/state/root-state.types';
 import { selectUI } from '@/src/app/core/state/ui/ui.selectors';
 import { toggleUIPanelShowing } from '@/src/app/core/state/ui/ui.actions';
 import { toggleBuilderMode } from '@/src/app/core/state/board/actions/board.actions';
-import { ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
+import { ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
 import { BOARD_DIMENSIONS, FIELD_DISPLAY_INFO, FIELD_SIZE } from '@/src/app/shared/constants/board.constants';
 
 @Component({
@@ -31,7 +31,7 @@ export class PanelComponent implements OnInit {
   ui$ = this.store.select(selectUI);
   fields$ = this.store.select(selectBoardFields);
   validBroodSpaces$ = this.store.select(selectValidBroodSpaces);
-  validBroodSpaces: ValidPotentialBroodSpace[] = null;
+  validBroodSpaces: ValidPotentialBroodSpace[] = undefined;
   subscription: Subscription = new Subscription();
 
   // UI related
@@ -99,8 +99,8 @@ export class PanelComponent implements OnInit {
     }
   }
 
-  private addUnitsRandomly(particles: number, obsticles: number) {
-    this.boardService.addUnitsRandomly(particles, obsticles);
+  private addUnitsRandomly(units: number, obsticles: number) {
+    this.boardService.addUnitsRandomly(units, obsticles);
   }
 
   private initBoard() {

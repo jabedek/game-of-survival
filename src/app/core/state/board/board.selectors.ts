@@ -1,88 +1,65 @@
 import { createSelector } from '@ngrx/store';
-import { RootState } from '@/src/app/core/state/root-state';
+import { BoardState, RootState } from '@/src/app/core/state/root-state.types';
 
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
-import { Field, FieldPos } from '@/src/app/shared/types/field.types';
-import {
-  BoardFields,
-  BasicInitialBroodFields,
-  BoardState,
-  Brood,
-  NeighborsRaport,
-  ParticleUnit,
-  ValidPotentialBroodSpace,
-} from '@/src/app/shared/types/board.types';
+import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
+import { BoardFields, BasicInitialBroodFields, NeighborsRaport, ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
+import { Unit } from '@/src/app/shared/types/board/unit.types';
+import { Brood } from '@/src/app/shared/types/board/brood.types';
 
 export const selectBoard = (state: RootState) => state.board;
 
-export const selectBoardFields = createSelector(
-  selectBoard,
-  (state: BoardState) => state.fields
-);
-export const selectBuilderMode = createSelector(
-  selectBoard,
-  (state: BoardState) => state.builderMode
-);
+export const selectBoardFields = createSelector(selectBoard, (state: BoardState) => state.fields);
 
-export const selectParticlesList = createSelector(
-  selectBoard,
-  (state: BoardState) => {
-    return state.particlesList;
-  }
-);
+export const selectBuilderMode = createSelector(selectBoard, (state: BoardState) => state.builderMode);
 
-export const selectBroodsList = createSelector(
-  selectBoard,
-  (state: BoardState) => {
-    return state.broodsList;
-  }
-);
+export const selectUnitsList = createSelector(selectBoard, (state: BoardState) => {
+  return state.unitsList;
+});
 
-export const selectParticlesAndBroods = createSelector(selectBoard, (state) => {
+export const selectBroodsList = createSelector(selectBoard, (state: BoardState) => {
+  return state.broodsList;
+});
+
+export const selectUnitsAndBroods = createSelector(selectBoard, (state) => {
   return {
-    particlesList: state.particlesList,
+    unitsList: state.unitsList,
     broodsList: state.broodsList,
   };
 });
 
-export const selectEmptyFields = createSelector(
-  selectBoardFields,
-  (fields: BoardFields) => {
-    let availableFields: Field[] = [];
+export const selectEmptyFields = createSelector(selectBoardFields, (fields: BoardFields) => {
+  let availableFields: Field[] = [];
 
-    fields.forEach((fieldCol: Field[]) => {
-      return fieldCol.forEach((field) => {
-        if (!field.blocked && !field.occupyingUnit) {
-          availableFields.push(field);
-        }
-      });
+  fields.forEach((fieldCol: Field[]) => {
+    return fieldCol.forEach((field) => {
+      if (!field.blocked && !field.occupyingUnit) {
+        availableFields.push(field);
+      }
     });
+  });
 
-    return availableFields;
-  }
-);
+  return availableFields;
+});
 
-export const selectValidBroodSpaces = createSelector(
-  selectBoardFields,
-  (fields: BoardFields) => {
-    let settlements: BasicInitialBroodFields[] = [];
-    let validBroodRoots: FieldPos[] = [];
-    let raport: ValidPotentialBroodSpace[] = [];
+export const selectValidBroodSpaces = createSelector(selectBoardFields, (fields: BoardFields) => {
+  let settlements: BasicInitialBroodFields[] = [];
+  let validBroodRoots: FieldPos[] = [];
+  let raport: ValidPotentialBroodSpace[] = [];
 
-    [...fields].forEach((fieldsCol) => {
-      [...fieldsCol].forEach((field) => {
-        const result = HELPERS.isValidBroodRoot([...fields], field.pos);
-        if (result !== null) {
-          validBroodRoots.push(field.pos);
-          settlements.push(result);
-          raport.push({ startingPos: field.pos, space: result });
-        }
-      });
+  [...fields].forEach((fieldsCol) => {
+    [...fieldsCol].forEach((field) => {
+      const result = HELPERS.isValidBroodRoot([...fields], field.pos);
+      if (result !== undefined) {
+        validBroodRoots.push(field.pos);
+        settlements.push(result);
+        raport.push({ startingPos: field.pos, space: result });
+      }
     });
+  });
 
-    return raport;
-  }
-);
+  return raport;
+});
 
 export const selectAvailableFieldsAndSpaces = createSelector(
   selectEmptyFields,
@@ -92,25 +69,16 @@ export const selectAvailableFieldsAndSpaces = createSelector(
   }
 );
 
-export const selectBoardField = createSelector(
-  selectBoard,
-  (state: BoardState, props) => {
-    const fieldDetails = state?.fields[props.row][props.column];
-    return fieldDetails;
-  }
-);
+export const selectBoardField = createSelector(selectBoard, (state: BoardState, props) => {
+  const fieldDetails = state?.fields[props.row][props.column];
+  return fieldDetails;
+});
 
-export const selectFieldNeighbors = createSelector(
-  selectBoardFields,
-  (fields: BoardFields, props: FieldPos) => {
-    const neighbors: NeighborsRaport = HELPERS.getFieldNeighbors(
-      [...fields],
-      props
-    );
+export const selectFieldNeighbors = createSelector(selectBoardFields, (fields: BoardFields, props: FieldPos) => {
+  const neighbors: NeighborsRaport = HELPERS.getFieldNeighbors([...fields], props);
 
-    return neighbors;
-  }
-);
+  return neighbors;
+});
 
 export const selectBoardFieldInfo = createSelector(
   selectBoard,
@@ -121,23 +89,20 @@ export const selectBoardFieldInfo = createSelector(
   }
 );
 
-export const selectAllUnitsNeighbors = createSelector(
-  selectBoardFields,
-  selectParticlesList,
-  (fields: BoardFields, particles: ParticleUnit[]) => {
-    const fieldsNeighbors: NeighborsRaport[] = particles.map((p) => {
-      return HELPERS.getFieldNeighbors([...fields], p.pos);
-    });
+export const selectAllUnitsNeighbors = createSelector(selectBoardFields, selectUnitsList, (fields: BoardFields, units: Unit[]) => {
+  const fieldsNeighbors: NeighborsRaport[] = units.map((p) => {
+    return HELPERS.getFieldNeighbors([...fields], p.pos);
+  });
 
-    return fieldsNeighbors;
-  }
-);
+  return fieldsNeighbors;
+});
+
 export const selectAllUnitsNeighborsAndBroodsList = createSelector(
   selectBoardFields,
-  selectParticlesList,
+  selectUnitsList,
   selectBroodsList,
-  (fields: BoardFields, particles: ParticleUnit[], broods: Brood[]) => {
-    const fieldsNeighbors: NeighborsRaport[] = particles.map((p) => {
+  (fields: BoardFields, units: Unit[], broods: Brood[]) => {
+    const fieldsNeighbors: NeighborsRaport[] = units.map((p) => {
       return HELPERS.getFieldNeighbors([...fields], p.pos);
     });
 
@@ -145,21 +110,14 @@ export const selectAllUnitsNeighborsAndBroodsList = createSelector(
   }
 );
 
-export const selectUnitsNeighbors = createSelector(
-  selectBoardFields,
-  (fields: BoardFields, props: ParticleUnit[]) => {
-    const fieldsNeighbors: NeighborsRaport[] = props.map((p) => {
-      return HELPERS.getFieldNeighbors([...fields], p.pos);
-    });
+export const selectUnitsNeighbors = createSelector(selectBoardFields, (fields: BoardFields, props: Unit[]) => {
+  const fieldsNeighbors: NeighborsRaport[] = props.map((p) => {
+    return HELPERS.getFieldNeighbors([...fields], p.pos);
+  });
 
-    return fieldsNeighbors;
-  }
-);
+  return fieldsNeighbors;
+});
 
-export const selectBoardSnapshot = createSelector(
-  selectAvailableFieldsAndSpaces,
-  selectParticlesAndBroods,
-  (available, occupied) => {
-    return { available, occupied };
-  }
-);
+export const selectBoardSnapshot = createSelector(selectAvailableFieldsAndSpaces, selectUnitsAndBroods, (available, occupied) => {
+  return { available, occupied };
+});

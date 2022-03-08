@@ -7,6 +7,6 @@ export const CONFIG = {
 export const BASE_MATCH = {
   round: 0, // max to N-1
   turn: 0, // max to M-1
-  currentParticle: null,
-  currentBrood: null,
+  currentUnit: undefined,
+  currentBrood: undefined,
 };

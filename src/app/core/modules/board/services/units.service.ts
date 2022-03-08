@@ -11,7 +11,7 @@ import {
   moveUnitFromTo,
 } from '@/src/app/core/state/board/actions/board.actions';
 import { addMemberToBroodUnits, removeBroodMember, swapBroodMemberOnPos } from '@/src/app/core/state/board/actions/brood.actions';
-import { FieldPos } from '@/src/app/shared/types/field.types';
+import { FieldPos } from '@/src/app/shared/types/board/field.types';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
 @Injectable({
   providedIn: 'root',

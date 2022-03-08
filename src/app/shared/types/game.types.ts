@@ -1,5 +1,5 @@
-import { ParticleUnit } from '@/src/app/shared/types/board.types';
-import { FieldPos } from '@/src/app/shared/types/field.types';
+import { FieldPos } from '@/src/app/shared/types/board/field.types';
+import { Unit } from './board/unit.types';
 
 export interface GameState {
   turn: TurnState;
@@ -16,6 +16,6 @@ export interface BroodTurn {
 }
 
 export interface TurnUpdate {
-  unitsToAdd: ParticleUnit[];
+  unitsToAdd: Unit[];
   unitsToDel: FieldPos[];
 }

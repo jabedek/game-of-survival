@@ -1,29 +1,28 @@
-import { NeighborsRaport, Unit } from '@/src/app/shared/types/board.types';
+import { NeighborsRaport } from '@/src/app/shared/types/board/board.types';
+import { Unit } from '@/src/app/shared/types/board/unit.types';
 
-// *** Fields
 export type FieldReference = string;
-// export type FieldMode =  0 | 1 | 2 | 3; // 0 - empty, 1 - obsticle, 2 - particle, NEW: 3 - other like box
-export type FieldMode = 'obsticle' | 'particle' | 'other' | 'empty';
+
+export type FieldMode = 'obsticle' | 'unit' | 'other' | 'empty';
+
 export interface FieldPos {
   column: number;
   row: number;
 }
 
-export interface Field {
+export class Field {
   pos: FieldPos;
   blocked: boolean;
   mode: FieldMode;
-  occupyingUnit?: null | Unit;
-  highlightAccessibility?: boolean;
-  neighbors?: NeighborsRaport;
-}
+  occupyingUnit?: undefined | Unit;
+  highlightAccessibility?: boolean | undefined;
+  neighbors?: NeighborsRaport | undefined;
 
-export class Field implements Field {
   constructor(
     pos: FieldPos,
     blocked: boolean,
     mode: FieldMode,
-    occupyingUnit?: null | Unit,
+    occupyingUnit?: undefined | Unit,
     highlightAccessibility?: boolean,
     neighbors?: NeighborsRaport
   ) {

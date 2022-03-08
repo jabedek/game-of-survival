@@ -1,12 +1,14 @@
 import { Action, createReducer, on } from '@ngrx/store';
 
 import * as actions from '@/src/app/core/state/board/actions';
-import { Field } from '@/src/app/shared/types/field.types';
-import { BoardState, Brood, BoardFields } from '@/src/app/shared/types/board.types';
+import { Field } from '@/src/app/shared/types/board/field.types';
+import { BoardFields } from '@/src/app/shared/types/board/board.types';
+import { BoardState } from '../root-state.types';
+import { Brood } from '@/src/app/shared/types/board/brood.types';
 
 export const initialBoardState: BoardState = {
   fields: [],
-  particlesList: [],
+  unitsList: [],
   broodsList: [],
   builderMode: true,
 };
@@ -14,11 +16,11 @@ export const initialBoardState: BoardState = {
 export const boardReducer = createReducer(
   initialBoardState,
 
-  // *** Particles ***
-  on(actions.boardActions.clearParticlesList, (state) => {
+  // *** Units ***
+  on(actions.boardActions.clearUnitsList, (state) => {
     return {
       ...state,
-      particlesList: [],
+      unitsList: [],
     };
   }),
   on(actions.boardActions.addBroodToList, (state: BoardState, { brood }) => {
@@ -32,11 +34,11 @@ export const boardReducer = createReducer(
     };
   }),
 
-  on(actions.boardActions.addParticleToList, (state, { unit }) => {
-    // console.log(Array.from(new Set([...state.particlesList, unit])));
+  on(actions.boardActions.addUnitToList, (state, { unit }) => {
+    // console.log(Array.from(new Set([...state.unitsList, unit])));
 
     const broodsList = [...state.broodsList].map((b) => {
-      if (b.id === unit.groupId) {
+      if (b.id === unit.broodId) {
         // b =
         let brood = Object.assign({}, b);
         brood.units = [...brood.units, unit];
@@ -47,17 +49,17 @@ export const boardReducer = createReducer(
 
     return {
       ...state,
-      particlesList: Array.from(new Set([...state.particlesList, unit])),
+      unitsList: Array.from(new Set([...state.unitsList, unit])),
       broodsList,
     };
   }),
 
-  on(actions.boardActions.deleteParticleFromList, (state, { pos }) => {
-    const particlesList = [...state.particlesList].filter((p) => !(p.pos.row === pos.row && p.pos.column === pos.column));
+  on(actions.boardActions.deleteUnitFromList, (state, { pos }) => {
+    const unitsList = [...state.unitsList].filter((p) => !(p.pos.row === pos.row && p.pos.column === pos.column));
 
     return {
       ...state,
-      particlesList,
+      unitsList,
     };
   }),
 
@@ -98,12 +100,12 @@ export const boardReducer = createReducer(
     };
   }),
 
-  on(actions.boardActions.moveParticleFromTo, (state, { pos, newPos }) => {
+  on(actions.boardActions.moveUnitFromTo, (state, { pos, newPos }) => {
     const unit = { ...state.fields[pos.row][pos.column]?.occupyingUnit };
 
     const field: Field = {
       ...state.fields[pos.row][pos.column],
-      occupyingUnit: null,
+      occupyingUnit: undefined,
       blocked: false,
       mode: 'empty',
     };
@@ -112,7 +114,7 @@ export const boardReducer = createReducer(
       ...state.fields[newPos.row][newPos.column],
       occupyingUnit: unit,
       blocked: true,
-      mode: 'particle',
+      mode: 'unit',
     };
 
     const fields = [...state.fields].map((row: Field[]) => {
@@ -159,7 +161,7 @@ export const boardReducer = createReducer(
     };
   }),
 
-  on(actions.fieldActions.setFieldParticle, (state, { unit }) => {
+  on(actions.fieldActions.setFieldUnit, (state, { unit }) => {
     const { pos } = unit;
 
     const fields: BoardFields = [...state.fields].map((row: Field[]) =>
@@ -169,7 +171,7 @@ export const boardReducer = createReducer(
             ...state.fields[pos.row][pos.column],
             blocked: true,
             occupyingUnit: unit,
-            mode: 'particle',
+            mode: 'unit',
           };
         }
         return field;
@@ -241,7 +243,7 @@ export const boardReducer = createReducer(
     };
   }),
 
-  on(actions.fieldActions.setFieldBox, (state, { pos }) => {
+  on(actions.fieldActions.setFieldObject, (state, { pos }) => {
     const fields: BoardFields = [...state.fields].map((data: Field[]) =>
       data.map((field: Field) => {
         if (field.pos.column === pos.column && field.pos.row === pos.row) {
@@ -262,7 +264,7 @@ export const boardReducer = createReducer(
   }),
 
   /**
-   * Sets field unblocked with occupying unit set to null, so it doesn't display any unit.
+   * Sets field unblocked with occupying unit set toundefined, so it doesn't display any unit.
    */
   on(actions.fieldActions.setFieldEmpty, (state, { pos }) => {
     if (state.fields[pos.row] && state.fields[pos.row][pos.column]) {
@@ -278,7 +280,7 @@ export const boardReducer = createReducer(
       const newField: Field = {
         ...previousField,
         blocked: false,
-        occupyingUnit: null,
+        occupyingUnit: undefined,
         mode: 'empty',
       };
 
@@ -294,9 +296,9 @@ export const boardReducer = createReducer(
       let broodsList: Brood[] = [...state.broodsList].map((p) => p);
 
       /**
-       * Check if it was particle and if was in brood then delete it from there
+       * Check if it was unit and if was in brood then delete it from there
        */
-      if (!!previousField.occupyingUnit && previousField.occupyingUnit?.groupId) {
+      if (!!previousField.occupyingUnit && previousField.occupyingUnit?.broodId) {
         const { occupyingUnit } = previousField;
 
         // brzydki syntax ale ngrx nie przepuści bez skopiowania obiektu / tablicy
@@ -304,7 +306,7 @@ export const boardReducer = createReducer(
         let broodToUpdate: Brood = {
           ...[...state.broodsList].find((br: Brood, index) => {
             indexToUpdate = index;
-            return br.id === occupyingUnit.groupId;
+            return br.id === occupyingUnit.broodId;
           }),
         };
 
@@ -326,7 +328,7 @@ export const boardReducer = createReducer(
   // *** Broods
   /**
    * Only updates info in a brood.
-   * Doesn't update particle on a field on its own.
+   * Doesn't update unit on a field on its own.
    */
   on(actions.broodActions.removeBroodMember, (state, { pos }) => {
     let broodsList = [...state.broodsList].map((b) => {
@@ -349,9 +351,9 @@ export const boardReducer = createReducer(
 
   on(actions.broodActions.addMemberToBroodUnits, (state, { unit }) => {
     let broodsList = [...state.broodsList].map((b) => b);
-    let broodToUpdate = null;
+    let broodToUpdate = undefined;
     broodsList.forEach((b) => {
-      if (b.id === unit.groupId) {
+      if (b.id === unit.broodId) {
         broodToUpdate = { ...b };
 
         let overwritten = false;

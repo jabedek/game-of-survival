@@ -7,8 +7,8 @@ import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 
-import { Field, FieldPos } from '@/src/app/shared/types/field.types';
-import { BoardFields, ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
+import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
+import { BoardFields, ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
 import { selectBoardFields, selectEmptyFields, selectValidBroodSpaces } from '@/src/app/core/state/board/board.selectors';
 import { addBroodToList, loadBoardFields } from '@/src/app/core/state/board/actions/board.actions';
 import { BOARD_DIMENSIONS } from '@/src/app/shared/constants/board.constants';
