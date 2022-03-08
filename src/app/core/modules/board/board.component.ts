@@ -266,22 +266,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
    * Determines NEXT mode change based on field's current state.
    */
   toggleField(field) {
-    switch (field.mode) {
-      case 'empty':
-        this.boardService.setFieldObsticle(field.pos);
-        break;
-      case 'obsticle':
-        const unit: ParticleUnit = new ParticleUnit(`solo${getRandom(1000)}`, field.pos, 'blue');
-        this.boardService.addNewParticle(unit);
-        break;
-      case 'particle':
-        this.boardService.setFieldBox(field.pos);
-        break;
-      case 'other':
-      default:
-        this.boardService.deleteUnit(field.pos);
-        break;
-    }
+    this.boardService.toggleField(field);
   }
 
   addBroodOnContextmenu(event) {
