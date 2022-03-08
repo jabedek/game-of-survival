@@ -4,9 +4,9 @@ import { FieldPos } from '@/src/app/shared/types/field.types';
 import { RootState } from '@/src/app/core/state/root-state';
 import { BoardModule } from '../board.module';
 
-import { setFieldBox, setFieldEmpty, setFieldObsticle, setFieldParticle } from '@/src/app/core/state/board/actions/field.actions';
-import { moveParticleFromTo } from '../../../state/board/actions/board.actions';
-import { ParticleUnit } from '@/src/app/shared/types/board.types';
+import { setFieldObject, setFieldEmpty, setFieldObsticle, setFieldUnit } from '@/src/app/core/state/board/actions/field.actions';
+import { moveUnitFromTo } from '../../../state/board/actions/board.actions';
+import { Unit } from '@/src/app/shared/types/board/unit.types';
 
 @Injectable({
   providedIn: 'root',
@@ -33,16 +33,16 @@ export class FieldService {
    * ATOMIC OPERATION
    * @param pos
    */
-  setFieldBox(pos: FieldPos) {
-    this.store.dispatch(setFieldBox({ pos }));
+  setFieldObject(pos: FieldPos) {
+    this.store.dispatch(setFieldObject({ pos }));
   }
 
   /**
    * ATOMIC OPERATION
    * @param unit
    */
-  setFieldParticle(unit: ParticleUnit) {
-    this.store.dispatch(setFieldParticle({ unit }));
+  setFieldUnit(unit: Unit) {
+    this.store.dispatch(setFieldUnit({ unit }));
   }
 
   /**
@@ -50,7 +50,7 @@ export class FieldService {
    * @param pos
    * @param newPos
    */
-  moveParticle(pos: FieldPos, newPos: FieldPos) {
-    this.store.dispatch(moveParticleFromTo({ pos, newPos }));
+  moveUnit(pos: FieldPos, newPos: FieldPos) {
+    this.store.dispatch(moveUnitFromTo({ pos, newPos }));
   }
 }

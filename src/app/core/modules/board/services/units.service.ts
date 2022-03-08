@@ -1,22 +1,22 @@
 import { Store } from '@ngrx/store';
 import { Injectable } from '@angular/core';
-import { ParticleUnit } from '@/src/app/shared/types/board.types';
 import { RootState } from '@/src/app/core/state/root-state';
 import {
   addBroodToList,
-  addParticleToList,
+  addUnitToList,
   clearBroodsList,
-  clearParticlesList,
-  deleteParticleFromList,
+  clearUnitsList,
+  deleteUnitFromList,
   loadBoardFields,
-  moveParticleFromTo,
+  moveUnitFromTo,
 } from '@/src/app/core/state/board/actions/board.actions';
 import { addMemberToBroodUnits, removeBroodMember, swapBroodMemberOnPos } from '@/src/app/core/state/board/actions/brood.actions';
 import { FieldPos } from '@/src/app/shared/types/field.types';
+import { Unit } from '@/src/app/shared/types/board/unit.types';
 @Injectable({
   providedIn: 'root',
 })
-export class ParticlesService {
+export class UnitsService {
   constructor(public store: Store<RootState>) {}
 
   /**
@@ -24,16 +24,16 @@ export class ParticlesService {
    * @param action
    * @param unit
    */
-  updateParticlesList(action: 'add' | 'del', unit: ParticleUnit) {
-    action === 'add' ? this.store.dispatch(addParticleToList({ unit })) : this.store.dispatch(deleteParticleFromList({ pos: unit.pos }));
+  updateUnitsList(action: 'add' | 'del', unit: Unit) {
+    action === 'add' ? this.store.dispatch(addUnitToList({ unit })) : this.store.dispatch(deleteUnitFromList({ pos: unit.pos }));
   }
 
   /**
    * ATOMIC OPERATION
    * Doesnt resolve Fields's relationships with other enitites in board state.
    */
-  clearParticlesList() {
-    this.store.dispatch(clearParticlesList());
+  clearUnitsList() {
+    this.store.dispatch(clearUnitsList());
   }
 
   /**
@@ -45,18 +45,18 @@ export class ParticlesService {
 
   /**
    * ATOMIC OPERATION
-   * Adds existing particle as next member to a brood.
-   * Doesn't update particle's belonging.
+   * Adds existing unit as next member to a brood.
+   * Doesn't update unit's belonging.
    */
 
-  addMemberToBroodUnits(unit: ParticleUnit) {
+  addMemberToBroodUnits(unit: Unit) {
     this.store.dispatch(addMemberToBroodUnits({ unit }));
   }
 
   /**
    * ATOMIC OPERATION
    * Removes member from a brood.
-   * Doesn't update particle's belonging.
+   * Doesn't update unit's belonging.
    */
   removeBroodMember(pos: FieldPos) {
     this.store.dispatch(removeBroodMember({ pos }));
@@ -65,21 +65,21 @@ export class ParticlesService {
   /**
    * ATOMIC OPERATION
    * Overwrites brood member on member field position.
-   * Doesn't update particle's belonging.
+   * Doesn't update unit's belonging.
    */
-  swapBroodMemberOnPos(unit: ParticleUnit) {
+  swapBroodMemberOnPos(unit: Unit) {
     this.store.dispatch(swapBroodMemberOnPos({ unit }));
   }
 
   /**
-   * Sets an existing particle's belonging to different brood and adds it to the brood units.
+   * Sets an existing unit's belonging to different brood and adds it to the brood units.
    */
-  setParticleBroodBelonging(unit: ParticleUnit, groupId: string) {
+  setUnitBroodBelonging(unit: Unit, broodId: string) {
     // 1. If unit already had set brood, remove it from that brood
     this.removeBroodMember(unit.pos);
 
-    // 2. Update particle's internal groupId
-    const updatedUnit = { ...unit, groupId };
+    // 2. Update unit's internal broodId
+    const updatedUnit = { ...unit, broodId };
     // console.log(updatedUnit);
 
     // 3. Update brood units

@@ -8,19 +8,21 @@ import { RootState } from '@/src/app/core/state/root-state';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 
 import { Field, FieldPos } from '@/src/app/shared/types/field.types';
-import { BoardFields, Brood, ParticleColor, ParticleUnit, ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
+import { BoardFields, Brood, ValidPotentialBroodSpace } from '@/src/app/shared/types/board.types';
 import { selectBoardFields, selectEmptyFields, selectValidBroodSpaces } from '@/src/app/core/state/board/board.selectors';
 import { addBroodToList, loadBoardFields } from '@/src/app/core/state/board/actions/board.actions';
 import { BOARD_DIMENSIONS } from '@/src/app/shared/constants/board.constants';
 import { BoardModule } from './board.module';
 import { FieldService } from './services/field.service';
-import { ParticlesService } from './services/particles.service';
+import { UnitsService } from './services/units.service';
+import { Unit } from '@/src/app/shared/types/board/unit.types';
+import { UnitColor } from '@/src/app/shared/types/board/unit-base.types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BoardService {
-  constructor(public store: Store<RootState>, private fieldService: FieldService, private particlesService: ParticlesService) {}
+  constructor(public store: Store<RootState>, private fieldService: FieldService, private unitsService: UnitsService) {}
 
   fields$: Observable<BoardFields> = this.store.select(selectBoardFields);
   emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
@@ -35,8 +37,8 @@ export class BoardService {
       })
     );
 
-    this.particlesService.clearParticlesList();
-    this.particlesService.clearBroodsList();
+    this.unitsService.clearUnitsList();
+    this.unitsService.clearBroodsList();
     this.store.dispatch(resetTurnCounter());
   }
 
@@ -48,8 +50,8 @@ export class BoardService {
     const redBrood: Brood = new Brood(
       'reds',
       [
-        new ParticleUnit('reds-0', { row: 0 + boardOffset, column: 0 + boardOffset }, 'red', 'reds'),
-        new ParticleUnit('reds-0', { row: 0 + boardOffset, column: 1 + boardOffset }, 'red', 'reds'),
+        new Unit('reds-0', { row: 0 + boardOffset, column: 0 + boardOffset }, 'red', 'reds'),
+        new Unit('reds-0', { row: 0 + boardOffset, column: 1 + boardOffset }, 'red', 'reds'),
       ],
       'red'
     );
@@ -57,7 +59,7 @@ export class BoardService {
     const blueBrood: Brood = new Brood(
       'blues',
       [
-        new ParticleUnit(
+        new Unit(
           'blues-0',
           {
             row: BOARD_DIMENSIONS - 1 - boardOffset,
@@ -66,7 +68,7 @@ export class BoardService {
           'blue',
           'blues'
         ),
-        new ParticleUnit(
+        new Unit(
           'blues-0',
           {
             row: BOARD_DIMENSIONS - 1 - boardOffset,
@@ -82,7 +84,7 @@ export class BoardService {
     const greenBrood: Brood = new Brood(
       'greens',
       [
-        new ParticleUnit(
+        new Unit(
           'greens-0',
           {
             row: Math.round(BOARD_DIMENSIONS / 2) - 1,
@@ -91,7 +93,7 @@ export class BoardService {
           'green',
           'greens'
         ),
-        new ParticleUnit(
+        new Unit(
           'greens-0',
           {
             row: Math.round(BOARD_DIMENSIONS / 2) - 1,
@@ -115,22 +117,22 @@ export class BoardService {
         this.fieldService.setFieldObsticle(field.pos);
         break;
       case 'obsticle':
-        const unit: ParticleUnit = new ParticleUnit(`solo${getRandom(1000)}`, field.pos, 'blue');
-        this.addNewParticle(unit);
+        const unit: Unit = new Unit(`solo${getRandom(1000)}`, field.pos, 'blue');
+        this.addNewUnit(unit);
         break;
-      case 'particle':
-        this.fieldService.setFieldBox(field.pos);
+      case 'unit':
+        this.fieldService.setFieldObject(field.pos);
         break;
       case 'other':
       default:
-        this.deleteParticle(field.pos);
+        this.deleteUnit(field.pos);
         break;
     }
   }
 
   /**
    * Only used in creating/preparing stage.
-   * Doesn't update overwritten particles or brood states in store.
+   * Doesn't update overwritten units or brood states in store.
    */
   toggleBorders(boardDimensions: number, toggler): void {
     const borderObsticlesUp = !toggler;
@@ -156,10 +158,10 @@ export class BoardService {
     }
   }
 
-  addUnitsRandomly(particles = 1, obsticles = 0) {
-    if (particles > 0) {
-      for (let i = 0; i < particles; i++) {
-        this.putUnitOnEmptyFieldRandomly('particle');
+  addUnitsRandomly(units = 1, obsticles = 0) {
+    if (units > 0) {
+      for (let i = 0; i < units; i++) {
+        this.putUnitOnEmptyFieldRandomly('unit');
       }
     }
 
@@ -170,28 +172,28 @@ export class BoardService {
     }
   }
 
-  moveParticle(pos: FieldPos, newPos: FieldPos) {
-    this.fieldService.moveParticle(pos, newPos);
+  moveUnit(pos: FieldPos, newPos: FieldPos) {
+    this.fieldService.moveUnit(pos, newPos);
   }
 
   /**
    * Adds a brood to state and board (UI).
    * Doesn't check given units' positions validity.
-   * Before that, it deletes any existing particles on new brood units' positions.
+   * Before that, it deletes any existing units on new brood units' positions.
    */
   addBrood(brood: Brood) {
     brood.units.forEach((unit) => {
-      this.deleteParticle(unit.pos);
-      this.fieldService.setFieldParticle(unit);
-      this.particlesService.setParticleBroodBelonging(unit, unit.groupId);
-      this.particlesService.addMemberToBroodUnits(unit);
-      this.particlesService.updateParticlesList('add', unit);
+      this.deleteUnit(unit.pos);
+      this.fieldService.setFieldUnit(unit);
+      this.unitsService.setUnitBroodBelonging(unit, unit.broodId);
+      this.unitsService.addMemberToBroodUnits(unit);
+      this.unitsService.updateUnitsList('add', unit);
     });
 
     this.store.dispatch(addBroodToList({ brood }));
   }
 
-  addNewBroodOnContextmenu(id: string, pos: FieldPos, color: ParticleColor = 'red') {
+  addNewBroodOnContextmenu(id: string, pos: FieldPos, color: UnitColor = 'red') {
     const brood = HELPERS.getPreparedBroodBase(pos, id, color);
     this.addBrood(brood);
   }
@@ -223,9 +225,9 @@ export class BoardService {
             const rndmlySelectedField = board[rndIndex];
 
             if (!rndmlySelectedField.blocked) {
-              if (type === 'particle') {
+              if (type === 'unit') {
                 success = true;
-                this.addNewParticle(new ParticleUnit(`randomitons${rndIndex}`, rndmlySelectedField.pos, 'black', 'randomitons'));
+                this.addNewUnit(new Unit(`randomitons${rndIndex}`, rndmlySelectedField.pos, 'black', 'randomitons'));
               }
 
               if (type === 'obsticle') {
@@ -244,17 +246,17 @@ export class BoardService {
       .unsubscribe();
   }
 
-  addNewParticle = (unit: ParticleUnit) => {
+  addNewUnit = (unit: Unit) => {
     this.fieldService.setFieldEmpty(unit.pos);
-    this.fieldService.setFieldParticle(unit);
-    this.particlesService.updateParticlesList('add', unit);
+    this.fieldService.setFieldUnit(unit);
+    this.unitsService.updateUnitsList('add', unit);
   };
 
-  deleteParticle(pos: FieldPos) {
-    this.particlesService.removeBroodMember(pos);
-    this.particlesService.updateParticlesList('del', {
+  deleteUnit(pos: FieldPos) {
+    this.unitsService.removeBroodMember(pos);
+    this.unitsService.updateUnitsList('del', {
       pos,
-      groupId: null,
+      broodId: null,
       color: null,
       id: null,
       state: null,

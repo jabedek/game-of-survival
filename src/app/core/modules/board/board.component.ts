@@ -23,9 +23,9 @@ import { BoardDynamicCSS } from '@/src/app/shared/types/ui.types';
 import { fromEvent, Observable, Subject, Subscription } from 'rxjs';
 import { tap, share, switchMap, filter, takeUntil, auditTime, withLatestFrom, map, take, throwIfEmpty } from 'rxjs/operators';
 
-import { setAllFieldsHighlightFalse, setFieldBox, setFieldsHighlightTrue } from '@/src/app/core/state/board/actions/field.actions';
+import { setAllFieldsHighlightFalse, setFieldObject, setFieldsHighlightTrue } from '@/src/app/core/state/board/actions/field.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import { BoardFields, NeighborsRaport, ParticleUnit, Unit } from '@/src/app/shared/types/board.types';
+import { BoardFields, NeighborsRaport } from '@/src/app/shared/types/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/field.types';
 import { BOARD_DIMENSIONS, FIELD_SIZE } from '@/src/app/shared/constants/board.constants';
 import { BoardService } from '@/src/app/core/modules/board/board.service';
@@ -33,6 +33,7 @@ import { RootState } from '@/src/app/core/state/root-state';
 import { selectFieldNeighbors } from '@/src/app/core/state/board/board.selectors';
 // import { selectFieldNeighbors } from '../../store/board.selectors';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
+import { Unit } from '@/src/app/shared/types/board/unit.types';
 
 const AUDIT_TIME = 16;
 
@@ -50,7 +51,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   hostRect: DOMRect = null;
 
-  @Output() setParticleEvent: EventEmitter<Unit> = new EventEmitter();
+  @Output() setUnitEvent: EventEmitter<Unit> = new EventEmitter();
   @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
   @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
   @ViewChildren('div', { read: ElementRef }) div;
@@ -151,8 +152,8 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
       const moveOnDrag$ = dragging$.pipe(
         auditTime(AUDIT_TIME),
-        withLatestFrom(mousemove$, (selectBox, event: MouseEvent) => ({
-          selectBox,
+        withLatestFrom(mousemove$, (selectObject, event: MouseEvent) => ({
+          selectObject,
           event,
         })),
         map(({ event }) => event)
@@ -196,17 +197,17 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
         } else {
           if (this.fields[startPos.row][startPos.column]?.occupyingUnit && this.fields[startPos.row][startPos.column]?.mode !== 'other') {
             /**
-             * Particle can only move in straight lines like '+' (correct), not diagonal like 'x' (not correct).
+             * Unit can only move in straight lines like '+' (correct), not diagonal like 'x' (not correct).
              */
             const existingAndCorrect = this.accessibleNeighbors.find(
               (f: Field) => f.pos.row === endPos?.row && f.pos.column === endPos?.column
             );
 
             /**
-             * Without this condition we can move Particles any way we want.
+             * Without this condition we can move Units any way we want.
              */
             if (existingAndCorrect) {
-              this.boardService.moveParticle(startPos, endPos);
+              this.boardService.moveUnit(startPos, endPos);
             }
           }
         }

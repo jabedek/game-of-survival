@@ -1,9 +1,4 @@
-<div
-  #div
-  class="fields"
-  *ngIf="fields && fields?.length > 0"
-  [ngStyle]="CSS.structurings"
->
+<div #div class="fields" *ngIf="fields && fields?.length > 0" [ngStyle]="CSS.structurings">
   <ng-container *ngFor="let row of fields; let rowPos = index">
     <div
       #fieldsTemplates
@@ -11,38 +6,33 @@
       [style.width.px]="fieldSize"
       *ngFor="let field of row; let colPos = index; trackBy: trackByFn"
       [style.height.px]="fieldSize"
-      (contextmenu)="addBroodOnContextmenu($event)"
-    >
+      (contextmenu)="addBroodOnContextmenu($event)">
       <div
         class="field"
         name="{{ rowPos }}-{{ colPos }}"
         key="{{ rowPos }}-{{ colPos }}"
-        [class.accessible-border]="field?.highlightAccessibility"
-      >
+        [class.accessible-border]="field?.highlightAccessibility">
         <div class="field__content" *ngIf="field">
           <ng-container [ngSwitch]="field.mode">
             <ng-container
-              *ngSwitchCase="'particle'"
-              [ngTemplateOutlet]="particleUnit"
+              *ngSwitchCase="'unit'"
+              [ngTemplateOutlet]="unitUnit"
               [ngTemplateOutletContext]="{
                 $implicit: field.pos,
                 color: field?.occupyingUnit.color
-              }"
-            ></ng-container>
+              }"></ng-container>
             <ng-container
               *ngSwitchCase="'obsticle'"
               [ngTemplateOutlet]="obsticleUnit"
               [ngTemplateOutletContext]="{
                 $implicit: field.pos
-              }"
-            ></ng-container>
+              }"></ng-container>
             <ng-container
               *ngSwitchCase="'other'"
               [ngTemplateOutlet]="otherUnit"
               [ngTemplateOutletContext]="{
                 $implicit: field
-              }"
-            ></ng-container>
+              }"></ng-container>
             <ng-container *ngSwitchCase="'empty'"></ng-container>
           </ng-container>
         </div>
@@ -53,9 +43,9 @@
 
 <ng-template #loading>...</ng-template>
 
-<ng-template #particleUnit let-pos let-color="color">
+<ng-template #unitUnit let-pos let-color="color">
   <div [style.width.px]="CSSsize" [style.height.px]="CSSsize">
-    <div class="particle {{ 'particle--' + color }}">
+    <div class="unit {{ 'unit--' + color }}">
       <div *ngIf="true && pos" class="field__pos">
         {{ pos.row }} x {{ pos.column }}
         {{ color }}
@@ -66,20 +56,12 @@
 
 <ng-template #obsticleUnit let-pos>
   <div class="obsticle" [style.width.px]="CSSsize" [style.height.px]="CSSsize">
-    <div *ngIf="true && pos" class="field__pos">
-      {{ pos.row }} x {{ pos.column }}
-    </div>
+    <div *ngIf="true && pos" class="field__pos">{{ pos.row }} x {{ pos.column }}</div>
   </div>
 </ng-template>
 
 <ng-template #otherUnit let-item>
-  <div
-    class="other-unit"
-    [style.width.px]="CSSsize"
-    [style.height.px]="CSSsize"
-  >
-    <div *ngIf="true && item.pos" class="field__pos other-unit__content">
-      {{ item.pos.row }} x {{ item.pos.column }}
-    </div>
+  <div class="object" [style.width.px]="CSSsize" [style.height.px]="CSSsize">
+    <div *ngIf="true && item.pos" class="field__pos object__content">{{ item.pos.row }} x {{ item.pos.column }}</div>
   </div>
 </ng-template>
