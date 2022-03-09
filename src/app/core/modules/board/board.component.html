@@ -1,5 +1,5 @@
 <div #div class="fields" *ngIf="fields && fields?.length > 0" [ngStyle]="CSS.structurings">
-  <ng-container *ngFor="let row of fields; let rowPos = index">
+  <ng-container *ngFor="let row of fields; let rowPos = index; trackBy: trackByFnRow">
     <div
       #fieldsTemplates
       class="field-container accessible-border"
@@ -47,8 +47,8 @@
   <div [style.width.px]="CSSsize" [style.height.px]="CSSsize">
     <div class="unit {{ 'unit--' + color }}">
       <div *ngIf="true && pos" class="field__pos">
-        {{ pos.row }} x {{ pos.column }}
-        {{ color }}
+        <!-- {{ pos.row }} x {{ pos.column }}
+        {{ color }} -->
       </div>
     </div>
   </div>
@@ -56,12 +56,12 @@
 
 <ng-template #obsticleUnit let-pos>
   <div class="obsticle" [style.width.px]="CSSsize" [style.height.px]="CSSsize">
-    <div *ngIf="true && pos" class="field__pos">{{ pos.row }} x {{ pos.column }}</div>
+    <!-- <div *ngIf="true && pos" class="field__pos">{{ pos.row }} x {{ pos.column }}</div> -->
   </div>
 </ng-template>
 
 <ng-template #otherUnit let-item>
   <div class="object" [style.width.px]="CSSsize" [style.height.px]="CSSsize">
-    <div *ngIf="true && item.pos" class="field__pos object__content">{{ item.pos.row }} x {{ item.pos.column }}</div>
+    <!-- <div *ngIf="true && item.pos" class="field__pos object__content">{{ item.pos.row }} x {{ item.pos.column }}</div> -->
   </div>
 </ng-template>

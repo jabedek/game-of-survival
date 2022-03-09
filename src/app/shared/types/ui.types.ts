@@ -1,6 +1,8 @@
 export interface UIState {
   panelShowing: boolean;
   decorShowing: boolean;
+  boardDimensions: number;
+  fieldSizeComputed: number;
 }
 
 // *** Board stylings

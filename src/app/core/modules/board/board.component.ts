@@ -27,7 +27,7 @@ import { setAllFieldsHighlightFalse, setFieldObject, setFieldsHighlightTrue } fr
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { BoardFields, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
-import { BOARD_DIMENSIONS, FIELD_SIZE } from '@/src/app/shared/constants/board.constants';
+import { BOARD_DIMENSIONS, DEFAULT_FIELD_SIZE_COMPUTED } from '@/src/app/shared/constants/board.constants';
 import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import { selectFieldNeighbors } from '@/src/app/core/state/board/board.selectors';
@@ -45,7 +45,7 @@ const AUDIT_TIME = 16;
 })
 export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() boardDimensions: number = undefined;
-  @Input() fieldSize: number = undefined;
+  @Input() fieldSizeComputed: number = undefined;
   @Input() fields: BoardFields = [];
   CSS: BoardDynamicCSS = undefined;
 
@@ -58,8 +58,8 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChildren('fieldsTemplates', { read: ElementRef }) fieldsTemplates: ElementRef;
   dragStart;
   moveTo;
-  // fieldSize = FIELD_SIZE;
-  CSSsize = FIELD_SIZE * 0.8;
+  // fieldSizeComputed = DEFAULT_FIELD_SIZE_COMPUTED;
+  CSSsize = DEFAULT_FIELD_SIZE_COMPUTED * 0.8;
   sub: Subscription = new Subscription();
   currentFieldNeighbors$: Observable<NeighborsRaport> = undefined;
   // ### Functional flags
@@ -90,12 +90,13 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes?.boardDimensions || changes?.fieldSize) {
+    if (changes?.boardDimensions || changes?.fieldSizeComputed || changes?.fields) {
       this.initBoardWithStylings();
     }
   }
 
   ngOnDestroy(): void {
+    console.log('DESTROY');
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -106,6 +107,10 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
         this.refs = [...(this.fieldsTemplates as any).toArray()];
       });
     });
+  }
+
+  trackByFnRow(index, item: Field[]) {
+    return `${index}`;
   }
 
   trackByFn(index, item: Field) {
@@ -122,7 +127,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   // }
 
   private initBoardWithStylings() {
-    this.CSS = this.uiService.getStylingsDetails(this.boardDimensions, this.fieldSize);
+    this.CSS = this.uiService.getStylingsDetails(this.boardDimensions, this.fieldSizeComputed);
     // this.CSS.structurings.display = 'none';
   }
 

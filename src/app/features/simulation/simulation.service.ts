@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { interval, Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { interval, Subject, Subscription } from 'rxjs';
+import { filter, takeUntil, tap } from 'rxjs/operators';
 import { BoardService } from '../../core/modules/board/board.service';
 import { GameService } from '../../core/services/game.service';
 import { selectBoardSnapshot } from '../../core/state/board/board.selectors';
@@ -30,7 +30,8 @@ export class SimulationService implements OnDestroy {
   broodsList: Brood[] = [];
   emptyFields: Field[] = [];
   validBroodSpaces: ValidPotentialBroodSpace[] = undefined;
-  subscription: Subscription = new Subscription();
+  // subscription: Subscription = new Subscription();
+  private destroy$ = new Subject<void>();
   boardSnapshot$ = this.store.select(selectBoardSnapshot);
 
   // Flags
@@ -41,7 +42,10 @@ export class SimulationService implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    console.log('DESTROY');
+
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   changePause(paused: boolean) {
@@ -53,7 +57,12 @@ export class SimulationService implements OnDestroy {
 
     if (this.simulationTurnSub === undefined) {
       this.simulationTurnSub = interval(600)
-        .pipe(filter(() => this.paused !== true))
+        .pipe(
+          tap(() => {
+            console.log('turn');
+          }),
+          filter(() => this.paused !== true)
+        )
         .subscribe(() => {
           this.nextTurn();
           if (this.unitsList.length === 0) {
@@ -76,10 +85,7 @@ export class SimulationService implements OnDestroy {
     // chyab trza zamontownac observable na flage skonczonść tur broodów
     this.store.dispatch(setTurnPhase({ phase: 'pending' }));
     if (this.broodsList.length > 0) {
-      this.broodsList.forEach((brood) => {
-        this.gameService.nextTurnSingle(brood);
-      });
-      //this.gameService.nextTurn(this.broodsList);
+      this.broodsList.forEach((brood) => this.gameService.nextTurnSingle(brood));
     }
 
     this.gameService.computeResults();
@@ -87,34 +93,29 @@ export class SimulationService implements OnDestroy {
 
   private scenarioA() {
     this.boardService.reloadBoard();
-    const broods = scenarioData_A();
-    broods.forEach((brood) => {
-      this.boardService.addBrood(brood);
-    });
+    scenarioData_A(this.boardService.boardDimensions).forEach((brood) => this.boardService.addBrood(brood));
   }
 
   private subscribeAnalytics() {
-    this.subscription.add(
-      this.boardSnapshot$.subscribe((data) => {
-        this.unitsList = data.occupied.unitsList;
-        this.broodsList = data.occupied.broodsList;
-        this.emptyFields = data.available.emptyFields;
-        this.validBroodSpaces = data.available.validBroodSpaces;
-      })
-    );
+    this.boardSnapshot$.pipe(takeUntil(this.destroy$)).subscribe((data) => {
+      this.unitsList = data.occupied.unitsList;
+      this.broodsList = data.occupied.broodsList;
+      this.emptyFields = data.available.emptyFields;
+      this.validBroodSpaces = data.available.validBroodSpaces;
+    });
 
-    this.subscription.add(
-      this.store.select(selectTurnPhase).subscribe((data) => {
+    this.store
+      .select(selectTurnPhase)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
         this.turnButtonBlocked = data === 'all done' ? false : true;
-      })
-    );
+      });
 
-    this.subscription.add(
-      this.store.select(selectTurnIndex).subscribe((data) => {
-        // console.log('new turn', data);
-
+    this.store
+      .select(selectTurnIndex)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
         this.turnCounter = data;
-      })
-    );
+      });
   }
 }

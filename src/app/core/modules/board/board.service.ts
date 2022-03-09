@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { resetTurnCounter } from '@/src/app/core/state/game/game.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
@@ -18,12 +18,23 @@ import { UnitsService } from './services/units.service';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
 import { UnitColor } from '@/src/app/shared/types/board/unit-base.types';
 import { Brood } from '@/src/app/shared/types/board/brood.types';
+import { selectBoardDimensions } from '../../state/ui/ui.selectors';
 
 @Injectable({
   providedIn: 'root',
 })
-export class BoardService {
-  constructor(public store: Store<RootState>, private fieldService: FieldService, private unitsService: UnitsService) {}
+export class BoardService implements OnDestroy {
+  subscription: Subscription = new Subscription();
+  selectBoardDimensions$ = this.store.select(selectBoardDimensions);
+
+  boardDimensions: number | undefined;
+  constructor(public store: Store<RootState>, private fieldService: FieldService, private unitsService: UnitsService) {
+    this.subscription.add(
+      this.selectBoardDimensions$.subscribe((d) => {
+        this.boardDimensions = d;
+      })
+    );
+  }
 
   fields$: Observable<BoardFields> = this.store.select(selectBoardFields);
   emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
@@ -31,10 +42,14 @@ export class BoardService {
   emptyBoardFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
   validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(selectValidBroodSpaces);
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe;
+  }
+
   reloadBoard() {
     this.store.dispatch(
       loadBoardFields({
-        fields: this.getInitialFields(BOARD_DIMENSIONS),
+        fields: this.getInitialFields(this.boardDimensions),
       })
     );
 
@@ -140,7 +155,7 @@ export class BoardService {
 
     for (let row = 0; row < boardDimensions; row++) {
       for (let column = 0; column < boardDimensions; column++) {
-        if (row == 0 || column == 0 || row == boardDimensions - 1 || column == boardDimensions - 1) {
+        if (row === 0 || column === 0 || row === boardDimensions - 1 || column === boardDimensions - 1) {
           borderObsticlesUp ? this.fieldService.setFieldObsticle({ row, column }) : this.fieldService.setFieldEmpty({ row, column });
         }
       }
@@ -195,7 +210,7 @@ export class BoardService {
   }
 
   addNewBroodOnContextmenu(id: string, pos: FieldPos, color: UnitColor = 'red') {
-    const brood = HELPERS.getPreparedBroodBase(pos, id, color);
+    const brood = HELPERS.getPreparedBroodBase(this.boardDimensions, pos, id, color);
     this.addBrood(brood);
   }
 

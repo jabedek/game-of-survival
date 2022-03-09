@@ -8,3 +8,6 @@ export const selectUI = createFeatureSelector<RootState, UIState>(featureKey);
 
 export const selectUIPanelShowing = createSelector(selectUI, (state: UIState) => state.panelShowing);
 export const selectUIDecorShowing = createSelector(selectUI, (state: UIState) => state.decorShowing);
+
+export const selectFieldSizeComputed = createSelector(selectUI, (state: UIState) => state.fieldSizeComputed);
+export const selectBoardDimensions = createSelector(selectUI, (state: UIState) => state.boardDimensions);

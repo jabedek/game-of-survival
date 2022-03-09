@@ -75,7 +75,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // this.subscription.add(
     //   this.store.select(selectTurnIndex).subscribe((data) => {
-    //     // console.log('new turn', data);
 
     //     this.turnCounter = data;
     //   })
@@ -88,46 +87,6 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.subscription.unsubscribe();
   }
   ngAfterViewInit() {}
-
-  // startAuto() {
-  //   this.boardService.scenario2();
-  //   if (this.mockTurnSub === undefined) {
-  //     this.mockTurnSub = interval(600)
-  //       .pipe(
-  //         filter((s) => {
-  //           console.log(this.simulationPaused);
-
-  //           return this.simulationPaused === false;
-  //         })
-  //       )
-  //       .subscribe(() => {
-  //         this.nextTurn();
-  //         if (this.unitsList.length === 0) {
-  //           this.stopAuto();
-  //         }
-  //       });
-  //   }
-  // }
-
-  // stopAuto() {
-  //   if (this.mockTurnSub) {
-  //     this.mockTurnSub.unsubscribe();
-  //     this.mockTurnSub = undefined;
-  //   }
-  // }
-
-  // async nextTurn() {
-  //   // chyab trza zamontownac observable na flage skonczonść tur broodów
-  //   this.store.dispatch(setTurnPhase({ phase: 'pending' }));
-  //   if (this.broodsList.length > 0) {
-  //     this.broodsList.forEach((brood) => {
-  //       this.game.nextTurnSingle(brood);
-  //     });
-  //     // this.game.nextTurn(this.broodsList);
-  //   }
-
-  //   this.game.computeResults();
-  // }
 
   toggleDecor() {
     this.store.dispatch(toggleUIDecorShowing());

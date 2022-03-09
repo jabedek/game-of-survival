@@ -1,5 +1,40 @@
+<div [style.backgroundColor]="'white'" [style.color]="'black'" class="settings">
+  <div>
+    Field size:
+    <input
+      type="range"
+      list="tickmarks"
+      [ngModel]="fieldSize"
+      (ngModelChange)="changeFieldSize($event)"
+      [min]="fieldSizeOptions[0]"
+      [max]="fieldSizeOptions[fieldSizeOptions.length - 1]"
+      step="1" />
+    <datalist id="tickmarks">
+      <ng-container *ngFor="let size of fieldSizeOptions">
+        <option [label]="size" [value]="size"></option>
+        {{ size }}
+      </ng-container>
+    </datalist>
+
+    <!-- <ng-container *ngFor="let size of fieldSizeOptions">
+    {{ size }}
+    <input
+      type="radio"
+      [id]="size"
+      [value]="size"
+      [name]="size"
+      [ngModel]="fieldSize"
+      [checked]="size === fieldSize"
+      (ngModelChange)="changeFieldSize($event)" />
+  </ng-container> -->
+  </div>
+  <div>
+    Board dimensions:
+    <input type="number" [min]="1" [max]="20" [ngModel]="boardDimensions" (ngModelChange)="boardDimensionsChange($event)" />
+  </div>
+</div>
 <div>
-  <app-board [boardDimensions]="boardDimensions" [fieldSize]="fieldSize" [fields]="fields$ | async"></app-board>
+  <app-board [boardDimensions]="boardDimensions" [fieldSizeComputed]="fieldSizeComputed" [fields]="fields$ | async"></app-board>
 
   <ng-content></ng-content>
   <button (click)="togglePanel()" class="global-button">Pokaż panel</button>
@@ -16,4 +51,18 @@
     <p class="board__button" (click)="handleClick('addNewBroodValidRootRandomly')">Add new Brood randomly</p>
     <p class="board__button" (click)="handleClick('toggleBuilderMode')">Toggle: Build obsticle on Click</p> -->
   </div>
+
+  <!-- <div [style.backgroundColor]="'white'" [style.color]="'black'">
+    <ng-container *ngFor="let size of fieldSizeOptions">
+      {{ size }}
+      <input
+        type="radio"
+        [id]="size"
+        [value]="size"
+        [name]="size"
+        [ngModel]="fieldSize"
+        [checked]="size === fieldSize"
+        (ngModelChange)="changeFieldSize($event)" />
+    </ng-container>
+  </div> -->
 </div>

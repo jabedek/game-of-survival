@@ -1,5 +1,4 @@
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import { BOARD_DIMENSIONS } from '@/src/app/shared/constants/board.constants';
 import { BasicInitialBroodFields, BoardFields, NeighborField, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
 import { Unit } from '../types/board/unit.types';
@@ -12,8 +11,6 @@ export function getInitialFields(boardDimensions: number): BoardFields {
   for (let row = 0; row < boardDimensions; row++) {
     fields[row] = [];
     for (let column = 0; column < boardDimensions; column++) {
-      // console.log(row, column);
-
       const field: Field = {
         pos: { row, column },
         blocked: false,
@@ -27,14 +24,10 @@ export function getInitialFields(boardDimensions: number): BoardFields {
     }
   }
 
-  // console.log(fields);
-
   return fields;
 }
 
-export function getPreparedBroodBase(pos: FieldPos, id?: string, color?: UnitColor) {
-  const dimensions = BOARD_DIMENSIONS;
-
+export function getPreparedBroodBase(dimensions: number, pos: FieldPos, id?: string, color?: UnitColor) {
   const broodId = id || `reds-${getRandom(1000)}`;
   const broodColor = color || 'red';
 

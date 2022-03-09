@@ -6,9 +6,7 @@ export const featureKey = 'game';
 
 export const selectGame = createFeatureSelector<RootState, GameState>(featureKey);
 
-export const selectTurn = createSelector(selectGame, (state: GameState) => {
-  return state.turn;
-});
+export const selectTurn = createSelector(selectGame, (state: GameState) => state.turn);
 
 export const selectTurnPhase = createSelector(selectTurn, (state: TurnState) => state.phase);
 

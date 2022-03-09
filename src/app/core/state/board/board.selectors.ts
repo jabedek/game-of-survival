@@ -13,23 +13,17 @@ export const selectBoardFields = createSelector(selectBoard, (state: BoardState)
 
 export const selectBuilderMode = createSelector(selectBoard, (state: BoardState) => state.builderMode);
 
-export const selectUnitsList = createSelector(selectBoard, (state: BoardState) => {
-  return state.unitsList;
-});
+export const selectUnitsList = createSelector(selectBoard, (state: BoardState) => state.unitsList);
 
-export const selectBroodsList = createSelector(selectBoard, (state: BoardState) => {
-  return state.broodsList;
-});
+export const selectBroodsList = createSelector(selectBoard, (state: BoardState) => state.broodsList);
 
-export const selectUnitsAndBroods = createSelector(selectBoard, (state) => {
-  return {
-    unitsList: state.unitsList,
-    broodsList: state.broodsList,
-  };
-});
+export const selectUnitsAndBroods = createSelector(selectBoard, (state) => ({
+  unitsList: state.unitsList,
+  broodsList: state.broodsList,
+}));
 
 export const selectEmptyFields = createSelector(selectBoardFields, (fields: BoardFields) => {
-  let availableFields: Field[] = [];
+  const availableFields: Field[] = [];
 
   fields.forEach((fieldCol: Field[]) => {
     return fieldCol.forEach((field) => {
@@ -43,9 +37,9 @@ export const selectEmptyFields = createSelector(selectBoardFields, (fields: Boar
 });
 
 export const selectValidBroodSpaces = createSelector(selectBoardFields, (fields: BoardFields) => {
-  let settlements: BasicInitialBroodFields[] = [];
-  let validBroodRoots: FieldPos[] = [];
-  let raport: ValidPotentialBroodSpace[] = [];
+  const settlements: BasicInitialBroodFields[] = [];
+  const validBroodRoots: FieldPos[] = [];
+  const raport: ValidPotentialBroodSpace[] = [];
 
   [...fields].forEach((fieldsCol) => {
     [...fieldsCol].forEach((field) => {
@@ -64,60 +58,40 @@ export const selectValidBroodSpaces = createSelector(selectBoardFields, (fields:
 export const selectAvailableFieldsAndSpaces = createSelector(
   selectEmptyFields,
   selectValidBroodSpaces,
-  (emptyFields: any, validBroodSpaces: any) => {
-    return { emptyFields, validBroodSpaces };
-  }
+  (emptyFields: any, validBroodSpaces: any) => ({ emptyFields, validBroodSpaces })
 );
 
-export const selectBoardField = createSelector(selectBoard, (state: BoardState, props) => {
-  const fieldDetails = state?.fields[props.row][props.column];
-  return fieldDetails;
-});
+export const selectBoardField = createSelector(selectBoard, (state: BoardState, props) => state?.fields[props.row][props.column]);
 
-export const selectFieldNeighbors = createSelector(selectBoardFields, (fields: BoardFields, props: FieldPos) => {
-  const neighbors: NeighborsRaport = HELPERS.getFieldNeighbors([...fields], props);
-
-  return neighbors;
-});
-
-export const selectBoardFieldInfo = createSelector(
-  selectBoard,
-  selectFieldNeighbors,
-  (state: BoardState, neighbors: NeighborsRaport, props) => {
-    const fieldDetails = state?.fields[props.row][props.column];
-    return { fieldDetails, neighbors };
-  }
+export const selectFieldNeighbors = createSelector(
+  selectBoardFields,
+  (fields: BoardFields, props: FieldPos): NeighborsRaport => HELPERS.getFieldNeighbors([...fields], props)
 );
 
-export const selectAllUnitsNeighbors = createSelector(selectBoardFields, selectUnitsList, (fields: BoardFields, units: Unit[]) => {
-  const fieldsNeighbors: NeighborsRaport[] = units.map((p) => {
-    return HELPERS.getFieldNeighbors([...fields], p.pos);
-  });
+export const selectBoardFieldInfo = createSelector(selectBoard, selectFieldNeighbors, (state: BoardState, neighbors: NeighborsRaport, props) => ({
+  fieldDetails: state?.fields[props.row][props.column],
+  neighbors,
+}));
 
-  return fieldsNeighbors;
-});
+export const selectAllUnitsNeighbors = createSelector(selectBoardFields, selectUnitsList, (fields: BoardFields, units: Unit[]): NeighborsRaport[] =>
+  units.map((p) => HELPERS.getFieldNeighbors([...fields], p.pos))
+);
 
 export const selectAllUnitsNeighborsAndBroodsList = createSelector(
   selectBoardFields,
   selectUnitsList,
   selectBroodsList,
-  (fields: BoardFields, units: Unit[], broods: Brood[]) => {
-    const fieldsNeighbors: NeighborsRaport[] = units.map((p) => {
-      return HELPERS.getFieldNeighbors([...fields], p.pos);
-    });
-
-    return { fieldsNeighbors, broodsList: broods };
-  }
+  (fields: BoardFields, units: Unit[], broods: Brood[]) => ({
+    fieldsNeighbors: units.map((p) => HELPERS.getFieldNeighbors([...fields], p.pos)),
+    broodsList: broods,
+  })
 );
 
-export const selectUnitsNeighbors = createSelector(selectBoardFields, (fields: BoardFields, props: Unit[]) => {
-  const fieldsNeighbors: NeighborsRaport[] = props.map((p) => {
-    return HELPERS.getFieldNeighbors([...fields], p.pos);
-  });
+export const selectUnitsNeighbors = createSelector(selectBoardFields, (fields: BoardFields, props: Unit[]): NeighborsRaport[] =>
+  props.map((p) => HELPERS.getFieldNeighbors([...fields], p.pos))
+);
 
-  return fieldsNeighbors;
-});
-
-export const selectBoardSnapshot = createSelector(selectAvailableFieldsAndSpaces, selectUnitsAndBroods, (available, occupied) => {
-  return { available, occupied };
-});
+export const selectBoardSnapshot = createSelector(selectAvailableFieldsAndSpaces, selectUnitsAndBroods, (available, occupied) => ({
+  available,
+  occupied,
+}));

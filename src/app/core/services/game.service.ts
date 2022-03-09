@@ -26,6 +26,7 @@ import { UnitsService } from '../modules/board/services/units.service';
 import { UnitBase } from '../../shared/types/board/unit-base.types';
 import { Unit } from '../../shared/types/board/unit.types';
 import { Brood } from '../../shared/types/board/brood.types';
+import { first } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -57,22 +58,21 @@ export class GameService {
   addNewUnit = (unit) => {};
 
   nextTurn(broods: Brood[]) {
-    broods.forEach((brood) => {
-      this.nextTurnSingle(brood);
-    });
+    broods.forEach((brood) => this.nextTurnSingle(brood));
   }
 
   nextTurnSingle(brood: Brood) {
     this.store.dispatch(setTurnPhase({ phase: 'pending' }));
     this.store
       .select(selectUnitsNeighbors, brood.units)
+      .pipe(first())
       .subscribe((data) => {
         brood.beginTurn({
           neighbors: data,
           cb: this.addNewUnitToBrood,
         });
-      })
-      .unsubscribe();
+      });
+    // .unsubscribe();
   }
 
   computeResults() {
@@ -186,7 +186,6 @@ export class GameService {
 
   private getMultipliedMember(n: NeighborsRaport, forcedGroupId?: string, voidUnit?: boolean): Unit {
     const field = n.centerField;
-    // console.log('broodId', forcedGroupId);
 
     let broodId = forcedGroupId || field?.occupyingUnit?.broodId;
     broodId = voidUnit ? undefined : broodId;
@@ -201,7 +200,6 @@ export class GameService {
 
     if (n.accessible.length > 0) {
       const pos = n.accessible[getRandom(n.accessible.length - 1)].field.pos;
-      // console.log(new Unit(id, pos, color, broodId,undefined));
 
       return new Unit(id, pos, color, broodId, undefined, type);
     }
@@ -222,14 +220,11 @@ export class GameService {
       probArray[i] = i < probability + bonus ? true : false;
     }
     const randomOutcome = probArray[getRandom(100)];
-    // console.log(data, n, bonus, randomOutcome);
 
     return randomOutcome;
   }
 
   updateBoard(update: TurnUpdate): void {
-    // console.log('update', !!update);
-
     if (update) {
       update.unitsToDel.forEach((u) => {
         this.boardService.deleteUnit(u);

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Subscription } from 'rxjs';
 import { GameService } from '@/src/app/core/services/game.service';
@@ -7,11 +7,13 @@ import { selectBoardFields, selectValidBroodSpaces } from '@/src/app/core/state/
 import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state/root-state.types';
-import { selectUI } from '@/src/app/core/state/ui/ui.selectors';
-import { toggleUIPanelShowing } from '@/src/app/core/state/ui/ui.actions';
+import { selectBoardDimensions, selectFieldSizeComputed, selectUI } from '@/src/app/core/state/ui/ui.selectors';
+import { setBoardDimensions, setFieldSize, toggleUIPanelShowing } from '@/src/app/core/state/ui/ui.actions';
 import { toggleBuilderMode } from '@/src/app/core/state/board/actions/board.actions';
 import { ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
-import { BOARD_DIMENSIONS, FIELD_DISPLAY_INFO, FIELD_SIZE } from '@/src/app/shared/constants/board.constants';
+import { BOARD_DIMENSIONS, FIELD_DISPLAY_INFO, DEFAULT_FIELD_SIZE_COMPUTED, FIELD_SIZES } from '@/src/app/shared/constants/board.constants';
+import { Option } from '@/src/app/shared/types/common.types';
+import { UnitsService } from '../../modules/board/services/units.service';
 
 @Component({
   selector: 'app-panel',
@@ -19,12 +21,13 @@ import { BOARD_DIMENSIONS, FIELD_DISPLAY_INFO, FIELD_SIZE } from '@/src/app/shar
   styleUrls: ['./panel.component.scss'],
   // changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PanelComponent implements OnInit {
+export class PanelComponent implements OnInit, OnDestroy {
   constructor(
     public store: Store<RootState>,
     public boardService: BoardService,
     public gameService: GameService,
-    public cdr: ChangeDetectorRef
+    public cdr: ChangeDetectorRef,
+    public unitsService: UnitsService
   ) {}
 
   // Observables
@@ -35,14 +38,41 @@ export class PanelComponent implements OnInit {
   subscription: Subscription = new Subscription();
 
   // UI related
+  selectBoardDimensions$ = this.store.select(selectBoardDimensions);
   boardDimensions = BOARD_DIMENSIONS;
+  boardDimensionsChange(event: any) {
+    this.store.dispatch(setBoardDimensions({ dimensions: event }));
+  }
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
-  fieldSize = FIELD_SIZE;
   panelShowing = true;
   borderObsticlesUp = false;
+  fieldSizeOptions = FIELD_SIZES;
+
+  selectFieldSizeComputed$ = this.store.select(selectFieldSizeComputed);
+  fieldSizeComputed = DEFAULT_FIELD_SIZE_COMPUTED;
+  fieldSize = this.fieldSizeOptions[1];
+  changeFieldSize(event) {
+    this.fieldSize = event;
+    this.store.dispatch(setFieldSize({ size: event }));
+  }
 
   ngOnInit(): void {
-    // this.fields$.subscribe((data) => console.log(data));
+    this.subscription.add(
+      this.selectBoardDimensions$.subscribe((d) => {
+        this.boardDimensions = d;
+        this.reloadBoard();
+        this.cdr.detectChanges();
+      })
+    );
+
+    this.subscription.add(
+      this.selectFieldSizeComputed$.subscribe((s) => {
+        this.fieldSizeComputed = s;
+        this.reloadBoard();
+
+        this.cdr.detectChanges();
+      })
+    );
 
     this.subscription.add(
       this.ui$.subscribe((data) => {
@@ -56,9 +86,13 @@ export class PanelComponent implements OnInit {
       })
     );
 
-    this.initBoard();
+    // this.initBoard();
     this.toggleBordersDown();
     this.addNewBroodValidRootRandomly();
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   handleClick(type: string) {

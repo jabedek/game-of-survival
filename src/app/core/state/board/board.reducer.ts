@@ -17,21 +17,17 @@ export const boardReducer = createReducer(
   initialBoardState,
 
   // *** Units ***
+
   on(actions.boardActions.clearUnitsList, (state) => {
-    return {
-      ...state,
-      unitsList: [],
-    };
+    return { ...state, unitsList: [] };
   }),
+
   on(actions.boardActions.addBroodToList, (state: BoardState, { brood }) => {
     let broodsList: Brood[] = [...state.broodsList].map((b) => b);
     broodsList = [...state.broodsList.map((b) => b), brood];
     broodsList = [...broodsList].filter((b) => b.units.length > 0);
 
-    return {
-      ...state,
-      broodsList,
-    };
+    return { ...state, broodsList };
   }),
 
   on(actions.boardActions.addUnitToList, (state, { unit }) => {
@@ -47,36 +43,25 @@ export const boardReducer = createReducer(
       return b;
     });
 
-    return {
-      ...state,
-      unitsList: Array.from(new Set([...state.unitsList, unit])),
-      broodsList,
-    };
+    return { ...state, unitsList: Array.from(new Set([...state.unitsList, unit])), broodsList };
   }),
 
   on(actions.boardActions.deleteUnitFromList, (state, { pos }) => {
     const unitsList = [...state.unitsList].filter((p) => !(p.pos.row === pos.row && p.pos.column === pos.column));
 
-    return {
-      ...state,
-      unitsList,
-    };
+    return { ...state, unitsList };
   }),
 
   on(actions.boardActions.clearBroodsList, (state) => {
-    return {
-      ...state,
-      broodsList: [],
-    };
+    return { ...state, broodsList: [] };
   }),
 
   // *** BoardFields
+
   on(actions.boardActions.loadBoardFields, (state, { fields }) => {
-    return {
-      ...state,
-      fields,
-    };
+    return { ...state, fields };
   }),
+
   on(actions.boardActions.setField, (state, { field }) => {
     const fields = [...state.fields].map((row) => {
       return row.map((f) => {
@@ -88,16 +73,11 @@ export const boardReducer = createReducer(
       });
     });
 
-    return {
-      ...state,
-      fields,
-    };
+    return { ...state, fields };
   }),
+
   on(actions.boardActions.toggleBuilderMode, (state) => {
-    return {
-      ...state,
-      builderMode: !state.builderMode,
-    };
+    return { ...state, builderMode: !state.builderMode };
   }),
 
   on(actions.boardActions.moveUnitFromTo, (state, { pos, newPos }) => {
@@ -138,7 +118,6 @@ export const boardReducer = createReducer(
             pos: { row: newPos.row, column: newPos.column },
           };
           u = unit;
-          // console.log(u);
         }
         return u;
       });
@@ -146,19 +125,13 @@ export const boardReducer = createReducer(
       //  brood.units = brood.units.filter(
       //    (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
       //  );
-      // console.log(units);
+
       brood.units = units;
       // brood.units = units;
       return brood;
     });
 
-    // console.log(broodsList);
-
-    return {
-      ...state,
-      fields,
-      broodsList,
-    };
+    return { ...state, fields, broodsList };
   }),
 
   on(actions.fieldActions.setFieldUnit, (state, { unit }) => {
@@ -178,11 +151,7 @@ export const boardReducer = createReducer(
       })
     );
 
-    return {
-      ...state,
-
-      fields,
-    };
+    return { ...state, fields };
   }),
 
   on(actions.fieldActions.setFieldsHighlightTrue, (state, { fieldsToHighLight }) => {
@@ -202,11 +171,9 @@ export const boardReducer = createReducer(
     });
     // console.log(fieldsToHighLight);
 
-    return {
-      ...state,
-      fields,
-    };
+    return { ...state, fields };
   }),
+
   on(actions.fieldActions.setAllFieldsHighlightFalse, (state) => {
     let fields = [...state.fields].map((row: Field[]) => {
       return row.map((f) => {
@@ -217,10 +184,7 @@ export const boardReducer = createReducer(
       });
     });
 
-    return {
-      ...state,
-      fields,
-    };
+    return { ...state, fields };
   }),
 
   on(actions.fieldActions.setFieldObsticle, (state, { pos }) => {
@@ -237,10 +201,7 @@ export const boardReducer = createReducer(
       })
     );
 
-    return {
-      ...state,
-      fields,
-    };
+    return { ...state, fields };
   }),
 
   on(actions.fieldActions.setFieldObject, (state, { pos }) => {
@@ -257,15 +218,13 @@ export const boardReducer = createReducer(
       })
     );
 
-    return {
-      ...state,
-      fields,
-    };
+    return { ...state, fields };
   }),
 
   /**
    * Sets field unblocked with occupying unit set toundefined, so it doesn't display any unit.
    */
+
   on(actions.fieldActions.setFieldEmpty, (state, { pos }) => {
     if (state.fields[pos.row] && state.fields[pos.row][pos.column]) {
       const previousField: Field = { ...state.fields[pos.row][pos.column] };
@@ -317,11 +276,7 @@ export const boardReducer = createReducer(
         }
       }
 
-      return {
-        ...state,
-        broodsList,
-        fields,
-      };
+      return { ...state, broodsList, fields };
     } else return state;
   }),
 
@@ -330,22 +285,18 @@ export const boardReducer = createReducer(
    * Only updates info in a brood.
    * Doesn't update unit on a field on its own.
    */
+
   on(actions.broodActions.removeBroodMember, (state, { pos }) => {
     let broodsList = [...state.broodsList].map((b) => {
       let brood = Object.assign({}, b);
 
       brood.units = brood.units.filter((u) => !(u.pos.row === pos.row && u.pos.column === pos.column));
 
-      // console.log(brood);
       return brood;
     });
 
-    // console.log("brood:",brood);
-    // console.log(broodsList);
-
     broodsList = broodsList.filter((b) => b.units.length !== 0);
-    // console.log(broodsList);
-    //
+
     return { ...state, broodsList };
   }),
 

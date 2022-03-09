@@ -1,9 +1,8 @@
-import { BOARD_DIMENSIONS } from '../../shared/constants/board.constants';
 import { Brood } from '../../shared/types/board/brood.types';
 import { Unit } from '../../shared/types/board/unit.types';
 
-export function scenarioData_A() {
-  const boardOffset = 2;
+export function scenarioData_A(boardDimensions: number) {
+  const boardOffset = boardDimensions > 10 ? 2 : 0;
 
   const redBrood: Brood = new Brood(
     'reds',
@@ -17,24 +16,8 @@ export function scenarioData_A() {
   const blueBrood: Brood = new Brood(
     'blues',
     [
-      new Unit(
-        'blues-0',
-        {
-          row: BOARD_DIMENSIONS - 1 - boardOffset,
-          column: BOARD_DIMENSIONS - 2 - boardOffset,
-        },
-        'blue',
-        'blues'
-      ),
-      new Unit(
-        'blues-0',
-        {
-          row: BOARD_DIMENSIONS - 1 - boardOffset,
-          column: BOARD_DIMENSIONS - 1 - boardOffset,
-        },
-        'blue',
-        'blues'
-      ),
+      new Unit('blues-0', { row: boardDimensions - 1 - boardOffset, column: boardDimensions - 2 - boardOffset }, 'blue', 'blues'),
+      new Unit('blues-0', { row: boardDimensions - 1 - boardOffset, column: boardDimensions - 1 - boardOffset }, 'blue', 'blues'),
     ],
     'blue'
   );
@@ -42,24 +25,8 @@ export function scenarioData_A() {
   const greenBrood: Brood = new Brood(
     'greens',
     [
-      new Unit(
-        'greens-0',
-        {
-          row: Math.round(BOARD_DIMENSIONS / 2) - 1,
-          column: Math.round(BOARD_DIMENSIONS / 2) - 1,
-        },
-        'green',
-        'greens'
-      ),
-      new Unit(
-        'greens-0',
-        {
-          row: Math.round(BOARD_DIMENSIONS / 2) - 1,
-          column: Math.round(BOARD_DIMENSIONS / 2),
-        },
-        'green',
-        'greens'
-      ),
+      new Unit('greens-0', { row: Math.round(boardDimensions / 2) - 1, column: Math.round(boardDimensions / 2) - 1 }, 'green', 'greens'),
+      new Unit('greens-0', { row: Math.round(boardDimensions / 2) - 1, column: Math.round(boardDimensions / 2) }, 'green', 'greens'),
     ],
     'green'
   );
