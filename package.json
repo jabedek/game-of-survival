@@ -24,6 +24,8 @@
     "fastdom": "^1.0.10",
     "moment": "^2.29.1",
     "ngrx": "0.0.1-security",
+    "normalize-scss": "^7.0.1",
+    "normalize.css": "^8.0.1",
     "prop-types": "^15.7.2",
     "rxjs": "^6.6.3",
     "tslib": "^2.0.0",
