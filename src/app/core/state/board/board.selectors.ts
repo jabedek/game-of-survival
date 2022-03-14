@@ -3,7 +3,13 @@ import { BoardState, RootState } from '@/src/app/core/state/root-state.types';
 
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
-import { BoardFields, BasicInitialBroodFields, NeighborsRaport, ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
+import {
+  BoardFields,
+  BasicInitialBroodFields,
+  NeighborsRaport,
+  ValidPotentialBroodSpace,
+  NeighborsAndBroods,
+} from '@/src/app/shared/types/board/board.types';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
 import { Brood } from '@/src/app/shared/types/board/brood.types';
 
@@ -61,7 +67,7 @@ export const selectAvailableFieldsAndSpaces = createSelector(
   (emptyFields: any, validBroodSpaces: any) => ({ emptyFields, validBroodSpaces })
 );
 
-export const selectBoardField = createSelector(selectBoard, (state: BoardState, props) => state?.fields[props.row][props.column]);
+// export const selectBoardField = createSelector(selectBoard, (state: BoardState, props) => state?.fields[props.row][props.column]);
 
 export const selectFieldNeighbors = createSelector(
   selectBoardFields,
@@ -81,7 +87,7 @@ export const selectAllUnitsNeighborsAndBroodsList = createSelector(
   selectBoardFields,
   selectUnitsList,
   selectBroodsList,
-  (fields: BoardFields, units: Unit[], broods: Brood[]) => ({
+  (fields: BoardFields, units: Unit[], broods: Brood[]): NeighborsAndBroods => ({
     fieldsNeighbors: units.map((p) => HELPERS.getFieldNeighbors([...fields], p.pos)),
     broodsList: broods,
   })

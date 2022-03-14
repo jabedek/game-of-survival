@@ -13,16 +13,9 @@ export type UnitID = string;
 export type UnitType = 'void' | 'regular';
 
 export type UnitColor = 'red' | 'blue' | 'green' | 'black' | 'mixed';
-
-export class UnitBase {
+export interface UnitBase {
   id: UnitID;
-  broodId: BroodID;
   pos: FieldPos;
   type: UnitType;
-  constructor(id: string, broodId: string, pos: FieldPos, type?: UnitType) {
-    this.id = id;
-    this.broodId = broodId || undefined;
-    this.pos = pos;
-    this.type = type;
-  }
+  broodId: BroodID | undefined;
 }

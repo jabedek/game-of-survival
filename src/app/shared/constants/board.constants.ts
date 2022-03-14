@@ -1,5 +1,3 @@
-import { Option } from '../types/common.types';
-
 // ### REPRO
 export const CHANCES_TO_DIE_BASE = 95; // = 95 MEANS 95% ADDED TO PROBABILITY
 export const BASE_CHANCES_TO_PARTICLE_MULTIPLY_WITH_NEIGHBORS = 5;

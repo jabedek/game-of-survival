@@ -7,12 +7,9 @@
       *ngFor="let field of row; let colPos = index; trackBy: trackByFn"
       [style.height.px]="fieldSize"
       (contextmenu)="addBroodOnContextmenu($event)">
-      <div
-        class="field"
-        name="{{ rowPos }}-{{ colPos }}"
-        key="{{ rowPos }}-{{ colPos }}"
-        [class.accessible-border]="field?.highlightAccessibility">
+      <div class="field" name="{{ rowPos }}-{{ colPos }}" key="{{ rowPos }}-{{ colPos }}" [class.accessible-border]="field?.highlightAccessibility">
         <div class="field__content" *ngIf="field">
+          <!-- <p class="pos">{{ rowPos }}x {{ colPos }}</p> -->
           <ng-container [ngSwitch]="field.mode">
             <ng-container
               *ngSwitchCase="'unit'"

@@ -4,6 +4,7 @@ import { createAction, props } from '@ngrx/store';
 export const toggleUIPanelShowing = createAction('[App Component] Toggle Panel');
 
 export const toggleUIDecorShowing = createAction('[App Component] Toggle Decor');
+export const toggleUIDecorShowingForced = createAction('[App Component] Toggle Decor Forced', props<{ mode: boolean }>());
 
 export const setFieldSize = createAction('[Settings Panel] Set Field Size', props<{ size: FieldSize }>());
 

@@ -21,19 +21,20 @@ import { UIService } from '@/src/app/core/services/ui.service';
 
 import { BoardDynamicCSS } from '@/src/app/shared/types/ui.types';
 import { fromEvent, Observable, Subject, Subscription } from 'rxjs';
-import { tap, share, switchMap, filter, takeUntil, auditTime, withLatestFrom, map, take, throwIfEmpty } from 'rxjs/operators';
+import { tap, share, switchMap, filter, takeUntil, auditTime, withLatestFrom, map, take, throwIfEmpty, first } from 'rxjs/operators';
 
 import { setAllFieldsHighlightFalse, setFieldObject, setFieldsHighlightTrue } from '@/src/app/core/state/board/actions/field.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import { BoardFields, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
+import { BoardFields, NeighborField, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
-import { BOARD_DIMENSIONS, DEFAULT_FIELD_SIZE_COMPUTED } from '@/src/app/shared/constants/board.constants';
+import { DEFAULT_FIELD_SIZE_COMPUTED } from '@/src/app/shared/constants/board.constants';
 import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import { selectFieldNeighbors } from '@/src/app/core/state/board/board.selectors';
 // import { selectFieldNeighbors } from '../../store/board.selectors';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
+import { MousePos } from '@/src/app/shared/types/common.types';
 
 const AUDIT_TIME = 16;
 
@@ -44,30 +45,30 @@ const AUDIT_TIME = 16;
   // providers: [BoardService],
 })
 export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() boardDimensions: number = undefined;
-  @Input() fieldSizeComputed: number = undefined;
+  @Input() boardDimensions = 0;
+  @Input() fieldSizeComputed = 0;
   @Input() fields: BoardFields = [];
-  CSS: BoardDynamicCSS = undefined;
+  CSS: BoardDynamicCSS | undefined;
 
-  hostRect: DOMRect = undefined;
+  hostRect: DOMRect | undefined;
 
   @Output() setUnitEvent: EventEmitter<Unit> = new EventEmitter();
   @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
   @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
-  @ViewChildren('div', { read: ElementRef }) div;
-  @ViewChildren('fieldsTemplates', { read: ElementRef }) fieldsTemplates: ElementRef;
-  dragStart;
-  moveTo;
+  @ViewChildren('div', { read: ElementRef }) div: ElementRef | undefined;
+  @ViewChildren('fieldsTemplates', { read: ElementRef }) fieldsTemplates: ElementRef | undefined;
+  mouseDragStart: MousePos | undefined;
+  mousePosStart: MousePos | undefined;
+  mouseMoveTo: MousePos | undefined;
   // fieldSizeComputed = DEFAULT_FIELD_SIZE_COMPUTED;
   CSSsize = DEFAULT_FIELD_SIZE_COMPUTED * 0.8;
   sub: Subscription = new Subscription();
-  currentFieldNeighbors$: Observable<NeighborsRaport> = undefined;
+  currentFieldNeighbors$: Observable<NeighborsRaport> | undefined;
   // ### Functional flags
   borderObsticlesUp = false;
-  refs: ElementRef[] = undefined;
+  refs: ElementRef[] | undefined;
   subscription: Subscription = new Subscription();
-  accessibleNeighbors: any[] = undefined;
-  posStart = undefined;
+  mouseAccessibleFields: Field[] | undefined;
   fieldsLoaded = false;
 
   private destroy$ = new Subject<void>();
@@ -109,11 +110,11 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  trackByFnRow(index, item: Field[]) {
+  trackByFnRow(index: number, item: Field[]): string {
     return `${index}`;
   }
 
-  trackByFn(index, item: Field) {
+  trackByFn(index: number, item: Field): string {
     if (index === this.boardDimensions - 1) {
       this.fieldsLoaded = true;
       // this.CSS.structurings.display = 'initial';
@@ -126,7 +127,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   //   return this.fieldsLoaded ? 'initial' : 'none';
   // }
 
-  private initBoardWithStylings() {
+  private initBoardWithStylings(): void {
     this.CSS = this.uiService.getStylingsDetails(this.boardDimensions, this.fieldSizeComputed);
     // this.CSS.structurings.display = 'none';
   }
@@ -134,7 +135,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   /**
    * Observe mouse action (move, up, down)
    */
-  private observeMouseMove() {
+  private observeMouseMove(): void {
     this.ngZone.runOutsideAngular(() => {
       const mousemove$ = fromEvent<MouseEvent>(window, 'mousemove');
 
@@ -168,19 +169,23 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  onMouseUp(event) {
+  onMouseUp(event: MouseEvent): void {
     this.sub.unsubscribe();
-    let startPos: FieldPos = undefined;
-    let endPos: FieldPos = undefined;
+    let startPos: FieldPos = { column: -1, row: -1 };
+    let endPos: FieldPos = { column: -1, row: -1 };
+    console.log(this.mouseDragStart, this.mousePosStart);
 
-    if (this.dragStart && this.posStart) {
+    if (this.mouseDragStart && this.mousePosStart) {
       [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
         const rect: DOMRect = t.nativeElement.getBoundingClientRect();
-        if (HELPERS.isClickInRectBoundries(rect, this.posStart.x, this.posStart.y)) {
-          startPos = {
-            row: Math.floor(i / BOARD_DIMENSIONS),
-            column: i % BOARD_DIMENSIONS,
-          };
+
+        if (this.mousePosStart?.x && this.mousePosStart?.y) {
+          if (HELPERS.isClickInRectBoundries(rect, this.mousePosStart?.x, this.mousePosStart?.y)) {
+            startPos = {
+              row: Math.floor(i / this.boardDimensions),
+              column: i % this.boardDimensions,
+            };
+          }
         }
       });
 
@@ -188,8 +193,8 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
         const rect: DOMRect = t.nativeElement.getBoundingClientRect();
         if (HELPERS.isClickInRectBoundries(rect, event.x, event.y)) {
           endPos = {
-            row: Math.floor(i / BOARD_DIMENSIONS),
-            column: i % BOARD_DIMENSIONS,
+            row: Math.floor(i / this.boardDimensions),
+            column: i % this.boardDimensions,
           };
         }
       });
@@ -204,8 +209,8 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
             /**
              * Unit can only move in straight lines like '+' (correct), not diagonal like 'x' (not correct).
              */
-            const existingAndCorrect = this.accessibleNeighbors.find(
-              (f: Field) => f.pos.row === endPos?.row && f.pos.column === endPos?.column
+            const existingAndCorrect = this.mouseAccessibleFields?.find(
+              (f: Field | undefined) => f && f.pos.row === endPos?.row && f.pos.column === endPos?.column
             );
 
             /**
@@ -219,40 +224,44 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
         this.store.dispatch(setAllFieldsHighlightFalse());
 
-        this.dragStart = undefined;
-        this.posStart = undefined;
+        this.mouseDragStart = undefined;
+        this.mousePosStart = undefined;
       }
     }
   }
 
-  onMouseDown(event) {
-    let startPos = undefined;
+  onMouseDown(event: MouseEvent): void {
+    let startPos: FieldPos;
 
     [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
       const rect: DOMRect = t.nativeElement.getBoundingClientRect();
 
       if (HELPERS.isClickInRectBoundries(rect, event.x, event.y)) {
         startPos = {
-          row: Math.floor(i / BOARD_DIMENSIONS),
-          column: i % BOARD_DIMENSIONS,
+          row: Math.floor(i / this.boardDimensions),
+          column: i % this.boardDimensions,
         };
 
         if (!!this.fields[startPos.row][startPos.column]) {
-          this.dragStart = event.target.getBoundingClientRect();
-          this.posStart = { x: event.x, y: event.y };
+          this.mouseDragStart = (event.target as HTMLElement).getBoundingClientRect();
+          this.mousePosStart = { x: event.x, y: event.y };
 
           this.store
             .select(selectFieldNeighbors, startPos)
-            .pipe(take(1))
-            .subscribe((data) => {
-              this.accessibleNeighbors = data.accessibleToMove.map((a) => a.field);
-              if (
-                this.fields[startPos.row][startPos.column]?.occupyingUnit &&
-                this.fields[startPos.row][startPos.column].mode !== 'other'
-              ) {
+            .pipe(first())
+            .subscribe((data: NeighborsRaport) => {
+              const fields: Field[] = [];
+              data.accessibleToMove.forEach((n) => {
+                if (n.field) {
+                  fields.push(n.field);
+                }
+              });
+              this.mouseAccessibleFields = fields;
+
+              if (this.fields[startPos.row][startPos.column]?.occupyingUnit && this.fields[startPos.row][startPos.column].mode !== 'other') {
                 this.store.dispatch(
                   setFieldsHighlightTrue({
-                    fieldsToHighLight: this.accessibleNeighbors,
+                    fieldsToHighLight: this.mouseAccessibleFields,
                   })
                 );
               }
@@ -262,30 +271,29 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  onDrag(event) {}
+  onDrag(event: MouseEvent): void {}
 
   /**
    * Determines NEXT mode change based on field's current state.
    */
-  toggleField(field) {
+  toggleField(field: Field): void {
     this.boardService.toggleField(field);
   }
 
-  addBroodOnContextmenu(event) {
-    let startPos: FieldPos = undefined;
+  addBroodOnContextmenu(event: MouseEvent): void {
+    let startPos: FieldPos = { column: -1, row: -1 };
 
     [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
       const rect: DOMRect = t.nativeElement.getBoundingClientRect();
 
       if (HELPERS.isClickInRectBoundries(rect, event.x, event.y)) {
         startPos = {
-          row: Math.floor(i / BOARD_DIMENSIONS),
-          column: i % BOARD_DIMENSIONS,
+          row: Math.floor(i / this.boardDimensions),
+          column: i % this.boardDimensions,
         };
       }
     });
 
-    let rndId = `evitons${getRandom(1000)}`;
-    this.boardService.addNewBroodOnContextmenu(rndId, startPos, 'red');
+    this.boardService.addNewBroodOnContextmenu(`evitons${getRandom(1000)}`, startPos, 'red');
   }
 }

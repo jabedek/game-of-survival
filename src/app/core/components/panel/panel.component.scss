@@ -47,11 +47,24 @@
   }
 }
 
+.panel-wrapper {
+  background: white;
+  border: 1px solid gray;
+  border-radius: 0.8rem;
+}
+
 .settings {
   position: absolute;
   top: 0;
   left: 0;
-  height: 50px;
-  width: 300px;
+  height: auto;
+  width: auto;
+  padding: 1rem;
   z-index: 100;
+}
+
+.panel__control {
+  margin: 1rem 0;
+  font-family: Poppins;
+  padding: 0 0.6rem;
 }

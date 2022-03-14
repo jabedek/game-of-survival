@@ -7,11 +7,11 @@ import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 
-import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
+import { Field, FieldMode, FieldPos } from '@/src/app/shared/types/board/field.types';
 import { BoardFields, ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
 import { selectBoardFields, selectEmptyFields, selectValidBroodSpaces } from '@/src/app/core/state/board/board.selectors';
 import { addBroodToList, loadBoardFields } from '@/src/app/core/state/board/actions/board.actions';
-import { BOARD_DIMENSIONS } from '@/src/app/shared/constants/board.constants';
+import {} from '@/src/app/shared/constants/board.constants';
 import { BoardModule } from './board.module';
 import { FieldService } from './services/field.service';
 import { UnitsService } from './services/units.service';
@@ -27,7 +27,7 @@ export class BoardService implements OnDestroy {
   subscription: Subscription = new Subscription();
   selectBoardDimensions$ = this.store.select(selectBoardDimensions);
 
-  boardDimensions: number | undefined;
+  boardDimensions = 0;
   constructor(public store: Store<RootState>, private fieldService: FieldService, private unitsService: UnitsService) {
     this.subscription.add(
       this.selectBoardDimensions$.subscribe((d) => {
@@ -43,10 +43,10 @@ export class BoardService implements OnDestroy {
   validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(selectValidBroodSpaces);
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe;
+    this.subscription.unsubscribe();
   }
 
-  reloadBoard() {
+  reloadBoard(): void {
     this.store.dispatch(
       loadBoardFields({
         fields: this.getInitialFields(this.boardDimensions),
@@ -58,7 +58,7 @@ export class BoardService implements OnDestroy {
     this.store.dispatch(resetTurnCounter());
   }
 
-  scenario2() {
+  scenario2(): void {
     this.reloadBoard();
 
     const boardOffset = 2;
@@ -78,8 +78,8 @@ export class BoardService implements OnDestroy {
         new Unit(
           'blues-0',
           {
-            row: BOARD_DIMENSIONS - 1 - boardOffset,
-            column: BOARD_DIMENSIONS - 2 - boardOffset,
+            row: this.boardDimensions - 1 - boardOffset,
+            column: this.boardDimensions - 2 - boardOffset,
           },
           'blue',
           'blues'
@@ -87,8 +87,8 @@ export class BoardService implements OnDestroy {
         new Unit(
           'blues-0',
           {
-            row: BOARD_DIMENSIONS - 1 - boardOffset,
-            column: BOARD_DIMENSIONS - 1 - boardOffset,
+            row: this.boardDimensions - 1 - boardOffset,
+            column: this.boardDimensions - 1 - boardOffset,
           },
           'blue',
           'blues'
@@ -103,8 +103,8 @@ export class BoardService implements OnDestroy {
         new Unit(
           'greens-0',
           {
-            row: Math.round(BOARD_DIMENSIONS / 2) - 1,
-            column: Math.round(BOARD_DIMENSIONS / 2) - 1,
+            row: Math.round(this.boardDimensions / 2) - 1,
+            column: Math.round(this.boardDimensions / 2) - 1,
           },
           'green',
           'greens'
@@ -112,8 +112,8 @@ export class BoardService implements OnDestroy {
         new Unit(
           'greens-0',
           {
-            row: Math.round(BOARD_DIMENSIONS / 2) - 1,
-            column: Math.round(BOARD_DIMENSIONS / 2),
+            row: Math.round(this.boardDimensions / 2) - 1,
+            column: Math.round(this.boardDimensions / 2),
           },
           'green',
           'greens'
@@ -127,13 +127,15 @@ export class BoardService implements OnDestroy {
     this.addBrood(greenBrood);
   }
 
-  toggleField(field: Field) {
+  toggleField(field: Field): void {
+    console.log(field);
+
     switch (field.mode) {
       case 'empty':
         this.fieldService.setFieldObsticle(field.pos);
         break;
       case 'obsticle':
-        const unit: Unit = new Unit(`solo${getRandom(1000)}`, field.pos, 'blue');
+        const unit: Unit = new Unit(`solo${getRandom(1000)}`, field.pos, 'blue', undefined);
         this.addNewUnit(unit);
         break;
       case 'unit':
@@ -150,7 +152,7 @@ export class BoardService implements OnDestroy {
    * Only used in creating/preparing stage.
    * Doesn't update overwritten units or brood states in store.
    */
-  toggleBorders(boardDimensions: number, toggler): void {
+  toggleBorders(boardDimensions: number, toggler: boolean): void {
     const borderObsticlesUp = !toggler;
 
     for (let row = 0; row < boardDimensions; row++) {
@@ -201,7 +203,9 @@ export class BoardService implements OnDestroy {
     brood.units.forEach((unit) => {
       this.deleteUnit(unit.pos);
       this.fieldService.setFieldUnit(unit);
-      this.unitsService.setUnitBroodBelonging(unit, unit.broodId);
+      if (unit.broodId) {
+        this.unitsService.setUnitBroodBelonging(unit, unit.broodId);
+      }
       this.unitsService.addMemberToBroodUnits(unit);
       this.unitsService.updateUnitsList('add', unit);
     });
@@ -218,7 +222,7 @@ export class BoardService implements OnDestroy {
     return this.store.select(selectBoardFields);
   }
 
-  private getInitialFields(boardDimensions): BoardFields {
+  private getInitialFields(boardDimensions: number): BoardFields {
     return HELPERS.getInitialFields(boardDimensions);
   }
 
@@ -226,7 +230,7 @@ export class BoardService implements OnDestroy {
     return this.emptyFields$;
   }
 
-  putUnitOnEmptyFieldRandomly(type) {
+  putUnitOnEmptyFieldRandomly(type: FieldMode) {
     let success = false;
     let board: Field[] = [];
 
@@ -262,21 +266,18 @@ export class BoardService implements OnDestroy {
       .unsubscribe();
   }
 
-  addNewUnit = (unit: Unit) => {
+  addNewUnit(unit: Unit) {
+    console.log(unit);
+
     this.fieldService.setFieldEmpty(unit.pos);
     this.fieldService.setFieldUnit(unit);
     this.unitsService.updateUnitsList('add', unit);
-  };
+  }
 
   deleteUnit(pos: FieldPos) {
     this.unitsService.removeBroodMember(pos);
     this.unitsService.updateUnitsList('del', {
       pos,
-      broodId: undefined,
-      color: undefined,
-      id: undefined,
-      state: undefined,
-      type: undefined,
     });
     this.fieldService.setFieldEmpty(pos);
   }

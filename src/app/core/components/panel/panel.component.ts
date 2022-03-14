@@ -8,10 +8,16 @@ import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import { selectBoardDimensions, selectFieldSizeComputed, selectUI } from '@/src/app/core/state/ui/ui.selectors';
-import { setBoardDimensions, setFieldSize, toggleUIPanelShowing } from '@/src/app/core/state/ui/ui.actions';
+import {
+  setBoardDimensions,
+  setFieldSize,
+  toggleUIDecorShowing,
+  toggleUIDecorShowingForced,
+  toggleUIPanelShowing,
+} from '@/src/app/core/state/ui/ui.actions';
 import { toggleBuilderMode } from '@/src/app/core/state/board/actions/board.actions';
 import { ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
-import { BOARD_DIMENSIONS, FIELD_DISPLAY_INFO, DEFAULT_FIELD_SIZE_COMPUTED, FIELD_SIZES } from '@/src/app/shared/constants/board.constants';
+import { FIELD_DISPLAY_INFO, DEFAULT_FIELD_SIZE_COMPUTED, FIELD_SIZES, FieldSize } from '@/src/app/shared/constants/board.constants';
 import { Option } from '@/src/app/shared/types/common.types';
 import { UnitsService } from '../../modules/board/services/units.service';
 
@@ -34,13 +40,13 @@ export class PanelComponent implements OnInit, OnDestroy {
   ui$ = this.store.select(selectUI);
   fields$ = this.store.select(selectBoardFields);
   validBroodSpaces$ = this.store.select(selectValidBroodSpaces);
-  validBroodSpaces: ValidPotentialBroodSpace[] = undefined;
+  validBroodSpaces: ValidPotentialBroodSpace[] = [];
   subscription: Subscription = new Subscription();
 
   // UI related
   selectBoardDimensions$ = this.store.select(selectBoardDimensions);
-  boardDimensions = BOARD_DIMENSIONS;
-  boardDimensionsChange(event: any) {
+  boardDimensions = 0;
+  boardDimensionsChange(event: any): void {
     this.store.dispatch(setBoardDimensions({ dimensions: event }));
   }
   FIELD_DISPLAY_INFO = FIELD_DISPLAY_INFO;
@@ -51,7 +57,7 @@ export class PanelComponent implements OnInit, OnDestroy {
   selectFieldSizeComputed$ = this.store.select(selectFieldSizeComputed);
   fieldSizeComputed = DEFAULT_FIELD_SIZE_COMPUTED;
   fieldSize = this.fieldSizeOptions[1];
-  changeFieldSize(event) {
+  changeFieldSize(event: FieldSize): void {
     this.fieldSize = event;
     this.store.dispatch(setFieldSize({ size: event }));
   }
@@ -95,9 +101,10 @@ export class PanelComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  handleClick(type: string) {
-    this[type]();
-  }
+  // handleClick(type: any) {
+  //   // tslint:disable-next-line
+  //   this[type]();
+  // }
 
   reloadBoard() {
     this.initBoard();
@@ -113,6 +120,12 @@ export class PanelComponent implements OnInit, OnDestroy {
   toggleBorders(): void {
     this.boardService.toggleBorders(this.boardDimensions, this.borderObsticlesUp);
     this.borderObsticlesUp = !this.borderObsticlesUp;
+  }
+
+  toggleDecor(mode: boolean): void {
+    console.log(mode);
+
+    this.store.dispatch(toggleUIDecorShowingForced({ mode }));
   }
 
   togglePanel() {

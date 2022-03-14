@@ -1,0 +1,10 @@
+@import "/src/assets/styles/reusables/units";
+@import "/src/assets/styles/variables";
+
+.object {
+  @extend %unit;
+
+  border-radius: 100%;
+  background: rgb(28, 27, 28);
+  background: radial-gradient(circle, rgba(28, 27, 28, 1) 33%, rgba(189, 75, 75, 1) 58%, rgba(176, 70, 70, 1) 68%, rgba(0, 0, 0, 1) 100%);
+}

@@ -1,18 +1,29 @@
 import { FieldPos } from './field.types';
-import { UnitBase, UnitColor, UnitType } from './unit-base.types';
+import { BroodID, UnitBase, UnitColor, UnitID, UnitType } from './unit-base.types';
 
-export interface Unit extends UnitBase {
-  state: UnitState;
-  color: UnitColor;
+export interface IUnit extends UnitBase {
+  state?: UnitState;
+  color?: UnitColor;
   makeTurn?(): boolean;
   setLongTermGoal?(): boolean;
   getState?(): any;
 }
 
-export class Unit implements Unit {
-  constructor(id: string, pos: FieldPos, color: UnitColor, broodId?: string, state?: UnitState, type?: UnitType) {
+export class Unit implements UnitBase {
+  id: UnitID;
+  pos: FieldPos;
+  type: UnitType;
+  color: UnitColor;
+  broodId: BroodID | undefined;
+
+  state: UnitState | undefined;
+  makeTurn?(): boolean;
+  setLongTermGoal?(): boolean;
+  getState?(): any;
+
+  constructor(id: UnitID, pos: FieldPos, color: UnitColor, broodId: BroodID | undefined, type: UnitType = 'regular', state?: UnitState | undefined) {
     this.id = id;
-    this.broodId = broodId || undefined;
+    this.broodId = broodId;
     this.pos = pos;
     this.color = color;
     this.state = state;

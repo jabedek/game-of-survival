@@ -1,4 +1,5 @@
 import { getRandom } from '../../helpers/common.helpers';
+import { BroodID } from './unit-base.types';
 import { Unit } from './unit.types';
 
 // export interface Brood {
@@ -10,7 +11,7 @@ import { Unit } from './unit.types';
 // }
 
 export class Brood {
-  id: string;
+  id: BroodID;
   units: Unit[];
   color: string;
   turnState: 'to do' | 'moving' | 'done';
@@ -19,10 +20,10 @@ export class Brood {
     let rndId = `${getRandom(1000)}`;
     const unit = new Unit(rndId, { row: 1, column: 1 }, 'blue', this.id);
 
-    args.cb(unit);
+    args?.cb(unit);
   };
 
-  constructor(id: string, units: Unit[], color: string) {
+  constructor(id: BroodID, units: Unit[], color: string) {
     this.id = id;
     this.units = units || undefined;
     this.color = color;

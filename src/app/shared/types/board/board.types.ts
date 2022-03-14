@@ -1,13 +1,12 @@
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
+import { Brood } from './brood.types';
 
 // *** Feature state parts
 export type BoardFields = Field[][];
 
-export type BasicInitialBroodFields = [Field, Field, Field, Field];
-
 // *** BoardFields/Particles' Neigbhors, Broods' Root Spaces
 export interface NeighborField {
-  field: Field;
+  field: Field | undefined;
   at: string;
 }
 
@@ -20,7 +19,14 @@ export interface NeighborsRaport {
   accessibleToMove: NeighborField[]; // nie ma ruchow na skos wiec tylko na krzyz
 }
 
+export type BasicInitialBroodFields = [Field, Field, Field, Field];
+
 export interface ValidPotentialBroodSpace {
   startingPos: FieldPos;
   space: BasicInitialBroodFields;
 }
+
+export type NeighborsAndBroods = {
+  fieldsNeighbors: NeighborsRaport[];
+  broodsList: Brood[];
+};

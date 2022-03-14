@@ -24,8 +24,10 @@ export class UnitsService {
    * @param action
    * @param unit
    */
-  updateUnitsList(action: 'add' | 'del', unit: Unit) {
-    action === 'add' ? this.store.dispatch(addUnitToList({ unit })) : this.store.dispatch(deleteUnitFromList({ pos: unit.pos }));
+  updateUnitsList(action: 'add' | 'del', unit: Partial<Unit>) {
+    action === 'add'
+      ? this.store.dispatch(addUnitToList({ unit: unit as Unit }))
+      : this.store.dispatch(deleteUnitFromList({ pos: (unit as Unit).pos }));
   }
 
   /**

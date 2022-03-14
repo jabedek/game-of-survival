@@ -127,18 +127,20 @@ export function isValidBroodRoot(fields: BoardFields, props: FieldPos): undefine
     available3 = fields[posA][posB].blocked ? undefined : fields[posA][posB];
   }
 
-  let broodFields: BasicInitialBroodFields = [undefined, undefined, undefined, undefined];
+  let broodFields: any[] = [undefined, undefined, undefined, undefined];
   broodFields[0] = available0;
   broodFields[1] = available1;
   broodFields[2] = available2;
   broodFields[3] = available3;
 
   if (available0 !== undefined && available1 !== undefined && available2 !== undefined && available3 !== undefined) {
-    return broodFields;
+    return broodFields as BasicInitialBroodFields;
   } else return undefined;
 }
 
 export function isClickInRectBoundries(rect: DOMRect, x: number, y: number) {
+  console.log('isClickInRectBoundries', x, y);
+
   if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
   }
   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
@@ -283,4 +285,8 @@ export function getFieldNeighbors(fields: BoardFields, props: FieldPos): Neighbo
     centerField: fields[row][col],
     accessible,
   };
+}
+
+export function checkIfTwoPositionsEqual(posA: FieldPos, posB: FieldPos): boolean {
+  return posA.column === posB.column && posA.row === posB.row;
 }

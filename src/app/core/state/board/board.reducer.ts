@@ -5,6 +5,7 @@ import { Field } from '@/src/app/shared/types/board/field.types';
 import { BoardFields } from '@/src/app/shared/types/board/board.types';
 import { BoardState } from '../root-state.types';
 import { Brood } from '@/src/app/shared/types/board/brood.types';
+import { Unit } from '@/src/app/shared/types/board/unit.types';
 
 export const initialBoardState: BoardState = {
   fields: [],
@@ -81,57 +82,60 @@ export const boardReducer = createReducer(
   }),
 
   on(actions.boardActions.moveUnitFromTo, (state, { pos, newPos }) => {
-    const unit = { ...state.fields[pos.row][pos.column]?.occupyingUnit };
+    const unit = { ...state.fields[pos.row][pos.column]?.occupyingUnit } as Unit;
+    if (unit) {
+      const field: Field = {
+        ...state.fields[pos.row][pos.column],
+        occupyingUnit: undefined,
+        blocked: false,
+        mode: 'empty',
+      };
 
-    const field: Field = {
-      ...state.fields[pos.row][pos.column],
-      occupyingUnit: undefined,
-      blocked: false,
-      mode: 'empty',
-    };
+      const newField: Field = {
+        ...state.fields[newPos.row][newPos.column],
+        occupyingUnit: unit,
+        blocked: true,
+        mode: 'unit',
+      };
 
-    const newField: Field = {
-      ...state.fields[newPos.row][newPos.column],
-      occupyingUnit: unit,
-      blocked: true,
-      mode: 'unit',
-    };
+      const fields = [...state.fields].map((row: Field[]) => {
+        return row.map((cell: Field) => {
+          if (cell.pos.row === pos.row && cell.pos.column === pos.column) return field;
+          if (cell.pos.row === newPos.row && cell.pos.column === newPos.column) return newField;
 
-    const fields = [...state.fields].map((row: Field[]) => {
-      return row.map((cell: Field) => {
-        if (cell.pos.row === pos.row && cell.pos.column === pos.column) return field;
-        if (cell.pos.row === newPos.row && cell.pos.column === newPos.column) return newField;
-
-        return cell;
-      });
-    });
-
-    let broodsList = [...state.broodsList].map((b) => {
-      let brood: Brood = Object.assign({}, b);
-
-      const units = brood.units.map((u) => {
-        if (u.pos.row === pos.row && u.pos.column === pos.column) {
-          // console.log('pos');
-
-          const unit = {
-            ...u,
-            pos: { row: newPos.row, column: newPos.column },
-          };
-          u = unit;
-        }
-        return u;
+          return cell;
+        });
       });
 
-      //  brood.units = brood.units.filter(
-      //    (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
-      //  );
+      let broodsList = [...state.broodsList].map((b) => {
+        let brood: Brood = Object.assign({}, b);
 
-      brood.units = units;
-      // brood.units = units;
-      return brood;
-    });
+        const units = brood.units.map((u) => {
+          if (u.pos.row === pos.row && u.pos.column === pos.column) {
+            // console.log('pos');
 
-    return { ...state, fields, broodsList };
+            const unit = {
+              ...u,
+              pos: { row: newPos.row, column: newPos.column },
+            };
+            u = unit;
+          }
+          return u;
+        });
+
+        //  brood.units = brood.units.filter(
+        //    (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
+        //  );
+
+        brood.units = units;
+        // brood.units = units;
+        return brood;
+      });
+
+      return { ...state, fields, broodsList };
+    } else {
+      return state;
+    }
   }),
 
   on(actions.fieldActions.setFieldUnit, (state, { unit }) => {
@@ -262,12 +266,12 @@ export const boardReducer = createReducer(
 
         // brzydki syntax ale ngrx nie przepuści bez skopiowania obiektu / tablicy
         let indexToUpdate = -1;
-        let broodToUpdate: Brood = {
+        const broodToUpdate = {
           ...[...state.broodsList].find((br: Brood, index) => {
             indexToUpdate = index;
             return br.id === occupyingUnit.broodId;
           }),
-        };
+        } as Brood;
 
         if (broodToUpdate && broodToUpdate.units) {
           broodToUpdate.units = broodToUpdate.units?.filter((u) => u.pos !== occupyingUnit.pos);

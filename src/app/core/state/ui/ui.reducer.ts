@@ -27,6 +27,10 @@ export const uiReducer = createReducer(
     return { ...state, decorShowing };
   }),
 
+  on(uiActions.toggleUIDecorShowingForced, (state: UIState, { mode }) => {
+    return { ...state, decorShowing: mode };
+  }),
+
   on(uiActions.setFieldSize, (state: UIState, { size }) => {
     return { ...state, fieldSizeComputed: PX_MULTIPLIER * size };
   }),

@@ -20,13 +20,14 @@ import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import { TurnUpdate } from '@/src/app/shared/types/game.types';
 import { Field } from '@/src/app/shared/types/board/field.types';
-import { BoardFields, NeighborsRaport, ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
+import { BoardFields, NeighborsAndBroods, NeighborsRaport, ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
 import { CoreModule } from '../core.module';
 import { UnitsService } from '../modules/board/services/units.service';
-import { UnitBase } from '../../shared/types/board/unit-base.types';
+import { UnitBase, UnitType } from '../../shared/types/board/unit-base.types';
 import { Unit } from '../../shared/types/board/unit.types';
 import { Brood } from '../../shared/types/board/brood.types';
 import { first } from 'rxjs/operators';
+import { checkIfTwoPositionsEqual } from '../../shared/helpers/board.helpers';
 
 @Injectable({
   providedIn: 'root',
@@ -51,13 +52,13 @@ export class GameService {
 
   constructor(public store: Store<RootState>, public boardService: BoardService) {}
 
-  addNewUnitToBrood = (unit) => {
+  addNewUnitToBrood = (unit: Unit) => {
     this.addNewUnit(unit);
   };
 
-  addNewUnit = (unit) => {};
+  addNewUnit = (unit: Unit) => {};
 
-  nextTurn(broods: Brood[]) {
+  nextTurn(broods: Brood[]): void {
     broods.forEach((brood) => this.nextTurnSingle(brood));
   }
 
@@ -77,19 +78,19 @@ export class GameService {
 
   computeResults() {
     // 1. Get all units' neighbors
-    let update: TurnUpdate = undefined;
+    let update: TurnUpdate = { unitsToAdd: [], unitsToDel: [] };
     this.fields$
       .subscribe((data) => {
         if (data) {
           this.store
             .select(selectAllUnitsNeighborsAndBroodsList, data)
-            .subscribe((data) => {
-              const neighbors = data.fieldsNeighbors;
-              let unitsToAdd = [];
-              let unitsToDel = [];
+            .subscribe((data: NeighborsAndBroods) => {
+              const neighbors: NeighborsRaport[] = data.fieldsNeighbors;
+              let unitsToAdd: Unit[] = [];
+              let unitsToDel: Unit[] = [];
 
               // 2. prepare Update and filter units based on their neighbors amount
-              neighbors.forEach((n, i) => {
+              neighbors.forEach((n: NeighborsRaport, i) => {
                 const unitType = n.centerField.occupyingUnit?.type;
 
                 if (!unitType || unitType !== 'void') {
@@ -120,11 +121,17 @@ export class GameService {
                     // SECTION: DYING
                     case 3:
                     case 4: {
-                      unitsToDel.push(n.centerField.pos);
+                      const unit = n.centerField.occupyingUnit;
+                      if (unit) {
+                        unitsToDel.push(unit);
+                      }
                       break;
                     }
                     default: {
-                      unitsToDel.push(n.centerField.pos);
+                      const unit = n.centerField.occupyingUnit;
+                      if (unit) {
+                        unitsToDel.push(unit);
+                      }
                       break;
                     }
                   }
@@ -134,7 +141,7 @@ export class GameService {
 
                 if (updatedN.accessible.length > 0) {
                   updatedN.accessible = updatedN.accessible.filter((f) => {
-                    return !unitsToAdd.find((u: UnitBase) => u.pos === f.field.pos);
+                    return !unitsToAdd.find((u: UnitBase) => u.pos === f.field?.pos);
                   });
                 }
 
@@ -142,15 +149,17 @@ export class GameService {
                  * Void units appear randomly and can't multiply or die due to neighbors presence.
                  * In general the more units are on board the more often voids will spawn.
                  */
-                const voidSpawn = getRandom(800) === 1;
+                const voidSpawn = getRandom(1600) === 1;
 
                 if (voidSpawn) {
                   const voidUnit = this.getMultipliedMember(n, undefined, true);
-                  unitsToAdd.push(voidUnit);
+                  if (voidUnit) {
+                    unitsToAdd.push(voidUnit);
+                  }
                 }
               });
 
-              update = { unitsToAdd, unitsToDel };
+              update = { unitsToAdd, unitsToDel: unitsToDel.map((u) => u.pos) };
 
               return;
             })
@@ -165,14 +174,14 @@ export class GameService {
     return;
   }
 
-  private updateUnitsToAdd(n, unitsToAdd) {
+  private updateUnitsToAdd(n: NeighborsRaport, unitsToAdd: Unit[]) {
     let added = false;
-    let unit = undefined;
+    // let unit: Unit | undefined;
 
     while (!added) {
-      unit = this.getMultipliedMember(n, n.centerField?.occupyingUnit?.broodId);
-      if (unit) {
-        const posAlreadyTaken: boolean = unitsToAdd.find((u) => u.row === unit.pos.row && u.column === unit.pos.row);
+      const unit: Unit | undefined = this.getMultipliedMember(n, n.centerField?.occupyingUnit?.broodId);
+      if (unit && unit.pos) {
+        const posAlreadyTaken: Unit | undefined = unitsToAdd.find((u) => checkIfTwoPositionsEqual(u.pos, unit.pos));
 
         if (!posAlreadyTaken) {
           unitsToAdd.push(unit);
@@ -184,31 +193,32 @@ export class GameService {
     return unitsToAdd;
   }
 
-  private getMultipliedMember(n: NeighborsRaport, forcedGroupId?: string, voidUnit?: boolean): Unit {
+  private getMultipliedMember(n: NeighborsRaport, forcedGroupId?: string, voidUnit?: boolean): Unit | undefined {
     const field = n.centerField;
 
     let broodId = forcedGroupId || field?.occupyingUnit?.broodId;
     broodId = voidUnit ? undefined : broodId;
 
-    let id = `${broodId}-${getRandom(100)}` || 'randomer';
-    id = voidUnit ? 'voider' : id;
+    const id = voidUnit ? 'voider' : `${broodId}-${getRandom(100)}` || 'randomer';
 
     let color = (field?.occupyingUnit as Unit)?.color || 'blue';
     color = voidUnit ? 'black' : color;
 
-    let type: 'void' | 'regular' = voidUnit ? 'void' : 'regular';
+    const type: UnitType = voidUnit ? 'void' : 'regular';
 
     if (n.accessible.length > 0) {
-      const pos = n.accessible[getRandom(n.accessible.length - 1)].field.pos;
+      const pos = n.accessible[getRandom(n.accessible.length - 1)].field?.pos;
 
-      return new Unit(id, pos, color, broodId, undefined, type);
+      if (pos) {
+        return new Unit(id, pos, color, broodId, undefined, type);
+      }
     }
 
     return undefined;
   }
 
-  private willSpawn(data, n, bonus = 0, noNeighbors?: boolean): boolean {
-    const brood = data.broodsList.find((b) => b.units.find((u) => u.pos === n.centerPos));
+  private willSpawn(data: NeighborsAndBroods, n: NeighborsRaport, bonus = 0, noNeighbors?: boolean): boolean {
+    const brood = data.broodsList.find((b) => b.units.find((u) => checkIfTwoPositionsEqual(u.pos, n.centerField.pos)));
 
     const broodStrength = brood?.units?.length || 0;
     const rnd = getRandom(CONSTS.RANDOM_ADDITIONAL_LIMIT, true);

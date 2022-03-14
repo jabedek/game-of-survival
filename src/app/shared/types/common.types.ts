@@ -6,3 +6,8 @@ export type Option = {
   label: string;
   value: any;
 };
+
+export type MousePos = {
+  x: number;
+  y: number;
+};
