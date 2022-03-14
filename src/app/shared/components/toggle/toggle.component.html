@@ -1,0 +1,9 @@
+<label [for]="label" class="wrapper">
+  <p>
+    {{ label }}
+  </p>
+  <div class="switch">
+    <input [id]="label" [name]="label" type="checkbox" [checked]="value" (change)="handleChange()" />
+    <span class="slider round"></span>
+  </div>
+</label>
