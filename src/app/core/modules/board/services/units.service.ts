@@ -82,7 +82,6 @@ export class UnitsService {
 
     // 2. Update unit's internal groupId
     const updatedUnit = { ...unit, groupId };
-    // console.log(updatedUnit);
 
     // 3. Update group units
     this.swapGroupMemberOnPos(updatedUnit);

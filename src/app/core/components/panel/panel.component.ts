@@ -75,10 +75,6 @@ export class PanelComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   selectFieldSizeComputed$ = this.store.select(selectFieldSizeComputed);
   fieldSizeComputed = DEFAULT_FIELD_SIZE_COMPUTED;
-  // fieldSize = this.fieldSizeOptions[1];
-
-  private boardDimensionsChangeSubject: Subject<number> = new Subject();
-  boardDimensionsChange$: Observable<number> = this.boardDimensionsChangeSubject.asObservable();
 
   // Observables
   ui$ = this.store.select(selectUI);
@@ -91,14 +87,7 @@ export class PanelComponent implements OnInit, OnDestroy, AfterViewChecked {
   boardDimensions = 0;
   boardDimensionsRange = DIMENSIONS_RANGE;
 
-  turnSpeed$: Observable<TurnSpeedMs> = this.store.select(selectSimulation).pipe(
-    tap((d) => {
-      console.log(d.turnSpeedMs);
-    }),
-    map((d) => {
-      return d.turnSpeedMs;
-    })
-  );
+  turnSpeed$: Observable<TurnSpeedMs> = this.store.select(selectSimulation).pipe(map((d) => d.turnSpeedMs));
 
   boardSettingsForm: FormGroup = new FormGroup({
     boardDimensions: new FormControl(this.boardDimensionsRange.default, [
@@ -125,9 +114,7 @@ export class PanelComponent implements OnInit, OnDestroy, AfterViewChecked {
     public gameService: GameService,
     public cdr: ChangeDetectorRef,
     public unitsService: UnitsService,
-    public simulationService: SimulationService,
-    private scroller: ViewportScroller,
-    private router: Router
+    public simulationService: SimulationService
   ) {}
 
   ngOnInit(): void {
@@ -144,7 +131,9 @@ export class PanelComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.destroy$.complete();
   }
 
-  ngAfterViewChecked(): void {}
+  ngAfterViewChecked(): void {
+    // this.scrollTo('main');
+  }
 
   allDetailsOpen = false;
 
@@ -170,8 +159,8 @@ export class PanelComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.templates?.toArray() as ElementRef<HTMLDetailsElement>[];
   }
 
-  scrollTo(whereTo: string, eventTarget: HTMLElement) {
-    const isClosed = !(eventTarget.parentElement as HTMLDetailsElement)?.open;
+  scrollTo(whereTo: string, eventTarget?: HTMLElement) {
+    const isClosed = !(eventTarget?.parentElement as HTMLDetailsElement)?.open;
 
     if (isClosed) {
       setTimeout(() => {
@@ -216,13 +205,8 @@ export class PanelComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     this.boardSettingsForm
       .get('turnSpeed')
-      ?.valueChanges.pipe(
-        // debounce(() => timer(100)),
-        takeUntil(this.destroyForm$)
-      )
+      ?.valueChanges.pipe(takeUntil(this.destroyForm$))
       .subscribe((turnSpeedMs: TurnSpeedMs) => {
-        console.log(turnSpeedMs);
-
         this.store.dispatch(setSimulationTurnSpeed({ turnSpeedMs }));
         this.reloadBoard();
         this.cdr.detectChanges();

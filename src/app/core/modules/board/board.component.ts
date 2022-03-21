@@ -85,7 +85,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit, OnChang
 
   ngOnInit(): void {
     this.hostRect = (this.host.nativeElement as Element).getBoundingClientRect();
-    console.log(this.hostRect);
 
     this.initBoardWithStylings();
     this.observeMouseMove();

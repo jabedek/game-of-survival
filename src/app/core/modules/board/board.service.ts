@@ -62,9 +62,6 @@ export class BoardService implements OnDestroy {
   }
 
   toggleField(field: Field): void {
-    // console.log(field.mode);
-    console.log(HELPERS.getFieldNeighbors(this.fields, field.pos));
-
     const prevMode = field.mode;
 
     switch (prevMode) {
