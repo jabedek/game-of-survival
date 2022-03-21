@@ -3,7 +3,7 @@
     {{ label }}
   </p>
   <div class="switch">
-    <input [id]="label" [name]="label" type="checkbox" [checked]="value" (change)="handleChange()" />
-    <span class="slider round"></span>
+    <input [id]="label" [name]="label" type="checkbox" [disabled]="disabled" [checked]="value" (change)="handleChange()" />
+    <span class="slider"></span>
   </div>
 </label>

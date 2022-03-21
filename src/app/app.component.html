@@ -19,7 +19,7 @@
   <!-- Paused
   <input type="checkbox" [ngModel]="simulationPaused" (ngModelChange)="paused($event)" name="" id="" />
   {{ simulationPaused }} -->
-  <app-simulation></app-simulation>
+  <app-simulation simulation></app-simulation>
 
   <!-- <div *ngIf="panelShowing" class="game-panel">
     <div class="info-list">
@@ -33,11 +33,11 @@
       </div>
       <div class="info">
         <p class="key">VALID BROOD ROOTS:</p>
-        <p class="val">{{ validBroodSpaces.length }}</p>
+        <p class="val">{{ validGroupSpaces.length }}</p>
       </div>
       <div class="info">
-        <p class="key">All Broods:</p>
-        <p class="val">{{ broodsList.length }}</p>
+        <p class="key">All Groups:</p>
+        <p class="val">{{ groupsList.length }}</p>
       </div>
       <div class="info">
         <p class="key">All units:</p>
@@ -50,8 +50,17 @@
 <button [disabled]="turnButtonBlocked" (click)="toggleDecor()" class="global-button key">
   <p class="val">Toggle background artwork</p>
 </button> -->
-<ng-container *ngIf="decorShowing">
-  <div class="blackhole"></div>
-  <div class="bigstar"></div>
-  <div class="bigstar1"></div>
-</ng-container>
+<div class="cosmos" *ngIf="(ui$ | async).decorShowing as decorShowing">
+  <div *ngIf="decorShowing.animated">
+    <!-- https://codepen.io/stealy/pen/zYxXpza -->
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+    <div class="clouds"></div>
+  </div>
+
+  <div class="cosmos2" *ngIf="decorShowing.fixed">
+    <div class="blackhole"></div>
+    <div class="bigstar"></div>
+    <div class="bigstar1"></div>
+  </div>
+</div>

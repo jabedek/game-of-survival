@@ -1,0 +1,26 @@
+html {
+  --scrollbarBG: transparent;
+  --thumbBG: #555;
+  --trackBG: transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+  border-radius: 100rem;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--trackBG);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--thumbBG);
+  border-radius: 100rem;
+  border: 1px solid gray;
+}

@@ -1,22 +1,17 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Subject, Subscription } from 'rxjs';
-import { interval } from 'rxjs';
-import { selectBoardSnapshot } from '@/src/app/core/state/board/board.selectors';
+import { Subscription } from 'rxjs';
 
 import { BoardService } from '@/src/app/core/modules/board/board.service';
-import { ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
-import { Field } from '@/src/app/shared/types/board/field.types';
 
-import { setTurnPhase } from '@/src/app/core/state/game/game.actions';
-import { selectTurnIndex, selectTurnPhase } from '@/src/app/core/state/game/game.selectors';
+import { selectTurnPhase } from '@/src/app/core/state/game/game.selectors';
 import { GameService } from './core/services/game.service';
 import { RootState } from '@/src/app/core/state/root-state.types';
-import { toggleUIDecorShowing, toggleUIPanelShowing } from '@/src/app/core/state/ui/ui.actions';
+import { toggleUIPanelShowing } from '@/src/app/core/state/ui/ui.actions';
 import { selectUI } from '@/src/app/core/state/ui/ui.selectors';
-import { Unit } from './shared/types/board/unit.types';
-import { Brood } from './shared/types/board/brood.types';
-import { filter, takeUntil } from 'rxjs/operators';
+
+import { GameTurnPhase } from './shared/types/game.types';
+import { DecorShowingState } from './core/state/ui/ui.state';
 
 @Component({
   selector: 'app-root',
@@ -25,7 +20,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ui$ = this.store.select(selectUI);
-  decorShowing = true;
+  decorShowing: DecorShowingState | undefined;
   panelShowing = true;
 
   // simulationPaused = false;
@@ -41,9 +36,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   // boardSnapshot$ = this.store.select(selectBoardSnapshot);
 
   // unitsList: Unit[] = [];
-  // broodsList: Brood[] = [];
+  // groupsList: Group[] = [];
   // emptyFields: Field[] = [];
-  // validBroodSpaces: ValidPotentialBroodSpace[] = undefined;
+  // validGroupSpaces: ValidPotentialGroupSpace[] = undefined;
   // mockTurnSub: Subscription = undefined;
   subscription: Subscription = new Subscription();
   // turnCounter = 0;
@@ -61,15 +56,15 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     // this.subscription.add(
     //   this.boardSnapshot$.subscribe((data) => {
     //     this.unitsList = data.occupied.unitsList;
-    //     this.broodsList = data.occupied.broodsList;
+    //     this.groupsList = data.occupied.groupsList;
     //     this.emptyFields = data.available.emptyFields;
-    //     this.validBroodSpaces = data.available.validBroodSpaces;
+    //     this.validGroupSpaces = data.available.validGroupSpaces;
     //   })
     // );
 
     this.subscription.add(
       this.store.select(selectTurnPhase).subscribe((data) => {
-        this.turnButtonBlocked = data === 'all done' ? false : true;
+        this.turnButtonBlocked = data === GameTurnPhase.ALL_DONE ? false : true;
       })
     );
 
@@ -81,18 +76,22 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     // );
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }
-  ngAfterViewInit() {}
+  ngAfterViewInit(): void {}
 
-  toggleDecor() {
-    this.store.dispatch(toggleUIDecorShowing());
-  }
+  // setDecor(which: 'animated' | 'fixed', toValue: boolean): void {
+  //   if (which === 'animated') {
+  //     this.store.dispatch(setUIDecorShowingAnimated({ animated: toValue }));
+  //   } else {
+  //     this.store.dispatch(setUIDecorShowingFixed({ fixed: toValue }));
+  //   }
+  // }
 
-  togglePanel() {
+  togglePanel(): void {
     this.store.dispatch(toggleUIPanelShowing());
   }
 }

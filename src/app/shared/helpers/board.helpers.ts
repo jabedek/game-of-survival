@@ -1,9 +1,11 @@
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import { BasicInitialBroodFields, BoardFields, NeighborField, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
+import { BasicInitialGroupFields, BoardFields, NeighborDirections, NeighborField, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
 import { Unit } from '../types/board/unit.types';
 import { UnitColor } from '../types/board/unit-base.types';
-import { Brood } from '../types/board/brood.types';
+import { Group } from '../types/board/group.types';
+import { RELATIVE_POSITIONS } from '../constants/board.constants';
+import { Pos } from '../types/common.types';
 
 export function getInitialFields(boardDimensions: number): BoardFields {
   let fields: BoardFields = [];
@@ -17,7 +19,7 @@ export function getInitialFields(boardDimensions: number): BoardFields {
         mode: 'empty',
         occupyingUnit: undefined,
         highlightAccessibility: false,
-        neighbors: undefined,
+        // neighbors: undefined,
       };
 
       fields[row][column] = field;
@@ -27,9 +29,9 @@ export function getInitialFields(boardDimensions: number): BoardFields {
   return fields;
 }
 
-export function getPreparedBroodBase(dimensions: number, pos: FieldPos, id?: string, color?: UnitColor) {
-  const broodId = id || `reds-${getRandom(1000)}`;
-  const broodColor = color || 'red';
+export function getPreparedGroupBase(dimensions: number, pos: FieldPos, id?: string, color?: UnitColor) {
+  const groupId = id || `reds-${getRandom(1000)}`;
+  const groupColor = color || 'red';
 
   const units = [
     new Unit(
@@ -38,8 +40,8 @@ export function getPreparedBroodBase(dimensions: number, pos: FieldPos, id?: str
         row: pos.row,
         column: pos.column,
       },
-      broodColor,
-      broodId
+      groupColor,
+      groupId
     ),
     new Unit(
       `${id}-1`,
@@ -47,8 +49,8 @@ export function getPreparedBroodBase(dimensions: number, pos: FieldPos, id?: str
         row: pos.row,
         column: pos.column + 1,
       },
-      broodColor,
-      broodId
+      groupColor,
+      groupId
     ),
     new Unit(
       `${id}-2`,
@@ -56,8 +58,8 @@ export function getPreparedBroodBase(dimensions: number, pos: FieldPos, id?: str
         row: pos.row + 1,
         column: pos.column,
       },
-      broodColor,
-      broodId
+      groupColor,
+      groupId
     ),
     new Unit(
       `${id}-3`,
@@ -65,17 +67,17 @@ export function getPreparedBroodBase(dimensions: number, pos: FieldPos, id?: str
         row: pos.row + 1,
         column: pos.column + 1,
       },
-      broodColor,
-      broodId
+      groupColor,
+      groupId
     ),
   ];
 
-  const broodUnits = units.filter((u) => isFieldInBoardBoundries(dimensions, u.pos));
+  const groupUnits = units.filter((u) => isFieldInBoardBoundries(dimensions, u.pos));
 
-  return new Brood(broodId, broodUnits, broodColor);
+  return new Group(groupId, groupUnits, groupColor);
 }
 
-export function isValidBroodRoot(fields: BoardFields, props: FieldPos): undefined | BasicInitialBroodFields {
+export function isValidGroupRoot(fields: BoardFields, props: FieldPos): undefined | BasicInitialGroupFields {
   const column: number = +props.column;
   const row: number = +props.row;
 
@@ -127,166 +129,65 @@ export function isValidBroodRoot(fields: BoardFields, props: FieldPos): undefine
     available3 = fields[posA][posB].blocked ? undefined : fields[posA][posB];
   }
 
-  let broodFields: any[] = [undefined, undefined, undefined, undefined];
-  broodFields[0] = available0;
-  broodFields[1] = available1;
-  broodFields[2] = available2;
-  broodFields[3] = available3;
+  let groupFields: any[] = [undefined, undefined, undefined, undefined];
+  groupFields[0] = available0;
+  groupFields[1] = available1;
+  groupFields[2] = available2;
+  groupFields[3] = available3;
 
   if (available0 !== undefined && available1 !== undefined && available2 !== undefined && available3 !== undefined) {
-    return broodFields as BasicInitialBroodFields;
+    return groupFields as BasicInitialGroupFields;
   } else return undefined;
 }
 
-export function isClickInRectBoundries(rect: DOMRect, x: number, y: number) {
-  console.log('isClickInRectBoundries', x, y);
+export const isClickInRectBoundries = (rect: DOMRect, pos: Pos) =>
+  pos.x >= rect.left - 1 && pos.x <= rect.right - 1 && pos.y >= rect.top - 1 && pos.y <= rect.bottom - 1;
 
-  if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+export const isFieldInBoardBoundries = (boardDimensions: number, pos: FieldPos) =>
+  pos.row >= 0 && pos.column >= 0 && pos.row < boardDimensions && pos.column < boardDimensions;
+
+export function getFieldNeighbors(fields: BoardFields, pos: FieldPos): NeighborsRaport {
+  if (isFieldInBoardBoundries(fields.length, pos)) {
+    const rootCol: number = pos.column;
+    const rootRow: number = pos.row;
+
+    const all: NeighborField[] = [];
+
+    RELATIVE_POSITIONS.forEach(({ at, relRow, relCol }) => {
+      const row = rootRow + relRow;
+      const column = rootCol + relCol;
+      const isInBoardBoundries = isFieldInBoardBoundries(fields.length, { row, column });
+      all.push({
+        field: isInBoardBoundries ? fields[row][column] : undefined,
+        at,
+      });
+    });
+
+    const units = all.filter((neighbour) => !!neighbour?.field?.occupyingUnit);
+    const obsticles = all.filter((neighbour) => !!neighbour?.field?.blocked && !neighbour?.field?.occupyingUnit);
+    const accessible = all.filter((n) => n.field !== undefined && n.field.blocked === false);
+    const accessibleToMove = accessible.filter(
+      (n) => !![NeighborDirections.N, NeighborDirections.S, NeighborDirections.W, NeighborDirections.E].includes(n.at)
+    );
+
+    return {
+      all,
+      units,
+      obsticles,
+      accessible,
+      accessibleToMove,
+      centerField: fields[rootRow][rootCol],
+    };
+  } else {
+    return {
+      all: [],
+      units: [],
+      obsticles: [],
+      accessible: [],
+      accessibleToMove: [],
+      centerField: undefined,
+    };
   }
-  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
 }
 
-export function isFieldInBoardBoundries(boardDimensions: number, pos: FieldPos) {
-  if (+pos.row >= 0 && +pos.column >= 0 && +pos.row < boardDimensions && +pos.column < boardDimensions) {
-    return true;
-  } else return false;
-}
-
-export function getFieldNeighbors(fields: BoardFields, props: FieldPos): NeighborsRaport {
-  const col: number = +props.column;
-  const row: number = +props.row;
-
-  let neighbouringFields: NeighborField[] = [];
-
-  let newFields: Field[] = [];
-
-  // DIR: ROW, COL
-
-  // NW: -1, -1
-  if (isFieldInBoardBoundries(fields.length, { row: row - 1, column: col - 1 })) {
-    neighbouringFields.push({
-      field: fields[row - 1][col - 1],
-      at: 'north-west',
-    });
-  } else {
-    neighbouringFields.push({
-      field: undefined,
-      at: 'north-west',
-    });
-  }
-
-  // N: -1, 0
-  if (isFieldInBoardBoundries(fields.length, { row: row - 1, column: col })) {
-    neighbouringFields.push({
-      field: fields[row - 1][col],
-      at: 'north',
-    });
-  } else {
-    neighbouringFields.push({
-      field: undefined,
-      at: 'north',
-    });
-  }
-
-  // NE: -1, +1
-  if (isFieldInBoardBoundries(fields.length, { row: row - 1, column: col + 1 })) {
-    neighbouringFields.push({
-      field: fields[row - 1][col + 1],
-      at: 'north-east',
-    });
-  } else {
-    neighbouringFields.push({
-      field: undefined,
-      at: 'north-east',
-    });
-  }
-
-  // W: 0, +1
-  if (isFieldInBoardBoundries(fields.length, { row: row, column: col - 1 })) {
-    neighbouringFields.push({
-      field: fields[row][col - 1],
-      at: 'west',
-    });
-  } else {
-    neighbouringFields.push({
-      field: undefined,
-      at: 'west',
-    });
-  }
-
-  // E: 0, +1
-  if (isFieldInBoardBoundries(fields.length, { row: row, column: col + 1 })) {
-    neighbouringFields.push({
-      field: fields[row][col + 1],
-      at: 'east',
-    });
-  } else {
-    neighbouringFields.push({
-      field: undefined,
-      at: 'east',
-    });
-  }
-
-  // SW: +1, -1
-  if (isFieldInBoardBoundries(fields.length, { row: row + 1, column: col - 1 })) {
-    neighbouringFields.push({
-      field: fields[row + 1][col - 1],
-      at: 'south-west',
-    });
-  } else {
-    neighbouringFields.push({
-      field: undefined,
-      at: 'south-west',
-    });
-  }
-
-  // S: +1, 0
-  if (isFieldInBoardBoundries(fields.length, { row: row + 1, column: col })) {
-    neighbouringFields.push({
-      field: fields[row + 1][col],
-      at: 'south',
-    });
-  } else {
-    neighbouringFields.push({
-      field: undefined,
-      at: 'south',
-    });
-  }
-
-  // SE: +1, +1
-  if (isFieldInBoardBoundries(fields.length, { row: row + 1, column: col + 1 })) {
-    neighbouringFields.push({
-      field: fields[row + 1][col + 1],
-      at: 'south-east',
-    });
-  } else {
-    neighbouringFields.push({
-      field: undefined,
-      at: 'south-east',
-    });
-  }
-
-  let units = neighbouringFields.filter((neighbour) => !!neighbour?.field?.occupyingUnit);
-  let obsticles = neighbouringFields.filter((neighbour) => !!neighbour?.field?.blocked && !neighbour?.field?.occupyingUnit);
-
-  let accessible = neighbouringFields.filter((n) => n.field !== undefined && n.field.blocked === false);
-
-  let accessibleToMove = accessible.filter((n) => {
-    if (n.at === 'north' || n.at === 'south' || n.at === 'west' || n.at === 'east') {
-      return n;
-    }
-  });
-
-  return {
-    all: neighbouringFields,
-    units,
-    obsticles,
-    accessibleToMove,
-    centerField: fields[row][col],
-    accessible,
-  };
-}
-
-export function checkIfTwoPositionsEqual(posA: FieldPos, posB: FieldPos): boolean {
-  return posA.column === posB.column && posA.row === posB.row;
-}
+export const areTwoPositionsEqual = (posA: FieldPos, posB: FieldPos): boolean => posA.column === posB.column && posA.row === posB.row;

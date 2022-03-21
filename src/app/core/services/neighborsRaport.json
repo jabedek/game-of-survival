@@ -1,0 +1,169 @@
+{
+  "all": [
+    {
+      "at": "north-west"
+    },
+    {
+      "field": {
+        "pos": {
+          "row": 1,
+          "column": 0
+        },
+        "blocked": false,
+        "mode": "empty",
+        "highlightAccessibility": false
+      },
+      "at": "north"
+    },
+    {
+      "field": {
+        "pos": {
+          "row": 1,
+          "column": 1
+        },
+        "blocked": true,
+        "mode": "unit",
+        "occupyingUnit": {
+          "id": "undefined-32",
+          "pos": {
+            "row": 1,
+            "column": 1
+          },
+          "color": "blue",
+          "state": "regular",
+          "type": "regular"
+        },
+        "highlightAccessibility": false
+      },
+      "at": "north-east"
+    },
+    {
+      "at": "west"
+    },
+    {
+      "field": {
+        "pos": {
+          "row": 2,
+          "column": 1
+        },
+        "blocked": true,
+        "mode": "unit",
+        "occupyingUnit": {
+          "id": "undefined-77",
+          "pos": {
+            "row": 2,
+            "column": 1
+          },
+          "color": "blue",
+          "state": "regular",
+          "type": "regular"
+        },
+        "highlightAccessibility": false
+      },
+      "at": "east"
+    },
+    {
+      "at": "south-west"
+    },
+    {
+      "at": "south"
+    },
+    {
+      "at": "south-east"
+    }
+  ],
+  "units": [
+    {
+      "field": {
+        "pos": {
+          "row": 1,
+          "column": 1
+        },
+        "blocked": true,
+        "mode": "unit",
+        "occupyingUnit": {
+          "id": "undefined-32",
+          "pos": {
+            "row": 1,
+            "column": 1
+          },
+          "color": "blue",
+          "state": "regular",
+          "type": "regular"
+        },
+        "highlightAccessibility": false
+      },
+      "at": "north-east"
+    },
+    {
+      "field": {
+        "pos": {
+          "row": 2,
+          "column": 1
+        },
+        "blocked": true,
+        "mode": "unit",
+        "occupyingUnit": {
+          "id": "undefined-77",
+          "pos": {
+            "row": 2,
+            "column": 1
+          },
+          "color": "blue",
+          "state": "regular",
+          "type": "regular"
+        },
+        "highlightAccessibility": false
+      },
+      "at": "east"
+    }
+  ],
+  "obsticles": [],
+  "accessibleToMove": [
+    {
+      "field": {
+        "pos": {
+          "row": 1,
+          "column": 0
+        },
+        "blocked": false,
+        "mode": "empty",
+        "highlightAccessibility": false
+      },
+      "at": "north"
+    }
+  ],
+  "centerField": {
+    "pos": {
+      "row": 2,
+      "column": 0
+    },
+    "blocked": true,
+    "mode": "unit",
+    "occupyingUnit": {
+      "id": "undefined-50",
+      "pos": {
+        "row": 2,
+        "column": 0
+      },
+      "color": "blue",
+      "state": "regular",
+      "type": "regular"
+    },
+    "highlightAccessibility": false
+  },
+  "accessible": [
+    {
+      "field": {
+        "pos": {
+          "row": 1,
+          "column": 0
+        },
+        "blocked": false,
+        "mode": "empty",
+        "highlightAccessibility": false
+      },
+      "at": "north"
+    }
+  ]
+}

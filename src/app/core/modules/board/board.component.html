@@ -4,9 +4,9 @@
       #fieldsTemplates
       class="field-container accessible-border"
       [style.width.px]="fieldSize"
-      *ngFor="let field of row; let colPos = index; trackBy: trackByFn"
+      *ngFor="let field of row; let colPos = index; trackBy: trackByFnCell"
       [style.height.px]="fieldSize"
-      (contextmenu)="addBroodOnContextmenu($event)">
+      (contextmenu)="addGroupOnContextmenu($event)">
       <div class="field" name="{{ rowPos }}-{{ colPos }}" key="{{ rowPos }}-{{ colPos }}" [class.accessible-border]="field?.highlightAccessibility">
         <div class="field__content" *ngIf="field">
           <!-- <p class="pos">{{ rowPos }}x {{ colPos }}</p> -->

@@ -7,6 +7,7 @@ import {
   EventEmitter,
   Input,
   NgZone,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
@@ -27,14 +28,14 @@ import { setAllFieldsHighlightFalse, setFieldObject, setFieldsHighlightTrue } fr
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { BoardFields, NeighborField, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
-import { DEFAULT_FIELD_SIZE_COMPUTED } from '@/src/app/shared/constants/board.constants';
+import { DEFAULT_FIELD_SIZE_COMPUTED, FIELD_CONTENT_REDUCING_FACTOR } from '@/src/app/shared/constants/board.constants';
 import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import { selectFieldNeighbors } from '@/src/app/core/state/board/board.selectors';
 // import { selectFieldNeighbors } from '../../store/board.selectors';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
-import { MousePos } from '@/src/app/shared/types/common.types';
+import { Pos } from '@/src/app/shared/types/common.types';
 
 const AUDIT_TIME = 16;
 
@@ -43,8 +44,9 @@ const AUDIT_TIME = 16;
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
   // providers: [BoardService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
+export class BoardComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   @Input() boardDimensions = 0;
   @Input() fieldSizeComputed = 0;
   @Input() fields: BoardFields = [];
@@ -52,16 +54,15 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
 
   hostRect: DOMRect | undefined;
 
-  @Output() setUnitEvent: EventEmitter<Unit> = new EventEmitter();
-  @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
-  @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
-  @ViewChildren('div', { read: ElementRef }) div: ElementRef | undefined;
-  @ViewChildren('fieldsTemplates', { read: ElementRef }) fieldsTemplates: ElementRef | undefined;
-  mouseDragStart: MousePos | undefined;
-  mousePosStart: MousePos | undefined;
-  mouseMoveTo: MousePos | undefined;
+  // @Output() setUnitEvent: EventEmitter<Unit> = new EventEmitter();
+  // @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
+  // @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
+  @ViewChildren('fieldsTemplates', { read: ElementRef }) fieldsTemplates: QueryList<ElementRef> | undefined;
+  mouseDragStart: Pos | undefined;
+  mousePosStart: Pos | undefined;
+  mouseMoveTo: Pos | undefined;
   // fieldSizeComputed = DEFAULT_FIELD_SIZE_COMPUTED;
-  CSSsize = DEFAULT_FIELD_SIZE_COMPUTED * 0.8;
+  CSSsize = DEFAULT_FIELD_SIZE_COMPUTED * FIELD_CONTENT_REDUCING_FACTOR;
   sub: Subscription = new Subscription();
   currentFieldNeighbors$: Observable<NeighborsRaport> | undefined;
   // ### Functional flags
@@ -90,14 +91,14 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.observeMouseMove();
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes?.boardDimensions || changes?.fieldSizeComputed || changes?.fields) {
       this.initBoardWithStylings();
+      this.CSSsize = this.fieldSizeComputed * FIELD_CONTENT_REDUCING_FACTOR;
     }
   }
 
   ngOnDestroy(): void {
-    console.log('DESTROY');
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -110,11 +111,11 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  trackByFnRow(index: number, item: Field[]): string {
+  trackByFnRow(index: number): string {
     return `${index}`;
   }
 
-  trackByFn(index: number, item: Field): string {
+  trackByFnCell(index: number, item: Field): string {
     if (index === this.boardDimensions - 1) {
       this.fieldsLoaded = true;
       // this.CSS.structurings.display = 'initial';
@@ -169,39 +170,32 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  getFieldFromPos(positionSource: Pos): FieldPos {
+    let pos: FieldPos = { column: -1, row: -1 };
+
+    this.fieldsTemplates?.toArray().find((t, i) => {
+      if (HELPERS.isClickInRectBoundries(t.nativeElement.getBoundingClientRect(), positionSource)) {
+        pos = {
+          row: Math.floor(i / this.boardDimensions),
+          column: i % this.boardDimensions,
+        };
+        return true;
+      }
+    });
+
+    return pos;
+  }
+
   onMouseUp(event: MouseEvent): void {
     this.sub.unsubscribe();
-    let startPos: FieldPos = { column: -1, row: -1 };
-    let endPos: FieldPos = { column: -1, row: -1 };
-    console.log(this.mouseDragStart, this.mousePosStart);
 
     if (this.mouseDragStart && this.mousePosStart) {
-      [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
-        const rect: DOMRect = t.nativeElement.getBoundingClientRect();
-
-        if (this.mousePosStart?.x && this.mousePosStart?.y) {
-          if (HELPERS.isClickInRectBoundries(rect, this.mousePosStart?.x, this.mousePosStart?.y)) {
-            startPos = {
-              row: Math.floor(i / this.boardDimensions),
-              column: i % this.boardDimensions,
-            };
-          }
-        }
-      });
-
-      [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
-        const rect: DOMRect = t.nativeElement.getBoundingClientRect();
-        if (HELPERS.isClickInRectBoundries(rect, event.x, event.y)) {
-          endPos = {
-            row: Math.floor(i / this.boardDimensions),
-            column: i % this.boardDimensions,
-          };
-        }
-      });
+      const startPos = this.getFieldFromPos(this.mousePosStart);
+      const endPos = this.getFieldFromPos(event);
 
       if (startPos && endPos) {
-        if (startPos.row === endPos.row && startPos.column === endPos.column) {
-          let field = Object.assign({}, this.fields[startPos.row][startPos.column]);
+        if (HELPERS.areTwoPositionsEqual(startPos, endPos)) {
+          const field = Object.assign({}, this.fields[startPos.row][startPos.column]);
 
           this.toggleField(field);
         } else {
@@ -209,9 +203,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
             /**
              * Unit can only move in straight lines like '+' (correct), not diagonal like 'x' (not correct).
              */
-            const existingAndCorrect = this.mouseAccessibleFields?.find(
-              (f: Field | undefined) => f && f.pos.row === endPos?.row && f.pos.column === endPos?.column
-            );
+            const existingAndCorrect = this.mouseAccessibleFields?.find((f: Field | undefined) => f && HELPERS.areTwoPositionsEqual(f.pos, endPos));
 
             /**
              * Without this condition we can move Units any way we want.
@@ -233,10 +225,10 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
   onMouseDown(event: MouseEvent): void {
     let startPos: FieldPos;
 
-    [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
+    this.fieldsTemplates?.toArray().find((t, i) => {
       const rect: DOMRect = t.nativeElement.getBoundingClientRect();
 
-      if (HELPERS.isClickInRectBoundries(rect, event.x, event.y)) {
+      if (HELPERS.isClickInRectBoundries(rect, event)) {
         startPos = {
           row: Math.floor(i / this.boardDimensions),
           column: i % this.boardDimensions,
@@ -251,11 +243,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
             .pipe(first())
             .subscribe((data: NeighborsRaport) => {
               const fields: Field[] = [];
-              data.accessibleToMove.forEach((n) => {
-                if (n.field) {
-                  fields.push(n.field);
-                }
-              });
+              data.accessibleToMove.forEach((n) => (!!n.field ? fields.push(n.field) : undefined));
               this.mouseAccessibleFields = fields;
 
               if (this.fields[startPos.row][startPos.column]?.occupyingUnit && this.fields[startPos.row][startPos.column].mode !== 'other') {
@@ -280,20 +268,7 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.boardService.toggleField(field);
   }
 
-  addBroodOnContextmenu(event: MouseEvent): void {
-    let startPos: FieldPos = { column: -1, row: -1 };
-
-    [...(this.fieldsTemplates as any).toArray()].forEach((t, i) => {
-      const rect: DOMRect = t.nativeElement.getBoundingClientRect();
-
-      if (HELPERS.isClickInRectBoundries(rect, event.x, event.y)) {
-        startPos = {
-          row: Math.floor(i / this.boardDimensions),
-          column: i % this.boardDimensions,
-        };
-      }
-    });
-
-    this.boardService.addNewBroodOnContextmenu(`evitons${getRandom(1000)}`, startPos, 'red');
+  addGroupOnContextmenu(event: MouseEvent): void {
+    this.boardService.addNewGroupOnContextmenu(`evitons${getRandom(1000)}`, this.getFieldFromPos(event), 'red');
   }
 }

@@ -1,10 +1,3 @@
-export interface UIState {
-  panelShowing: boolean;
-  decorShowing: boolean;
-  boardDimensions: number;
-  fieldSizeComputed: number;
-}
-
 // *** Board stylings
 export interface BoardDynamicCSS {
   sizings: BoardDynamicCSS_sizings;
@@ -22,4 +15,10 @@ export interface BoardDynamicCSS_structurings {
   'grid-template-rows': string;
   width: string;
   height: string;
+}
+
+export enum TurnSpeedMs {
+  FAST = 300,
+  MED = 600,
+  SLOW = 900,
 }

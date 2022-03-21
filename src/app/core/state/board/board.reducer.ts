@@ -3,14 +3,14 @@ import { Action, createReducer, on } from '@ngrx/store';
 import * as actions from '@/src/app/core/state/board/actions';
 import { Field } from '@/src/app/shared/types/board/field.types';
 import { BoardFields } from '@/src/app/shared/types/board/board.types';
-import { BoardState } from '../root-state.types';
-import { Brood } from '@/src/app/shared/types/board/brood.types';
+import { Group } from '@/src/app/shared/types/board/group.types';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
+import { BoardState } from './board.state';
 
 export const initialBoardState: BoardState = {
   fields: [],
   unitsList: [],
-  broodsList: [],
+  groupsList: [],
   builderMode: true,
 };
 
@@ -23,28 +23,28 @@ export const boardReducer = createReducer(
     return { ...state, unitsList: [] };
   }),
 
-  on(actions.boardActions.addBroodToList, (state: BoardState, { brood }) => {
-    let broodsList: Brood[] = [...state.broodsList].map((b) => b);
-    broodsList = [...state.broodsList.map((b) => b), brood];
-    broodsList = [...broodsList].filter((b) => b.units.length > 0);
+  on(actions.boardActions.addGroupToList, (state: BoardState, { group }) => {
+    let groupsList: Group[] = [...state.groupsList].map((b) => b);
+    groupsList = [...state.groupsList.map((b) => b), group];
+    groupsList = [...groupsList].filter((b) => b.units.length > 0);
 
-    return { ...state, broodsList };
+    return { ...state, groupsList };
   }),
 
   on(actions.boardActions.addUnitToList, (state, { unit }) => {
     // console.log(Array.from(new Set([...state.unitsList, unit])));
 
-    const broodsList = [...state.broodsList].map((b) => {
-      if (b.id === unit.broodId) {
+    const groupsList = [...state.groupsList].map((b) => {
+      if (b.id === unit.groupId) {
         // b =
-        let brood = Object.assign({}, b);
-        brood.units = [...brood.units, unit];
-        b = brood;
+        let group = Object.assign({}, b);
+        group.units = [...group.units, unit];
+        b = group;
       }
       return b;
     });
 
-    return { ...state, unitsList: Array.from(new Set([...state.unitsList, unit])), broodsList };
+    return { ...state, unitsList: Array.from(new Set([...state.unitsList, unit])), groupsList };
   }),
 
   on(actions.boardActions.deleteUnitFromList, (state, { pos }) => {
@@ -53,8 +53,8 @@ export const boardReducer = createReducer(
     return { ...state, unitsList };
   }),
 
-  on(actions.boardActions.clearBroodsList, (state) => {
-    return { ...state, broodsList: [] };
+  on(actions.boardActions.clearGroupsList, (state) => {
+    return { ...state, groupsList: [] };
   }),
 
   // *** BoardFields
@@ -107,10 +107,10 @@ export const boardReducer = createReducer(
         });
       });
 
-      let broodsList = [...state.broodsList].map((b) => {
-        let brood: Brood = Object.assign({}, b);
+      let groupsList = [...state.groupsList].map((b) => {
+        let group: Group = Object.assign({}, b);
 
-        const units = brood.units.map((u) => {
+        const units = group.units.map((u) => {
           if (u.pos.row === pos.row && u.pos.column === pos.column) {
             // console.log('pos');
 
@@ -123,16 +123,16 @@ export const boardReducer = createReducer(
           return u;
         });
 
-        //  brood.units = brood.units.filter(
+        //  group.units = group.units.filter(
         //    (u) => !(u.pos.row === pos.row && u.pos.column === pos.column)
         //  );
 
-        brood.units = units;
-        // brood.units = units;
-        return brood;
+        group.units = units;
+        // group.units = units;
+        return group;
       });
 
-      return { ...state, fields, broodsList };
+      return { ...state, fields, groupsList };
     } else {
       return state;
     }
@@ -256,63 +256,63 @@ export const boardReducer = createReducer(
         })
       );
 
-      let broodsList: Brood[] = [...state.broodsList].map((p) => p);
+      let groupsList: Group[] = [...state.groupsList].map((p) => p);
 
       /**
-       * Check if it was unit and if was in brood then delete it from there
+       * Check if it was unit and if was in group then delete it from there
        */
-      if (!!previousField.occupyingUnit && previousField.occupyingUnit?.broodId) {
+      if (!!previousField.occupyingUnit && previousField.occupyingUnit?.groupId) {
         const { occupyingUnit } = previousField;
 
         // brzydki syntax ale ngrx nie przepuści bez skopiowania obiektu / tablicy
         let indexToUpdate = -1;
-        const broodToUpdate = {
-          ...[...state.broodsList].find((br: Brood, index) => {
+        const groupToUpdate = {
+          ...[...state.groupsList].find((br: Group, index) => {
             indexToUpdate = index;
-            return br.id === occupyingUnit.broodId;
+            return br.id === occupyingUnit.groupId;
           }),
-        } as Brood;
+        } as Group;
 
-        if (broodToUpdate && broodToUpdate.units) {
-          broodToUpdate.units = broodToUpdate.units?.filter((u) => u.pos !== occupyingUnit.pos);
+        if (groupToUpdate && groupToUpdate.units) {
+          groupToUpdate.units = groupToUpdate.units?.filter((u) => u.pos !== occupyingUnit.pos);
 
-          broodsList[indexToUpdate] = broodToUpdate;
+          groupsList[indexToUpdate] = groupToUpdate;
         }
       }
 
-      return { ...state, broodsList, fields };
+      return { ...state, groupsList, fields };
     } else return state;
   }),
 
-  // *** Broods
+  // *** Groups
   /**
-   * Only updates info in a brood.
+   * Only updates info in a group.
    * Doesn't update unit on a field on its own.
    */
 
-  on(actions.broodActions.removeBroodMember, (state, { pos }) => {
-    let broodsList = [...state.broodsList].map((b) => {
-      let brood = Object.assign({}, b);
+  on(actions.groupActions.removeGroupMember, (state, { pos }) => {
+    let groupsList = [...state.groupsList].map((b) => {
+      let group = Object.assign({}, b);
 
-      brood.units = brood.units.filter((u) => !(u.pos.row === pos.row && u.pos.column === pos.column));
+      group.units = group.units.filter((u) => !(u.pos.row === pos.row && u.pos.column === pos.column));
 
-      return brood;
+      return group;
     });
 
-    broodsList = broodsList.filter((b) => b.units.length !== 0);
+    groupsList = groupsList.filter((b) => b.units.length !== 0);
 
-    return { ...state, broodsList };
+    return { ...state, groupsList };
   }),
 
-  on(actions.broodActions.addMemberToBroodUnits, (state, { unit }) => {
-    let broodsList = [...state.broodsList].map((b) => b);
-    let broodToUpdate = undefined;
-    broodsList.forEach((b) => {
-      if (b.id === unit.broodId) {
-        broodToUpdate = { ...b };
+  on(actions.groupActions.addMemberToGroupUnits, (state, { unit }) => {
+    let groupsList = [...state.groupsList].map((b) => b);
+    let groupToUpdate = undefined;
+    groupsList.forEach((b) => {
+      if (b.id === unit.groupId) {
+        groupToUpdate = { ...b };
 
         let overwritten = false;
-        broodToUpdate.units.forEach((u) => {
+        groupToUpdate.units.forEach((u) => {
           if (u.pos === unit.pos) {
             u = unit;
             overwritten = true;
@@ -320,25 +320,25 @@ export const boardReducer = createReducer(
         });
 
         if (!overwritten) {
-          let newUnits = [...broodToUpdate.units].map((u) => u);
+          let newUnits = [...groupToUpdate.units].map((u) => u);
           newUnits.push({ ...unit });
 
-          broodToUpdate.units = newUnits;
+          groupToUpdate.units = newUnits;
         }
       }
       return b;
     });
 
-    return { ...state, broodsList };
+    return { ...state, groupsList };
   }),
 
-  on(actions.broodActions.swapBroodMemberOnPos, (state, { unit }) => {
+  on(actions.groupActions.swapGroupMemberOnPos, (state, { unit }) => {
     // console.log(unit);
 
-    const broodsList = [...state.broodsList].map((b) => {
-      const brood: Brood = Object.assign({}, b);
+    const groupsList = [...state.groupsList].map((b) => {
+      const group: Group = Object.assign({}, b);
 
-      brood.units.forEach((u) => {
+      group.units.forEach((u) => {
         // console.log(u);
 
         if (u.pos.row === unit.pos.row && u.pos.column === unit.pos.column) {
@@ -350,6 +350,6 @@ export const boardReducer = createReducer(
       return b;
     });
 
-    return { ...state, broodsList };
+    return { ...state, groupsList };
   })
 );

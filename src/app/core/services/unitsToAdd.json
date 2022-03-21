@@ -1,0 +1,23 @@
+[
+  {
+    "id": "reds-18",
+    "groupId": "reds",
+    "pos": {
+      "row": 0,
+      "column": 1
+    },
+    "color": "red",
+    "state": "regular",
+    "type": "regular"
+  },
+  {
+    "id": "voider",
+    "pos": {
+      "row": 1,
+      "column": 0
+    },
+    "color": "black",
+    "state": "void",
+    "type": "regular"
+  }
+]

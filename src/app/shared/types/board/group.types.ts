@@ -1,20 +1,13 @@
 import { getRandom } from '../../helpers/common.helpers';
-import { BroodID } from './unit-base.types';
+import { GroupTurnPhase } from '../game.types';
+import { GroupId } from './unit-base.types';
 import { Unit } from './unit.types';
 
-// export interface Brood {
-//   id: string;
-//   units: Unit[];
-//   color: string;
-//   turnState: 'to do' | 'moving' | 'done';
-//   beginTurn(args?: { [key: string]: any | any[] }): void;
-// }
-
-export class Brood {
-  id: BroodID;
+export class Group {
+  id: GroupId;
   units: Unit[];
   color: string;
-  turnState: 'to do' | 'moving' | 'done';
+  turnState: GroupTurnPhase;
 
   beginTurn = (args?: { [key: string]: any | any[] }) => {
     let rndId = `${getRandom(1000)}`;
@@ -23,10 +16,10 @@ export class Brood {
     args?.cb(unit);
   };
 
-  constructor(id: BroodID, units: Unit[], color: string) {
+  constructor(id: GroupId, units: Unit[], color: string) {
     this.id = id;
     this.units = units || undefined;
     this.color = color;
-    this.turnState = 'to do';
+    this.turnState = GroupTurnPhase.TO_DO;
   }
 }

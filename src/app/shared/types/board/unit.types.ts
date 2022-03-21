@@ -1,5 +1,5 @@
 import { FieldPos } from './field.types';
-import { BroodID, UnitBase, UnitColor, UnitID, UnitType } from './unit-base.types';
+import { GroupId, UnitBase, UnitColor, UnitId, UnitType } from './unit-base.types';
 
 export interface IUnit extends UnitBase {
   state?: UnitState;
@@ -10,20 +10,20 @@ export interface IUnit extends UnitBase {
 }
 
 export class Unit implements UnitBase {
-  id: UnitID;
+  id: UnitId;
   pos: FieldPos;
   type: UnitType;
   color: UnitColor;
-  broodId: BroodID | undefined;
+  groupId: GroupId | undefined;
 
   state: UnitState | undefined;
   makeTurn?(): boolean;
   setLongTermGoal?(): boolean;
   getState?(): any;
 
-  constructor(id: UnitID, pos: FieldPos, color: UnitColor, broodId: BroodID | undefined, type: UnitType = 'regular', state?: UnitState | undefined) {
+  constructor(id: UnitId, pos: FieldPos, color: UnitColor, groupId: GroupId | undefined, type: UnitType = 'regular', state?: UnitState | undefined) {
     this.id = id;
-    this.broodId = broodId;
+    this.groupId = groupId;
     this.pos = pos;
     this.color = color;
     this.state = state;
@@ -33,7 +33,7 @@ export class Unit implements UnitBase {
 
 // export interface Particle {
 //   name: string;
-//   broodName: string;
+//   groupName: string;
 //   CSSrgba: string;
 //   CSSsize: { height: string; width: string };
 // }

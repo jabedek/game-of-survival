@@ -16,14 +16,14 @@ export class Field {
   mode: FieldMode;
   occupyingUnit: Unit | undefined;
   highlightAccessibility: boolean;
-  neighbors: NeighborsRaport | undefined;
+  // neighbors: NeighborsRaport | undefined;
 
-  constructor(pos: FieldPos, blocked: boolean, mode: FieldMode, occupyingUnit: Unit, highlightAccessibility: boolean, neighbors: NeighborsRaport) {
+  constructor(pos: FieldPos, blocked: boolean, mode: FieldMode, occupyingUnit: Unit, highlightAccessibility: boolean) {
     this.pos = pos;
     this.blocked = blocked;
     this.mode = mode;
     this.occupyingUnit = occupyingUnit;
     this.highlightAccessibility = highlightAccessibility;
-    this.neighbors = neighbors;
+    // this.neighbors = neighbors;
   }
 }

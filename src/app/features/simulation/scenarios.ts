@@ -1,10 +1,10 @@
-import { Brood } from '../../shared/types/board/brood.types';
+import { Group } from '../../shared/types/board/group.types';
 import { Unit } from '../../shared/types/board/unit.types';
 
 export function scenarioData_A(boardDimensions: number) {
   const boardOffset = boardDimensions > 10 ? 2 : 0;
 
-  const redBrood: Brood = new Brood(
+  const redGroup: Group = new Group(
     'reds',
     [
       new Unit('reds-0', { row: 0 + boardOffset, column: 0 + boardOffset }, 'red', 'reds'),
@@ -13,7 +13,7 @@ export function scenarioData_A(boardDimensions: number) {
     'red'
   );
 
-  const blueBrood: Brood = new Brood(
+  const blueGroup: Group = new Group(
     'blues',
     [
       new Unit('blues-0', { row: boardDimensions - 1 - boardOffset, column: boardDimensions - 2 - boardOffset }, 'blue', 'blues'),
@@ -22,7 +22,7 @@ export function scenarioData_A(boardDimensions: number) {
     'blue'
   );
 
-  const greenBrood: Brood = new Brood(
+  const greenGroup: Group = new Group(
     'greens',
     [
       new Unit('greens-0', { row: Math.round(boardDimensions / 2) - 1, column: Math.round(boardDimensions / 2) - 1 }, 'green', 'greens'),
@@ -31,5 +31,5 @@ export function scenarioData_A(boardDimensions: number) {
     'green'
   );
 
-  return [redBrood, blueBrood, greenBrood];
+  return [redGroup, blueGroup, greenGroup];
 }

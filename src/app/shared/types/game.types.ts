@@ -1,18 +1,15 @@
 import { FieldPos } from '@/src/app/shared/types/board/field.types';
 import { Unit } from './board/unit.types';
 
-export interface GameState {
-  turn: TurnState;
+export enum GameTurnPhase {
+  PENDING = 'PENDING',
+  ALL_DONE = 'ALL_DONE',
 }
 
-export interface TurnState {
-  index: number;
-  phase: 'pending' | 'all done';
-  update: TurnUpdate;
-}
-
-export interface BroodTurn {
-  phase: 'pending' | 'done';
+export enum GroupTurnPhase {
+  TO_DO = 'TO_DO',
+  PENDING = 'PENDING',
+  DONE = 'DONE',
 }
 
 export interface TurnUpdate {

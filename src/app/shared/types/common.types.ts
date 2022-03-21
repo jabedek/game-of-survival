@@ -7,7 +7,7 @@ export type Option = {
   value: any;
 };
 
-export type MousePos = {
+export type Pos = {
   x: number;
   y: number;
 };

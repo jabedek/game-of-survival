@@ -3,9 +3,9 @@
   height: 30vh;
   width: 30vh;
   position: absolute;
-  z-index: 0;
-  top: 40vh;
-  right: 17vh;
+  z-index: 5;
+  bottom: 0vw;
+  left: 2vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -22,42 +22,41 @@
 }
 
 .bigstar1 {
-  height: 30vh;
-  width: 30vh;
+  height: 8vh;
+  width: 8vh;
   position: absolute;
-  z-index: 0;
+  z-index: 1;
   border-radius: 50%;
-  top: 10vh;
-  left: 33vh;
+  top: 2vh;
+  right: 2vw;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgb(255, 255, 255);
+
+  background: rgb(255, 242, 240);
   background: radial-gradient(
     circle,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 4%,
-    rgba(255, 213, 213, 1) 6%,
-    rgba(255, 218, 213, 1) 9%,
-    rgba(223, 82, 50, 1) 14%,
-    rgba(255, 96, 62, 1) 19%,
-    rgba(215, 85, 57, 1) 19%,
-    rgba(214, 81, 53, 1) 19%,
-    rgba(227, 97, 70, 1) 20%,
-    rgba(241, 89, 58, 1) 20%,
-    rgba(223, 85, 56, 1) 21%,
-    rgba(236, 92, 62, 1) 22%,
-    rgba(232, 90, 15, 1) 23%,
-    rgba(232, 113, 90, 1) 26%,
-    rgba(232, 102, 53, 1) 28%,
-    rgba(232, 105, 64, 1) 30%,
-    rgba(255, 78, 24, 1) 33%,
-    rgba(0, 0, 0, 0.1) 45%,
-    rgba(0, 0, 0, 0) 100%
+    rgba(255, 242, 240, 1) 0%,
+    rgba(255, 155, 133, 1) 10%,
+    rgba(255, 108, 90, 1) 18%,
+    rgba(255, 94, 61, 1) 24%,
+    rgba(235, 76, 44, 1) 31%,
+    rgba(205, 60, 41, 1) 33%,
+    rgba(255, 53, 31, 1) 34%,
+    rgba(0, 0, 0, 1) 37%,
+    rgba(5, 1, 1, 1) 43%,
+    rgba(0, 0, 0, 1) 46%,
+    rgba(47, 9, 9, 1) 50%,
+    rgba(10, 2, 2, 0.1) 55%,
+    rgba(0, 0, 17, 0) 74%,
+    rgba(0, 0, 17, 0) 100%
   );
+  opacity: 0.3;
+  filter: brightness(100%);
 }
 
 .blackhole {
+  z-index: 1;
   border-radius: 50%;
   background: rgb(0, 0, 0);
   background: radial-gradient(
@@ -68,18 +67,19 @@
     rgba(132, 127, 125, 1) 21%,
     rgba(170, 170, 170, 1) 25%,
     rgba(56, 60, 56, 1) 29%,
-    rgba(6, 11, 36, 1) 35%,
+    rgba(10, 6, 16, 1) 35%,
     rgba(5, 5, 5, 1) 43%,
     rgba(61, 61, 61, 1) 50%,
-    rgba(0, 0, 0, 0.5) 63%,
+    rgba(0, 0, 0, 0.3) 63%,
     rgba(0, 0, 0, 0.1) 80%,
     rgba(0, 0, 0, 0) 100%
   );
-  height: 18vh;
-  width: 18vh;
+  height: 16vh;
+  width: 16vh;
   position: absolute;
-  bottom: 6vw;
-  left: 8vw;
+  top: 50vh;
+  right: 15vw;
+  opacity: 0.7;
   display: flex;
   justify-content: center;
   align-items: center;

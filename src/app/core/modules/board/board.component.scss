@@ -1,5 +1,6 @@
 @import "/src/assets/styles/variables";
 @import "/src/assets/styles/reusables/units";
+@import "/src/assets/styles/reusables/board";
 @import "/src/assets/styles/elements/obsticle";
 @import "/src/assets/styles/elements/unit";
 @import "/src/assets/styles/elements/object";
@@ -8,7 +9,8 @@
   width: 100%;
   height: 100%;
   position: relative;
-  z-index: 2;
+  z-index: 100;
+  opacity: 0.8;
 }
 
 .field-container {
@@ -73,7 +75,5 @@
 }
 
 .accessible-border {
-  border-color: rgba(250, 250, 150, 0.5);
-  border-width: 0.14vw;
-  cursor: grabbing;
+  @include accessible-border;
 }

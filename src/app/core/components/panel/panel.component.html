@@ -1,78 +1,136 @@
-<div [style.backgroundColor]="'white'" [style.color]="'black'" class="settings">
-  <div class="panel-wrapper">
-    <div class="panel__control">
-      Field size
-      <input
-        type="range"
-        list="tickmarks"
-        [ngModel]="fieldSize"
-        (ngModelChange)="changeFieldSize($event)"
-        [min]="fieldSizeOptions[0]"
-        [max]="fieldSizeOptions[fieldSizeOptions.length - 1]"
-        step="1" />
-      <datalist id="tickmarks">
-        <ng-container *ngFor="let size of fieldSizeOptions">
-          <option [label]="size" [value]="size"></option>
-          {{ size }}
-        </ng-container>
-      </datalist>
+<button class="panel-switch" (click)="togglePanel()">Toggle panel</button>
 
-      <!-- <ng-container *ngFor="let size of fieldSizeOptions">
-      {{ size }}
-      <input
-        type="radio"
-        [id]="size"
-        [value]="size"
-        [name]="size"
-        [ngModel]="fieldSize"
-        [checked]="size === fieldSize"
-        (ngModelChange)="changeFieldSize($event)" />
-    </ng-container> -->
+<div class="main" *ngIf="(ui$ | async).panelShowing">
+  <div class="panel" [formGroup]="boardSettingsForm">
+    <div class="panel__options">
+      <button class="details-button" (click)="toggleAllDetails()">{{ !allDetailsOpen ? "Show" : "Hide" }} all details</button>
     </div>
-    <div class="panel__control">
-      Board dimensions
-      <input type="number" [min]="1" [max]="20" [ngModel]="boardDimensions" (ngModelChange)="boardDimensionsChange($event)" />
-    </div>
+    <details #details [open]="true" id="main" (click)="scrollTo('main', $event.target)">
+      <summary>Main Controls</summary>
+      <div class="control-group">
+        <button class="control-button" (click)="reloadBoard()" type="button">reload board</button>
+        <button class="control-button" (click)="toggleBorders()" type="button">toggle borders</button>
+        <button class="control-button" (click)="addNewGroupValidRootRandomly()" type="button">add random group</button>
+        <button class="control-button" (click)="scenario1()" type="button">Setup: scenario1</button>
+        <!-- <app-button (clicked)="toggleBuilderMode()" label="Toggle: Build obsticle on Click"></app-button> -->
+        <!-- <button (click)="togglePanel()" class="global-button">Pokaż panel</button> -->
+      </div>
+    </details>
 
-    <!-- <button (click)="toggleDecor()" class="global-button key">
-      <p class="val">Toggle background artwork</p>
-    </button> -->
+    <details #details id="boardUI" (click)="scrollTo('boardUI', $event.target)">
+      <summary>Board & UI</summary>
+      <section class="panel__control">
+        <label class="control-label">Field size (reloads board)</label>
+        <input
+          type="range"
+          list="tickmarks"
+          formControlName="fieldSize"
+          [min]="fieldSizeOptions[0]"
+          [max]="fieldSizeOptions[fieldSizeOptions.length - 1]"
+          step="1" />
 
-    <div class="panel__control">
-      <app-toggle label="Toggle background artwork" [value]="true" (toggled)="toggleDecor($event)"></app-toggle>
-    </div>
+        ({{ boardSettingsForm.get("fieldSize")?.value }} -> {{ fieldSizeComputed }}px)
+
+        <datalist id="tickmarks">
+          <option *ngFor="let size of fieldSizeOptions" [label]="size" [value]="size"></option>
+        </datalist>
+      </section>
+
+      <section class="panel__control">
+        <label class="control-label">Board dimensions (reloads board)</label>
+        <input
+          class="control"
+          type="number"
+          [min]="boardDimensionsRange.min"
+          [max]="boardDimensionsRange.max"
+          formControlName="boardDimensions"
+          [attr.invalid]="boardSettingsForm.get('boardDimensions')?.hasError" />
+        [{{ boardDimensionsRange.min }} - {{ boardDimensionsRange.max }}] ({{ boardSettingsForm.get("boardDimensions")?.value }})
+      </section>
+
+      <section class="panel__control">
+        <app-toggle label="Toggle background artwork (fixed)" [value]="true" (toggled)="toggleDecor('fixed')"></app-toggle>
+        <app-toggle label="Toggle background artwork (animated)" [value]="true" (toggled)="toggleDecor('animated')"></app-toggle>
+      </section>
+    </details>
+
+    <details #details id="analytics" (click)="scrollTo('analytics', $event.target)">
+      <summary>Analytics</summary>
+      <section class="panel__control">
+        <div class="display">
+          <label>Turn:</label>
+          <p class="display__val">{{ turnCounter + 1 }}</p>
+        </div>
+        <div class="display">
+          <label>Empty fields:</label>
+          <p class="display__val">{{ emptyFields.length }}</p>
+        </div>
+        <div class="display">
+          <label>Valid group roots:</label>
+          <p class="display__val">{{ validGroupSpaces.length }}</p>
+        </div>
+        <div class="display">
+          <label>All groups:</label>
+          <p class="display__val">{{ groupsList.length }}</p>
+        </div>
+        <div class="display">
+          <label>All units:</label>
+          <p class="display__val">{{ unitsList.length }}</p>
+        </div>
+      </section>
+    </details>
+
+    <details #details id="simulation" (click)="scrollTo('simulation', $event.target)">
+      <summary>SIMULATION</summary>
+      <p class="details-desc">
+        <span>Caution:</span>
+        Running a simulation with active background animations along with large board dimensions (above 10x10) will cause glitching. Also consider
+        changing (todo) turn speed which is
+        <span class="bold">300ms</span>
+        by default.
+      </p>
+      <div class="control-group">
+        <button class="control-button" (click)="simulationService.start()" type="button">start (new)</button>
+        <button class="control-button" (click)="simulationService.stop()" type="button" [disabled]="!simulationService.running">end</button>
+
+        <div class="control-toggle">
+          <app-toggle
+            label="Pause"
+            [value]="false"
+            (toggled)="simulationService.changePause($event)"
+            [disabled]="!simulationService.running"></app-toggle>
+        </div>
+
+        <button
+          class="control-button"
+          (click)="simulationService.nextTurn()"
+          type="button"
+          [disabled]="!simulationService.running || simulationService.paused">
+          do manual turn
+        </button>
+      </div>
+
+      <section class="panel__control">
+        <label class="control-label">Simulation Turn Speed (reloads board)</label>
+        <input type="range" list="tickmarks1" formControlName="turnSpeed" [min]="300" [max]="900" step="300" />
+
+        ({{ turnSpeed$ | async }})
+
+        <datalist id="tickmarks1">
+          <option *ngFor="let item of TurnSpeedMs | keyvalue" [label]="item.label" [value]="item.value"></option>
+        </datalist>
+      </section>
+
+      <!-- <ng-container *ngTemplateOutlet="anchor; context: { id: 'simulation' }"></ng-container> -->
+    </details>
   </div>
 </div>
+
 <div>
   <app-board [boardDimensions]="boardDimensions" [fieldSizeComputed]="fieldSizeComputed" [fields]="fields$ | async"></app-board>
-
-  <ng-content></ng-content>
-  <button (click)="togglePanel()" class="global-button">Pokaż panel</button>
-
-  <div *ngIf="panelShowing" class="game-panel">
-    <app-button (clicked)="reloadBoard()" label="Reload"></app-button>
-    <app-button (clicked)="toggleBorders()" label="Toggle obsticle borders"></app-button>
-    <app-button (clicked)="scenario1()" label="Borders & units & additional obsticles"></app-button>
-    <app-button (clicked)="addNewBroodValidRootRandomly()" label="Add new Brood randomly"></app-button>
-    <app-button (clicked)="toggleBuilderMode()" label="Toggle: Build obsticle on Click"></app-button>
-
-    <!-- <p class="board__button" (click)="handleClick('toggleBorders')">Toggle obsticle borders</p>
-    <p class="board__button" (click)="handleClick('scenario1')">Borders & units & additional obsticles</p>
-    <p class="board__button" (click)="handleClick('addNewBroodValidRootRandomly')">Add new Brood randomly</p>
-    <p class="board__button" (click)="handleClick('toggleBuilderMode')">Toggle: Build obsticle on Click</p> -->
-  </div>
-
-  <!-- <div [style.backgroundColor]="'white'" [style.color]="'black'">
-    <ng-container *ngFor="let size of fieldSizeOptions">
-      {{ size }}
-      <input
-        type="radio"
-        [id]="size"
-        [value]="size"
-        [name]="size"
-        [ngModel]="fieldSize"
-        [checked]="size === fieldSize"
-        (ngModelChange)="changeFieldSize($event)" />
-    </ng-container>
-  </div> -->
 </div>
+
+<ng-template #anchor let-ctx>
+  <!-- <span [id]="ctx.id"></span> -->
+  <pre>{{ ctx | json }}</pre>
+</ng-template>

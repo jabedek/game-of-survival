@@ -1,4 +1,5 @@
 @import "/src/assets/styles/variables";
+@import "/src/assets/styles/reusables/board";
 
 %unit {
   position: relative;
@@ -12,8 +13,8 @@
   user-select: none;
   cursor: pointer;
 
-  &:focus {
-    filter: brightness(($brightness-focus));
+  &:active {
+    cursor: grabbing;
   }
 }
 
@@ -30,24 +31,13 @@
   );
 }
 
-@mixin unit-variant(
-  $bgColor,
-  $filterColor,
-  $hover,
-  $focus: $hover,
-  $gradient: $filterColor
-) {
-  filter: drop-shadow(0 0 0.75rem $filterColor);
-
+@mixin unit-variant($bgColor, $filterColor, $hover, $focus: $hover, $gradient: $filterColor) {
+  filter: drop-shadow(0 0 0.75rem $filterColor) hue-rotate(45deg);
   background: $bgColor;
 
   @include unit-gradient-simple($gradient);
 
   &:hover {
-    filter: drop-shadow(0 0 0.75rem $hover) brightness($brightness-hover);
-  }
-
-  &:focus {
-    filter: drop-shadow(0 0 0.75rem $focus) brightness($brightness-active);
+    filter: drop-shadow(0 0 0.75rem $hover) brightness($brightness-hover) hue-rotate(45deg);
   }
 }

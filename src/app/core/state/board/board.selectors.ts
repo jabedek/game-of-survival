@@ -1,17 +1,18 @@
 import { createSelector } from '@ngrx/store';
-import { BoardState, RootState } from '@/src/app/core/state/root-state.types';
+import { RootState } from '@/src/app/core/state/root-state.types';
 
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
 import {
   BoardFields,
-  BasicInitialBroodFields,
+  BasicInitialGroupFields,
   NeighborsRaport,
-  ValidPotentialBroodSpace,
-  NeighborsAndBroods,
+  ValidPotentialGroupSpace,
+  NeighborsAndGroups,
 } from '@/src/app/shared/types/board/board.types';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
-import { Brood } from '@/src/app/shared/types/board/brood.types';
+import { Group } from '@/src/app/shared/types/board/group.types';
+import { BoardState } from './board.state';
 
 export const selectBoard = (state: RootState) => state.board;
 
@@ -21,11 +22,11 @@ export const selectBuilderMode = createSelector(selectBoard, (state: BoardState)
 
 export const selectUnitsList = createSelector(selectBoard, (state: BoardState) => state.unitsList);
 
-export const selectBroodsList = createSelector(selectBoard, (state: BoardState) => state.broodsList);
+export const selectGroupsList = createSelector(selectBoard, (state: BoardState) => state.groupsList);
 
-export const selectUnitsAndBroods = createSelector(selectBoard, (state) => ({
+export const selectUnitsAndGroups = createSelector(selectBoard, (state) => ({
   unitsList: state.unitsList,
-  broodsList: state.broodsList,
+  groupsList: state.groupsList,
 }));
 
 export const selectEmptyFields = createSelector(selectBoardFields, (fields: BoardFields) => {
@@ -42,16 +43,16 @@ export const selectEmptyFields = createSelector(selectBoardFields, (fields: Boar
   return availableFields;
 });
 
-export const selectValidBroodSpaces = createSelector(selectBoardFields, (fields: BoardFields) => {
-  const settlements: BasicInitialBroodFields[] = [];
-  const validBroodRoots: FieldPos[] = [];
-  const raport: ValidPotentialBroodSpace[] = [];
+export const selectValidGroupSpaces = createSelector(selectBoardFields, (fields: BoardFields) => {
+  const settlements: BasicInitialGroupFields[] = [];
+  const validGroupRoots: FieldPos[] = [];
+  const raport: ValidPotentialGroupSpace[] = [];
 
   [...fields].forEach((fieldsCol) => {
     [...fieldsCol].forEach((field) => {
-      const result = HELPERS.isValidBroodRoot([...fields], field.pos);
+      const result = HELPERS.isValidGroupRoot([...fields], field.pos);
       if (result !== undefined) {
-        validBroodRoots.push(field.pos);
+        validGroupRoots.push(field.pos);
         settlements.push(result);
         raport.push({ startingPos: field.pos, space: result });
       }
@@ -63,8 +64,8 @@ export const selectValidBroodSpaces = createSelector(selectBoardFields, (fields:
 
 export const selectAvailableFieldsAndSpaces = createSelector(
   selectEmptyFields,
-  selectValidBroodSpaces,
-  (emptyFields: any, validBroodSpaces: any) => ({ emptyFields, validBroodSpaces })
+  selectValidGroupSpaces,
+  (emptyFields: any, validGroupSpaces: any) => ({ emptyFields, validGroupSpaces })
 );
 
 // export const selectBoardField = createSelector(selectBoard, (state: BoardState, props) => state?.fields[props.row][props.column]);
@@ -83,13 +84,13 @@ export const selectAllUnitsNeighbors = createSelector(selectBoardFields, selectU
   units.map((p) => HELPERS.getFieldNeighbors([...fields], p.pos))
 );
 
-export const selectAllUnitsNeighborsAndBroodsList = createSelector(
+export const selectAllUnitsNeighborsAndGroupsList = createSelector(
   selectBoardFields,
   selectUnitsList,
-  selectBroodsList,
-  (fields: BoardFields, units: Unit[], broods: Brood[]): NeighborsAndBroods => ({
+  selectGroupsList,
+  (fields: BoardFields, units: Unit[], groups: Group[]): NeighborsAndGroups => ({
     fieldsNeighbors: units.map((p) => HELPERS.getFieldNeighbors([...fields], p.pos)),
-    broodsList: broods,
+    groupsList: groups,
   })
 );
 
@@ -97,7 +98,7 @@ export const selectUnitsNeighbors = createSelector(selectBoardFields, (fields: B
   props.map((p) => HELPERS.getFieldNeighbors([...fields], p.pos))
 );
 
-export const selectBoardSnapshot = createSelector(selectAvailableFieldsAndSpaces, selectUnitsAndBroods, (available, occupied) => ({
+export const selectBoardSnapshot = createSelector(selectAvailableFieldsAndSpaces, selectUnitsAndGroups, (available, occupied) => ({
   available,
   occupied,
 }));

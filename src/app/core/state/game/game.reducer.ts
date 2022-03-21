@@ -1,12 +1,13 @@
-import { Action, createReducer, on } from '@ngrx/store';
-
+import { createReducer, on } from '@ngrx/store';
 import * as gameActions from '@/src/app/core/state/game/game.actions';
-import { GameState } from '@/src/app/shared/types/game.types';
+import { GameTurnPhase } from '@/src/app/shared/types/game.types';
+import { GameState } from './game.state';
 
 export const initialFeatureState: GameState = {
+  error: false,
   turn: {
     index: 0,
-    phase: 'all done',
+    phase: GameTurnPhase.ALL_DONE,
     update: {
       unitsToAdd: [],
       unitsToDel: [],
@@ -25,7 +26,7 @@ export const gameReducer = createReducer(
   }),
 
   on(gameActions.setTurnDone, (state: GameState) => {
-    return { ...state, turn: { ...state.turn, phase: 'all done' } };
+    return { ...state, turn: { ...state.turn, phase: GameTurnPhase.ALL_DONE } };
   }),
 
   on(gameActions.setTurnPhase, (state: GameState, { phase }) => {
@@ -34,7 +35,10 @@ export const gameReducer = createReducer(
 
   on(gameActions.loadChangesAfterTurn, (state: GameState, { update }) => {
     const fallbackUpdate = update || { unitsToAdd: [], unitsToDel: [] };
-
     return { ...state, turn: { ...state.turn, update: fallbackUpdate } };
+  }),
+
+  on(gameActions.setError, (state: GameState, { isError }) => {
+    return { ...state, turn: { ...state.turn, error: isError } };
   })
 );

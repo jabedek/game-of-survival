@@ -1,13 +1,18 @@
 import { Action, createReducer, on } from '@ngrx/store';
-import { UIState } from '@/src/app/shared/types/ui.types';
 
 import * as uiActions from '@/src/app/core/state/ui/ui.actions';
-import { BOARD_DIMENSIONS, DEFAULT_FIELD_SIZE_COMPUTED, PX_MULTIPLIER } from '@/src/app/shared/constants/board.constants';
+import { DEFAULT_FIELD_SIZE_COMPUTED, DIMENSIONS_RANGE, getFieldSizeComputed } from '@/src/app/shared/constants/board.constants';
+import { UIState } from './ui.state';
+import { TurnSpeedMs } from '@/src/app/shared/types/ui.types';
 
-export const initialUIState = {
-  decorShowing: true,
+export const initialUIState: UIState = {
+  decorShowing: {
+    animated: true,
+    fixed: true,
+  },
+  simulation: { turnSpeedMs: TurnSpeedMs.MED },
   panelShowing: true,
-  boardDimensions: BOARD_DIMENSIONS,
+  boardDimensions: DIMENSIONS_RANGE.default,
   fieldSizeComputed: DEFAULT_FIELD_SIZE_COMPUTED,
 };
 
@@ -20,22 +25,26 @@ export const uiReducer = createReducer(
     return { ...state, panelShowing };
   }),
 
-  on(uiActions.toggleUIDecorShowing, (state: UIState) => {
-    let decorShowing = state.decorShowing;
-    decorShowing = !decorShowing;
-
-    return { ...state, decorShowing };
+  on(uiActions.toggleUIDecorShowingAnimated, (state: UIState) => {
+    return { ...state, decorShowing: { ...state.decorShowing, animated: !state.decorShowing.animated } };
   }),
-
-  on(uiActions.toggleUIDecorShowingForced, (state: UIState, { mode }) => {
-    return { ...state, decorShowing: mode };
+  on(uiActions.toggleUIDecorShowingFixed, (state: UIState) => {
+    return { ...state, decorShowing: { ...state.decorShowing, fixed: !state.decorShowing.fixed } };
   }),
 
   on(uiActions.setFieldSize, (state: UIState, { size }) => {
-    return { ...state, fieldSizeComputed: PX_MULTIPLIER * size };
+    return { ...state, fieldSizeComputed: getFieldSizeComputed(size) };
+  }),
+
+  on(uiActions.setSimulationTurnSpeed, (state: UIState, { turnSpeedMs }) => {
+    return { ...state, simulation: { turnSpeedMs } };
   }),
 
   on(uiActions.setBoardDimensions, (state: UIState, { dimensions }) => {
-    return { ...state, boardDimensions: dimensions };
+    if (dimensions >= DIMENSIONS_RANGE.min && dimensions <= DIMENSIONS_RANGE.max) {
+      return { ...state, boardDimensions: dimensions };
+    } else {
+      return state;
+    }
   })
 );

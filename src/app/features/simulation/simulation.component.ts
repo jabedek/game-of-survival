@@ -7,25 +7,25 @@ import { SimulationService } from './simulation.service';
   styleUrls: ['./simulation.component.scss'],
 })
 export class SimulationComponent implements OnInit {
-  pauseToggle = false;
-  changePause(event: boolean) {
-    this.pauseToggle = event;
-    this.simulationService.changePause(event);
-  }
+  // pauseToggle = false;
+  // changePause(event: boolean): void {
+  //   this.pauseToggle = event;
+  //   this.simulationService.changePause(event);
+  // }
 
-  constructor(private simulationService: SimulationService) {}
+  constructor(public simulationService: SimulationService) {}
 
   ngOnInit(): void {}
 
-  start() {
-    this.simulationService.start();
-  }
+  // start(): void {
+  //   this.simulationService.start();
+  // }
 
-  stop() {
-    this.simulationService.stop();
-  }
+  // stop(): void {
+  //   this.simulationService.stop();
+  // }
 
-  nextTurn() {
-    this.simulationService.nextTurn();
-  }
+  // nextTurn(): void {
+  //   this.simulationService.nextTurn();
+  // }
 }

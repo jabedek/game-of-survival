@@ -2,15 +2,15 @@ import { Store } from '@ngrx/store';
 import { Injectable } from '@angular/core';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import {
-  addBroodToList,
+  addGroupToList,
   addUnitToList,
-  clearBroodsList,
+  clearGroupsList,
   clearUnitsList,
   deleteUnitFromList,
   loadBoardFields,
   moveUnitFromTo,
 } from '@/src/app/core/state/board/actions/board.actions';
-import { addMemberToBroodUnits, removeBroodMember, swapBroodMemberOnPos } from '@/src/app/core/state/board/actions/brood.actions';
+import { addMemberToGroupUnits, removeGroupMember, swapGroupMemberOnPos } from '@/src/app/core/state/board/actions/group.actions';
 import { FieldPos } from '@/src/app/shared/types/board/field.types';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
 @Injectable({
@@ -41,50 +41,50 @@ export class UnitsService {
   /**
    * ATOMIC OPERATION
    */
-  clearBroodsList() {
-    this.store.dispatch(clearBroodsList());
+  clearGroupsList() {
+    this.store.dispatch(clearGroupsList());
   }
 
   /**
    * ATOMIC OPERATION
-   * Adds existing unit as next member to a brood.
+   * Adds existing unit as next member to a group.
    * Doesn't update unit's belonging.
    */
 
-  addMemberToBroodUnits(unit: Unit) {
-    this.store.dispatch(addMemberToBroodUnits({ unit }));
+  addMemberToGroupUnits(unit: Unit) {
+    this.store.dispatch(addMemberToGroupUnits({ unit }));
   }
 
   /**
    * ATOMIC OPERATION
-   * Removes member from a brood.
+   * Removes member from a group.
    * Doesn't update unit's belonging.
    */
-  removeBroodMember(pos: FieldPos) {
-    this.store.dispatch(removeBroodMember({ pos }));
+  removeGroupMember(pos: FieldPos) {
+    this.store.dispatch(removeGroupMember({ pos }));
   }
 
   /**
    * ATOMIC OPERATION
-   * Overwrites brood member on member field position.
+   * Overwrites group member on member field position.
    * Doesn't update unit's belonging.
    */
-  swapBroodMemberOnPos(unit: Unit) {
-    this.store.dispatch(swapBroodMemberOnPos({ unit }));
+  swapGroupMemberOnPos(unit: Unit) {
+    this.store.dispatch(swapGroupMemberOnPos({ unit }));
   }
 
   /**
-   * Sets an existing unit's belonging to different brood and adds it to the brood units.
+   * Sets an existing unit's belonging to different group and adds it to the group units.
    */
-  setUnitBroodBelonging(unit: Unit, broodId: string) {
-    // 1. If unit already had set brood, remove it from that brood
-    this.removeBroodMember(unit.pos);
+  setUnitGroupBelonging(unit: Unit, groupId: string) {
+    // 1. If unit already had set group, remove it from that group
+    this.removeGroupMember(unit.pos);
 
-    // 2. Update unit's internal broodId
-    const updatedUnit = { ...unit, broodId };
+    // 2. Update unit's internal groupId
+    const updatedUnit = { ...unit, groupId };
     // console.log(updatedUnit);
 
-    // 3. Update brood units
-    this.swapBroodMemberOnPos(updatedUnit);
+    // 3. Update group units
+    this.swapGroupMemberOnPos(updatedUnit);
   }
 }

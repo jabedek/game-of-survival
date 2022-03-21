@@ -1,6 +1,6 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 
 import { resetTurnCounter } from '@/src/app/core/state/game/game.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
@@ -8,42 +8,45 @@ import { RootState } from '@/src/app/core/state/root-state.types';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
 
 import { Field, FieldMode, FieldPos } from '@/src/app/shared/types/board/field.types';
-import { BoardFields, ValidPotentialBroodSpace } from '@/src/app/shared/types/board/board.types';
-import { selectBoardFields, selectEmptyFields, selectValidBroodSpaces } from '@/src/app/core/state/board/board.selectors';
-import { addBroodToList, loadBoardFields } from '@/src/app/core/state/board/actions/board.actions';
+import { BoardFields, ValidPotentialGroupSpace } from '@/src/app/shared/types/board/board.types';
+import { selectBoardFields, selectEmptyFields, selectValidGroupSpaces } from '@/src/app/core/state/board/board.selectors';
+import { addGroupToList, loadBoardFields } from '@/src/app/core/state/board/actions/board.actions';
 import {} from '@/src/app/shared/constants/board.constants';
 import { BoardModule } from './board.module';
 import { FieldService } from './services/field.service';
 import { UnitsService } from './services/units.service';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
 import { UnitColor } from '@/src/app/shared/types/board/unit-base.types';
-import { Brood } from '@/src/app/shared/types/board/brood.types';
+import { Group } from '@/src/app/shared/types/board/group.types';
 import { selectBoardDimensions } from '../../state/ui/ui.selectors';
+import { takeUntil, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BoardService implements OnDestroy {
-  subscription: Subscription = new Subscription();
   selectBoardDimensions$ = this.store.select(selectBoardDimensions);
+  fields$: Observable<BoardFields> = this.store.select(selectBoardFields).pipe(tap((fields) => (this.fields = fields)));
+  fields: BoardFields = [];
+  emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
+  emptyBoardFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
+  validGroupSpaces$: Observable<ValidPotentialGroupSpace[]> = this.store.select(selectValidGroupSpaces);
+  destroy$: Subject<void> = new Subject();
 
   boardDimensions = 0;
+  emptyFieldsTotal = 0;
+
   constructor(public store: Store<RootState>, private fieldService: FieldService, private unitsService: UnitsService) {
-    this.subscription.add(
-      this.selectBoardDimensions$.subscribe((d) => {
-        this.boardDimensions = d;
-      })
-    );
+    this.fields$.pipe(takeUntil(this.destroy$)).subscribe();
+
+    this.selectBoardDimensions$.pipe(takeUntil(this.destroy$)).subscribe((d) => {
+      this.boardDimensions = d;
+    });
   }
 
-  fields$: Observable<BoardFields> = this.store.select(selectBoardFields);
-  emptyFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
-  emptyFieldsTotal = 0;
-  emptyBoardFields$: Observable<Field[]> = this.store.select(selectEmptyFields);
-  validBroodSpaces$: Observable<ValidPotentialBroodSpace[]> = this.store.select(selectValidBroodSpaces);
-
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   reloadBoard(): void {
@@ -54,93 +57,30 @@ export class BoardService implements OnDestroy {
     );
 
     this.unitsService.clearUnitsList();
-    this.unitsService.clearBroodsList();
+    this.unitsService.clearGroupsList();
     this.store.dispatch(resetTurnCounter());
   }
 
-  scenario2(): void {
-    this.reloadBoard();
-
-    const boardOffset = 2;
-
-    const redBrood: Brood = new Brood(
-      'reds',
-      [
-        new Unit('reds-0', { row: 0 + boardOffset, column: 0 + boardOffset }, 'red', 'reds'),
-        new Unit('reds-0', { row: 0 + boardOffset, column: 1 + boardOffset }, 'red', 'reds'),
-      ],
-      'red'
-    );
-
-    const blueBrood: Brood = new Brood(
-      'blues',
-      [
-        new Unit(
-          'blues-0',
-          {
-            row: this.boardDimensions - 1 - boardOffset,
-            column: this.boardDimensions - 2 - boardOffset,
-          },
-          'blue',
-          'blues'
-        ),
-        new Unit(
-          'blues-0',
-          {
-            row: this.boardDimensions - 1 - boardOffset,
-            column: this.boardDimensions - 1 - boardOffset,
-          },
-          'blue',
-          'blues'
-        ),
-      ],
-      'blue'
-    );
-
-    const greenBrood: Brood = new Brood(
-      'greens',
-      [
-        new Unit(
-          'greens-0',
-          {
-            row: Math.round(this.boardDimensions / 2) - 1,
-            column: Math.round(this.boardDimensions / 2) - 1,
-          },
-          'green',
-          'greens'
-        ),
-        new Unit(
-          'greens-0',
-          {
-            row: Math.round(this.boardDimensions / 2) - 1,
-            column: Math.round(this.boardDimensions / 2),
-          },
-          'green',
-          'greens'
-        ),
-      ],
-      'green'
-    );
-
-    this.addBrood(redBrood);
-    this.addBrood(blueBrood);
-    this.addBrood(greenBrood);
-  }
-
   toggleField(field: Field): void {
-    console.log(field);
+    // console.log(field.mode);
+    console.log(HELPERS.getFieldNeighbors(this.fields, field.pos));
 
-    switch (field.mode) {
+    const prevMode = field.mode;
+
+    switch (prevMode) {
       case 'empty':
         this.fieldService.setFieldObsticle(field.pos);
         break;
+
       case 'obsticle':
         const unit: Unit = new Unit(`solo${getRandom(1000)}`, field.pos, 'blue', undefined);
         this.addNewUnit(unit);
         break;
+
       case 'unit':
         this.fieldService.setFieldObject(field.pos);
         break;
+
       case 'other':
       default:
         this.deleteUnit(field.pos);
@@ -150,7 +90,7 @@ export class BoardService implements OnDestroy {
 
   /**
    * Only used in creating/preparing stage.
-   * Doesn't update overwritten units or brood states in store.
+   * Doesn't update overwritten units or group states in store.
    */
   toggleBorders(boardDimensions: number, toggler: boolean): void {
     const borderObsticlesUp = !toggler;
@@ -176,7 +116,7 @@ export class BoardService implements OnDestroy {
     }
   }
 
-  addUnitsRandomly(units = 1, obsticles = 0) {
+  addUnitsRandomly(units = 1, obsticles = 0): void {
     if (units > 0) {
       for (let i = 0; i < units; i++) {
         this.putUnitOnEmptyFieldRandomly('unit');
@@ -190,35 +130,35 @@ export class BoardService implements OnDestroy {
     }
   }
 
-  moveUnit(pos: FieldPos, newPos: FieldPos) {
+  moveUnit(pos: FieldPos, newPos: FieldPos): void {
     this.fieldService.moveUnit(pos, newPos);
   }
 
   /**
-   * Adds a brood to state and board (UI).
+   * Adds a group to state and board (UI).
    * Doesn't check given units' positions validity.
-   * Before that, it deletes any existing units on new brood units' positions.
+   * Before that, it deletes any existing units on new group units' positions.
    */
-  addBrood(brood: Brood) {
-    brood.units.forEach((unit) => {
+  addGroupOntoBoard(group: Group): void {
+    group.units.forEach((unit) => {
       this.deleteUnit(unit.pos);
       this.fieldService.setFieldUnit(unit);
-      if (unit.broodId) {
-        this.unitsService.setUnitBroodBelonging(unit, unit.broodId);
+      if (unit.groupId) {
+        this.unitsService.setUnitGroupBelonging(unit, unit.groupId);
       }
-      this.unitsService.addMemberToBroodUnits(unit);
+      this.unitsService.addMemberToGroupUnits(unit);
       this.unitsService.updateUnitsList('add', unit);
     });
 
-    this.store.dispatch(addBroodToList({ brood }));
+    this.store.dispatch(addGroupToList({ group }));
   }
 
-  addNewBroodOnContextmenu(id: string, pos: FieldPos, color: UnitColor = 'red') {
-    const brood = HELPERS.getPreparedBroodBase(this.boardDimensions, pos, id, color);
-    this.addBrood(brood);
+  addNewGroupOnContextmenu(id: string, pos: FieldPos, color: UnitColor = 'red'): void {
+    const group = HELPERS.getPreparedGroupBase(this.boardDimensions, pos, id, color);
+    this.addGroupOntoBoard(group);
   }
 
-  getAllFields$() {
+  getAllFields$(): Observable<BoardFields> {
     return this.store.select(selectBoardFields);
   }
 
@@ -226,11 +166,11 @@ export class BoardService implements OnDestroy {
     return HELPERS.getInitialFields(boardDimensions);
   }
 
-  getEmptyFields$() {
+  getEmptyFields$(): Observable<Field[]> {
     return this.emptyFields$;
   }
 
-  putUnitOnEmptyFieldRandomly(type: FieldMode) {
+  putUnitOnEmptyFieldRandomly(type: FieldMode): void {
     let success = false;
     let board: Field[] = [];
 
@@ -266,16 +206,14 @@ export class BoardService implements OnDestroy {
       .unsubscribe();
   }
 
-  addNewUnit(unit: Unit) {
-    console.log(unit);
-
+  addNewUnit(unit: Unit): void {
     this.fieldService.setFieldEmpty(unit.pos);
     this.fieldService.setFieldUnit(unit);
     this.unitsService.updateUnitsList('add', unit);
   }
 
-  deleteUnit(pos: FieldPos) {
-    this.unitsService.removeBroodMember(pos);
+  deleteUnit(pos: FieldPos): void {
+    this.unitsService.removeGroupMember(pos);
     this.unitsService.updateUnitsList('del', {
       pos,
     });

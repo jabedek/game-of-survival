@@ -8,6 +8,8 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 export class ToggleComponent {
   @Input() label = '';
   @Input() value = false;
+  @Input() disabled = false;
+
   @Output() toggled: EventEmitter<boolean> = new EventEmitter();
 
   handleChange(): void {

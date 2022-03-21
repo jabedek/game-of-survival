@@ -1,4 +1,5 @@
 @import "~normalize.css";
+@import "/src/assets/styles/scrollbar.scss";
 
 html,
 body,
@@ -143,7 +144,7 @@ body {
   margin: 0;
   position: absolute;
   background: #001;
-
+  overflow: hidden;
   // -webkit-box-shadow: inset 0 0 6rem 0.125rem rgba(40, 40, 245, 0.25);
   // box-shadow: inset 0 0 6rem 0.125rem rgba(40, 40, 255, 0.25);
   // z-index: 20;

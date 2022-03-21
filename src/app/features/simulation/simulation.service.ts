@@ -1,114 +1,138 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { interval, Subject, Subscription } from 'rxjs';
-import { filter, takeUntil, tap } from 'rxjs/operators';
+import { interval, Observable, Subject, Subscription } from 'rxjs';
+import { filter, map, take, takeUntil, tap } from 'rxjs/operators';
 import { BoardService } from '../../core/modules/board/board.service';
 import { GameService } from '../../core/services/game.service';
 import { selectBoardSnapshot } from '../../core/state/board/board.selectors';
 import { setTurnPhase } from '../../core/state/game/game.actions';
-import { selectTurnIndex, selectTurnPhase } from '../../core/state/game/game.selectors';
+import { selectError, selectTurnIndex, selectTurnPhase } from '../../core/state/game/game.selectors';
 import { RootState } from '../../core/state/root-state.types';
-import { ValidPotentialBroodSpace } from '../../shared/types/board/board.types';
-import { Brood } from '../../shared/types/board/brood.types';
+import { ValidPotentialGroupSpace } from '../../shared/types/board/board.types';
+import { Group } from '../../shared/types/board/group.types';
 import { Field } from '../../shared/types/board/field.types';
 import { Unit } from '../../shared/types/board/unit.types';
 import { TriplexMode } from '../../shared/types/common.types';
+import { GameTurnPhase } from '../../shared/types/game.types';
 import { scenarioData_A } from './scenarios';
+import { TurnSpeedMs } from '../../shared/types/ui.types';
+import { selectSimulation } from '../../core/state/ui/ui.selectors';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SimulationService implements OnDestroy {
   // Process
-  private running = false;
-  private paused: TriplexMode = 'unknown';
-  private simulationTurnSub: Subscription = undefined;
+  running = false;
+  paused = false;
+  private simulationTurnSub: Subscription | undefined;
   turnCounter = 0;
 
   // Data
   unitsList: Unit[] = [];
-  broodsList: Brood[] = [];
-  emptyFields: Field[] = [];
-  validBroodSpaces: ValidPotentialBroodSpace[] = undefined;
+  groupsList: Group[] = [];
+  // emptyFields: Field[] = [];
+  // validGroupSpaces: ValidPotentialGroupSpace[] = [];
   // subscription: Subscription = new Subscription();
   private destroy$ = new Subject<void>();
+  private isError$ = this.store.select(selectError).pipe(
+    tap((isError) => {
+      if (isError) {
+        this.stop();
+      }
+    }),
+    takeUntil(this.destroy$)
+  );
+
   boardSnapshot$ = this.store.select(selectBoardSnapshot);
+  turnPhase: GameTurnPhase | undefined;
 
   // Flags
   turnButtonBlocked = false;
 
+  turnSpeed: TurnSpeedMs | undefined;
+
+  turnSpeed$ = this.store.select(selectSimulation).pipe(
+    tap((d) => {
+      this.turnSpeed = d.turnSpeedMs;
+    }),
+    takeUntil(this.destroy$)
+  );
+
   constructor(public store: Store<RootState>, private boardService: BoardService, private gameService: GameService) {
+    this.turnSpeed$.subscribe();
     this.subscribeAnalytics();
+    this.isError$.subscribe();
   }
 
-  ngOnDestroy() {
-    console.log('DESTROY');
-
+  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   changePause(paused: boolean) {
-    this.paused = paused;
+    if (this.running) {
+      this.paused = paused;
+    }
   }
 
-  start() {
+  start(): void {
     this.scenarioA();
+    this.running = true;
 
     if (this.simulationTurnSub === undefined) {
-      this.simulationTurnSub = interval(600)
+      this.simulationTurnSub = interval(this.turnSpeed || TurnSpeedMs.MED)
         .pipe(
-          tap(() => {
-            console.log('turn');
-          }),
+          tap(() => {}),
           filter(() => this.paused !== true)
         )
         .subscribe(() => {
-          this.nextTurn();
-          if (this.unitsList.length === 0) {
-            this.stop();
+          if (this.turnPhase === GameTurnPhase.ALL_DONE) {
+            this.nextTurn();
+            if (this.unitsList.length === 0) {
+              this.stop();
+            }
           }
         });
     }
   }
 
-  stop() {
+  stop(): void {
     if (this.simulationTurnSub) {
       this.simulationTurnSub.unsubscribe();
       this.simulationTurnSub = undefined;
+      this.paused = false;
+      this.running = false;
     }
   }
 
-  async nextTurn() {
-    console.log('nextTurn');
-
-    // chyab trza zamontownac observable na flage skonczonść tur broodów
-    this.store.dispatch(setTurnPhase({ phase: 'pending' }));
-    if (this.broodsList.length > 0) {
-      this.broodsList.forEach((brood) => this.gameService.nextTurnSingle(brood));
+  async nextTurn(): Promise<void> {
+    // chyab trza zamontownac observable na flage skonczonść tur groupów
+    this.store.dispatch(setTurnPhase({ phase: GameTurnPhase.PENDING }));
+    if (this.groupsList.length > 0) {
+      this.groupsList.forEach((group) => this.gameService.nextTurnSingle(group));
     }
 
     this.gameService.computeResults();
   }
 
-  private scenarioA() {
+  private scenarioA(): void {
     this.boardService.reloadBoard();
-    scenarioData_A(this.boardService.boardDimensions).forEach((brood) => this.boardService.addBrood(brood));
+    scenarioData_A(this.boardService.boardDimensions).forEach((group) => this.boardService.addGroupOntoBoard(group));
   }
 
-  private subscribeAnalytics() {
+  private subscribeAnalytics(): void {
     this.boardSnapshot$.pipe(takeUntil(this.destroy$)).subscribe((data) => {
       this.unitsList = data.occupied.unitsList;
-      this.broodsList = data.occupied.broodsList;
-      this.emptyFields = data.available.emptyFields;
-      this.validBroodSpaces = data.available.validBroodSpaces;
+      this.groupsList = data.occupied.groupsList;
     });
 
     this.store
       .select(selectTurnPhase)
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
-        this.turnButtonBlocked = data === 'all done' ? false : true;
+        this.turnPhase = data;
+        this.turnButtonBlocked = data === GameTurnPhase.ALL_DONE ? false : true;
       });
 
     this.store

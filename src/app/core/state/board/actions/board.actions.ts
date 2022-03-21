@@ -2,7 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import { BoardFields } from '@/src/app/shared/types/board/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
-import { Brood } from '@/src/app/shared/types/board/brood.types';
+import { Group } from '@/src/app/shared/types/board/group.types';
 
 // *** Board Fields ***
 export const loadBoardFields = createAction('[Board] Load Board Fields', props<{ fields: BoardFields }>());
@@ -20,9 +20,9 @@ export const deleteUnitFromList = createAction('[Board/Field] Delete Unit from l
 
 export const clearUnitsList = createAction('[Board/Field] Clear Units');
 
-// *** Broods List ***
-export const addBroodToList = createAction('[Board/Field] Add Broot to List', props<{ brood: Brood }>());
+// *** Groups List ***
+export const addGroupToList = createAction('[Board/Field] Add Broot to List', props<{ group: Group }>());
 
-export const removeBroodFromList = createAction('[Board/Field] Remove Brood from List', props<{ id: string }>());
+export const removeGroupFromList = createAction('[Board/Field] Remove Group from List', props<{ id: string }>());
 
-export const clearBroodsList = createAction('[Board/Field] Clear Broods');
+export const clearGroupsList = createAction('[Board/Field] Clear Groups');
