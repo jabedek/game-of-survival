@@ -6,9 +6,9 @@
       <button class="details-button" (click)="toggleAllDetails(true)">Show all</button>
       <button class="details-button" (click)="toggleAllDetails(false)">Hide all</button>
     </div>
-    <details #details [open]="true" id="main" (click)="scrollTo('main', $event.target)">
-      <summary>Main Controls</summary>
-      <div class="control-group">
+    <details #details [open]="true">
+      <summary id="main" (click)="scrollTo('main', $event)">Main Controls</summary>
+      <div class="control-group --main">
         <app-button-neuromorphic label="reload board" (clicked)="reloadBoard()"></app-button-neuromorphic>
         <app-button-neuromorphic label="toggle borders" (clicked)="toggleBorders()"></app-button-neuromorphic>
         <app-button-neuromorphic label="add random group" (clicked)="addNewGroupValidRootRandomly()"></app-button-neuromorphic>
@@ -18,8 +18,8 @@
       </div>
     </details>
 
-    <details #details id="boardUI" (click)="scrollTo('boardUI', $event.target)">
-      <summary>Board & UI</summary>
+    <details #details>
+      <summary id="boardUI" (click)="scrollTo('boardUI', $event)">Board & UI</summary>
       <div class="details-content">
         <section class="panel__control">
           <label class="control-label">Field size (reloads board)</label>
@@ -57,8 +57,8 @@
       </div>
     </details>
 
-    <details #details id="analytics" (click)="scrollTo('analytics', $event.target)">
-      <summary>Analytics</summary>
+    <details #details>
+      <summary id="analytics" (click)="scrollTo('analytics', $event)">Analytics</summary>
       <section class="panel__control">
         <ng-container *ngTemplateOutlet="infoDisplay; context: { $implicit: { label: 'Turn', value: turnCounter + 1 } }"></ng-container>
         <ng-container *ngTemplateOutlet="infoDisplay; context: { $implicit: { label: 'Empty fields', value: emptyFields.length } }"></ng-container>
@@ -69,34 +69,23 @@
       </section>
     </details>
 
-    <details #details id="simulation" (click)="scrollTo('simulation', $event.target)">
-      <summary>SIMULATION</summary>
+    <details #details>
+      <summary id="simulation" (click)="scrollTo('simulation', $event)">SIMULATION</summary>
       <div class="details-desc">
-        <p>Simulation can be launched when board dimensions are at least 9x9.</p>
+        <p>
+          <span class="notice">Notice:</span>
+          Simulation can be launched when board dimensions are at least NxN.
+        </p>
         <br />
 
         <p>
-          <span class="warning">Caution:</span>
+          <span class="caution">Caution:</span>
           Running a simulation with active background animations along with large board dimensions (around 14x14 and more) will cause glitching. Also
           consider changing turn speed.
         </p>
       </div>
-      <div class="control-group">
-        <app-button-neuromorphic label="start (new)" (clicked)="simulationService.start()"></app-button-neuromorphic>
-        <app-button-neuromorphic label="end" (clicked)="simulationService.stop()" [disabled]="!simulationService.running"></app-button-neuromorphic>
-        <div class="control-toggle">
-          <app-toggle
-            label="Pause"
-            [value]="false"
-            (toggled)="simulationService.changePause($event)"
-            [disabled]="!simulationService.running"></app-toggle>
-        </div>
-        <app-button-neuromorphic
-          label="do manual turn"
-          (clicked)="simulationService.nextTurn()"
-          [disabled]="!simulationService.running || simulationService.paused"></app-button-neuromorphic>
-      </div>
 
+      <br />
       <section class="panel__control">
         <label class="control-label">Simulation turn duration (reloads board)</label>
         <input type="range" list="tickmarks1" formControlName="turnSpeed" [min]="300" [max]="900" step="300" />
@@ -107,6 +96,24 @@
           <option *ngFor="let item of TurnSpeedMs | keyvalue" [label]="item.label" [value]="item.value"></option>
         </datalist>
       </section>
+
+      <div class="control-group --simulation">
+        <app-button-neuromorphic label="start (new)" (clicked)="simulationService.start()">
+          <!-- [disabled]="boardSettingsForm.get('boardDimensions')?.value < 9" -->
+        </app-button-neuromorphic>
+        <app-button-neuromorphic label="end" (clicked)="simulationService.stop()" [disabled]="!simulationService.running"></app-button-neuromorphic>
+        <div class="control-toggle">
+          <app-toggle
+            label="Pause"
+            [value]="simulationService.paused"
+            (toggled)="simulationService.changePause($event)"
+            [disabled]="!simulationService.running"></app-toggle>
+        </div>
+        <app-button-neuromorphic
+          label="do manual turn"
+          (clicked)="simulationService.nextTurn()"
+          [disabled]="!simulationService.running"></app-button-neuromorphic>
+      </div>
     </details>
   </div>
 </div>

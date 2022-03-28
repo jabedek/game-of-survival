@@ -1,5 +1,12 @@
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import { BasicInitialGroupFields, BoardFields, NeighborDirections, NeighborField, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
+import {
+  BasicInitialGroupFields,
+  BoardFields,
+  NeighborDirections,
+  NeighborField,
+  NeighborFieldAccessible,
+  NeighborsRaport,
+} from '@/src/app/shared/types/board/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
 import { Unit } from '../types/board/unit.types';
 import { UnitColor } from '../types/board/unit-base.types';
@@ -165,7 +172,7 @@ export function getFieldNeighbors(fields: BoardFields, pos: FieldPos): Neighbors
 
     const units = all.filter((neighbour) => !!neighbour?.field?.occupyingUnit);
     const obsticles = all.filter((neighbour) => !!neighbour?.field?.blocked && !neighbour?.field?.occupyingUnit);
-    const accessible = all.filter((n) => n.field !== undefined && n.field.blocked === false);
+    const accessible = all.filter((n) => n.field !== undefined && n.field.blocked === false) as NeighborFieldAccessible[];
     const accessibleToMove = accessible.filter(
       (n) => !![NeighborDirections.N, NeighborDirections.S, NeighborDirections.W, NeighborDirections.E].includes(n.at)
     );

@@ -81,13 +81,12 @@ export class SimulationService implements OnDestroy {
     this.running = true;
 
     if (this.simulationTurnSub === undefined) {
-      this.simulationTurnSub = interval(this.turnSpeed || TurnSpeedMs.MED)
-        .pipe(
-          tap(() => {}),
-          filter(() => this.paused !== true)
-        )
+      this.simulationTurnSub = interval(this.turnSpeed)
+        .pipe(filter(() => this.paused !== true))
         .subscribe(() => {
           if (this.turnPhase === GameTurnPhase.ALL_DONE) {
+            // console.log('### in [start] calling [nextTurn] ###');
+
             this.nextTurn();
             if (this.unitsList.length === 0) {
               this.stop();
@@ -110,7 +109,7 @@ export class SimulationService implements OnDestroy {
     // chyab trza zamontownac observable na flage skonczonść tur groupów
     this.store.dispatch(setTurnPhase({ phase: GameTurnPhase.PENDING }));
     if (this.groupsList.length > 0) {
-      this.groupsList.forEach((group) => this.gameService.nextTurnSingle(group));
+      // this.groupsList.forEach((group) => this.gameService.nextTurnSingle(group));
     }
 
     this.gameService.computeResults();
@@ -132,7 +131,7 @@ export class SimulationService implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         this.turnPhase = data;
-        this.turnButtonBlocked = data === GameTurnPhase.ALL_DONE ? false : true;
+        this.turnButtonBlocked = data !== GameTurnPhase.ALL_DONE;
       });
 
     this.store

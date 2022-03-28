@@ -21,7 +21,14 @@ import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import { GameTurnPhase, TurnUpdate } from '@/src/app/shared/types/game.types';
 import { Field } from '@/src/app/shared/types/board/field.types';
-import { BoardFields, NeighborsAndGroups, NeighborsRaport, ValidPotentialGroupSpace } from '@/src/app/shared/types/board/board.types';
+import {
+  BoardFields,
+  NeighborField,
+  NeighborFieldAccessible,
+  NeighborsAndGroups,
+  NeighborsRaport,
+  ValidPotentialGroupSpace,
+} from '@/src/app/shared/types/board/board.types';
 import { CoreModule } from '../core.module';
 import { UnitsService } from '../modules/board/services/units.service';
 import { UnitBase, UnitType, UnitColor } from '../../shared/types/board/unit-base.types';
@@ -87,6 +94,8 @@ export class GameService {
           .select(selectAllUnitsNeighborsAndGroupsList, data)
           .pipe(first())
           .subscribe((data2: NeighborsAndGroups) => {
+            // console.log('in [computeResults] subscribe');
+
             // Get all units' neighbors then update board
             const update: TurnUpdate = this.gatherUpdateInfo(data2.groupsList, data2.fieldsNeighbors);
             this.updateBoard(update);
@@ -97,37 +106,38 @@ export class GameService {
     // 3. update board
   }
 
-  gatherUpdateInfo(groupsList: Group[], neighbors: NeighborsRaport[]) {
+  gatherUpdateInfo(groupsList: Group[], neighborsRaports: NeighborsRaport[]) {
+    console.log('### next turn ###');
+    // console.log('in [gatherUpdateInfo]');
     let unitsToAdd: Unit[] = [];
     let unitsToDel: Unit[] = [];
 
     // 2. prepare Update and filter units based on their neighbors amount
-    neighbors.forEach((n: NeighborsRaport) => {
-      const centerField = n.centerField;
+    neighborsRaports.forEach((neighborsRaport: NeighborsRaport) => {
+      console.log('>> next [neighborsRaports]');
+
+      const centerField = neighborsRaport.centerField;
       const unitType = centerField?.occupyingUnit?.type;
-      console.log(n);
+      // console.log(neighborsRaport);
 
       if (!unitType || unitType !== 'void') {
-        switch (n.units.length) {
+        switch (neighborsRaport.units.length) {
           // SECTION: REPRO
           case 0: {
-            if (this.willSpawn(groupsList, n, 1, true)) {
-              unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
-              // console.log('case 0',centerField.pos, unitsToAdd);
+            if (this.willSpawn(groupsList, neighborsRaport, 1, true)) {
+              unitsToAdd = this.updateUnitsToAdd(neighborsRaport, unitsToAdd);
             }
             break;
           }
           case 1: {
-            if (this.willSpawn(groupsList, n, 10)) {
-              unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
-              // console.log('case 1',centerField.pos, unitsToAdd);
+            if (this.willSpawn(groupsList, neighborsRaport, 10)) {
+              unitsToAdd = this.updateUnitsToAdd(neighborsRaport, unitsToAdd);
             }
             break;
           }
           case 2: {
-            if (this.willSpawn(groupsList, n, -2)) {
-              unitsToAdd = this.updateUnitsToAdd(n, unitsToAdd);
-              // console.log('case 2',centerField.pos, unitsToAdd);
+            if (this.willSpawn(groupsList, neighborsRaport, -2)) {
+              unitsToAdd = this.updateUnitsToAdd(neighborsRaport, unitsToAdd);
             }
             break;
           }
@@ -150,7 +160,7 @@ export class GameService {
         }
       }
 
-      let updatedN = { ...n };
+      let updatedN = { ...neighborsRaport };
 
       if (updatedN.accessible.length > 0) {
         updatedN.accessible = updatedN.accessible.filter((f) => {
@@ -165,7 +175,7 @@ export class GameService {
       const voidSpawn = getRandom(1600) === 1;
 
       if (voidSpawn) {
-        const voidUnit = this.getNewMember(n, undefined, true);
+        const voidUnit = this.getNewMember(neighborsRaport, unitsToAdd, undefined, true);
         if (voidUnit) {
           unitsToAdd.push(voidUnit);
         }
@@ -233,62 +243,46 @@ export class GameService {
   }
 
   private updateUnitsToAdd(neighborsRaport: NeighborsRaport, unitsToAdd: Unit[]): Unit[] {
+    // console.log('in [updateUnitsToAdd]');
     let added = false;
-    // let unit: Unit | undefined;
 
     let counter = 0;
     while (!added) {
-      const unit: Unit | undefined = this.getNewMember(neighborsRaport, neighborsRaport.centerField?.occupyingUnit?.groupId);
-      if (unit && unit.pos) {
-        // console.log('WHILE !added unit && unit.pos');
-        counter++;
-        // const posAlreadyTaken: Unit | undefined = unitsToAdd.find((u) => areTwoPositionsEqual(u.pos, unit.pos));
+      added = counter++ > 8;
 
-        if (counter > 25) {
-          console.log(counter);
-
-          console.log(JSON.stringify(neighborsRaport, null, '\t'));
-          console.log(JSON.stringify(unitsToAdd, null, '\t'));
-          console.log(JSON.stringify(unit, null, '\t'));
-          this.store.dispatch(setError({ isError: true }));
-          throw Error('COUNTER > 15');
-        }
-        const posAlreadyTaken: Unit | undefined = unitsToAdd.find((u) => u.pos.row === unit.pos.row && u.pos.column === unit.pos.column);
-
-        if (!posAlreadyTaken) {
-          // console.log('WHILE !added !posAlreadyTaken');
-
-          unitsToAdd.push(unit);
-          added = true;
-        }
+      const unit: Unit | undefined = this.getNewMember(neighborsRaport, unitsToAdd, neighborsRaport.centerField?.occupyingUnit?.groupId);
+      if (unit) {
+        unitsToAdd.push(unit);
+        added = true;
       }
     }
-    // console.log('WHILE !added FINISHED');
 
     return unitsToAdd;
   }
 
-  private getNewMember(n: NeighborsRaport, forcedGroupId?: string, voidUnit?: boolean): Unit | undefined {
-    const field = n.centerField;
+  private getNewMember(neighborsRaport: NeighborsRaport, alreadyAddedUnits: Unit[], forcedGroupId?: string, voidUnit?: boolean): Unit | undefined {
+    // console.log('in [getNewMember]');
+    const { centerField, accessible } = neighborsRaport;
+    const accessibleFiltered: NeighborFieldAccessible[] = accessible.filter(
+      ({ field }) => !alreadyAddedUnits.find((u) => areTwoPositionsEqual(field.pos, u.pos))
+    );
 
-    let groupId = forcedGroupId || field?.occupyingUnit?.groupId;
-    groupId = voidUnit ? undefined : groupId;
-
-    const id = voidUnit ? 'voider' : `${groupId}-${getRandom(100)}` || 'randomer';
-
-    let color = (field?.occupyingUnit as Unit)?.color || 'blue';
-    color = voidUnit ? 'black' : color;
-
+    const groupId = voidUnit ? undefined : forcedGroupId || centerField?.occupyingUnit?.groupId;
+    const id = voidUnit ? 'voider' : `${groupId}-${getRandom(100)}`;
+    const color = voidUnit ? 'black' : (centerField?.occupyingUnit as Unit)?.color;
     const type: UnitType = voidUnit ? 'void' : 'regular';
+    console.log('for:', neighborsRaport.centerField?.pos);
+    console.log('accessible:', accessible);
+    console.log('already added:', [...alreadyAddedUnits]);
+    console.log('filtered:', accessibleFiltered);
 
-    if (n.accessible.length > 0) {
-      const pos = n.accessible[getRandom(n.accessible.length)].field?.pos;
-
-      if (pos) {
-        return new Unit(id, pos, color, groupId, undefined, type);
-      }
+    if (accessibleFiltered.length > 0) {
+      const pos = accessibleFiltered[getRandom(accessibleFiltered.length)].field?.pos;
+      console.log('added onto:', pos);
+      return new Unit(id, pos, color, groupId, undefined, type);
     }
 
+    console.log('added undefined');
     return undefined;
   }
 
@@ -328,5 +322,7 @@ export class GameService {
     this.store.dispatch(countTurn());
     this.store.dispatch(loadChangesAfterTurn({ update }));
     this.store.dispatch(setTurnPhase({ phase: GameTurnPhase.ALL_DONE }));
+    // console.log('in [updateBoard] set ALL_DONE');
+    // console.log('### END TURN ###');
   }
 }

@@ -5,6 +5,12 @@ import { Group } from './group.types';
 export type BoardFields = Field[][];
 
 // *** BoardFields/Particles' Neigbhors, Groups' Root Spaces
+
+export interface NeighborFieldAccessible {
+  field: Field;
+  at: NeighborDirections;
+}
+
 export interface NeighborField {
   field: Field | undefined;
   at: NeighborDirections;
@@ -28,7 +34,7 @@ export interface NeighborsRaport {
   centerField: Field | undefined;
   units: NeighborField[];
   obsticles: NeighborField[];
-  accessible: NeighborField[]; //
+  accessible: NeighborFieldAccessible[]; //
   accessibleToMove: NeighborField[]; // nie ma ruchow na skos wiec tylko na krzyz
 }
 

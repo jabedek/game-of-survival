@@ -1,18 +1,14 @@
-import { Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, Subscription } from 'rxjs';
-
+import { Observable, Subject } from 'rxjs';
 import { resetTurnCounter } from '@/src/app/core/state/game/game.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
-
 import { Field, FieldMode, FieldPos } from '@/src/app/shared/types/board/field.types';
 import { BoardFields, ValidPotentialGroupSpace } from '@/src/app/shared/types/board/board.types';
 import { selectBoardFields, selectEmptyFields, selectValidGroupSpaces } from '@/src/app/core/state/board/board.selectors';
 import { addGroupToList, loadBoardFields } from '@/src/app/core/state/board/actions/board.actions';
-import {} from '@/src/app/shared/constants/board.constants';
-import { BoardModule } from './board.module';
 import { FieldService } from './services/field.service';
 import { UnitsService } from './services/units.service';
 import { Unit } from '@/src/app/shared/types/board/unit.types';
@@ -89,8 +85,8 @@ export class BoardService implements OnDestroy {
    * Only used in creating/preparing stage.
    * Doesn't update overwritten units or group states in store.
    */
-  toggleBorders(boardDimensions: number, toggler: boolean): void {
-    const borderObsticlesUp = !toggler;
+  toggleBorders(boardDimensions: number, previousState: boolean): void {
+    const borderObsticlesUp = !previousState;
 
     for (let row = 0; row < boardDimensions; row++) {
       for (let column = 0; column < boardDimensions; column++) {

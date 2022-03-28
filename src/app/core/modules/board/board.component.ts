@@ -4,38 +4,31 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  EventEmitter,
   Input,
   NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   QueryList,
   SimpleChanges,
   ViewChildren,
 } from '@angular/core';
-
 import * as fastdom from 'fastdom';
 import { Store } from '@ngrx/store';
 import { UIService } from '@/src/app/core/services/ui.service';
-
 import { BoardDynamicCSS } from '@/src/app/shared/types/ui.types';
-import { fromEvent, Observable, Subject, Subscription } from 'rxjs';
-import { tap, share, switchMap, filter, takeUntil, auditTime, withLatestFrom, map, take, throwIfEmpty, first } from 'rxjs/operators';
-
-import { setAllFieldsHighlightFalse, setFieldObject, setFieldsHighlightTrue } from '@/src/app/core/state/board/actions/field.actions';
+import { fromEvent, Subject } from 'rxjs';
+import { tap, share, switchMap, filter, takeUntil, auditTime, withLatestFrom, map, first } from 'rxjs/operators';
+import { setAllFieldsHighlightFalse, setFieldsHighlightTrue } from '@/src/app/core/state/board/actions/field.actions';
 import { getRandom } from '@/src/app/shared/helpers/common.helpers';
-import { BoardFields, NeighborField, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
+import { BoardFields, NeighborsRaport } from '@/src/app/shared/types/board/board.types';
 import { Field, FieldPos } from '@/src/app/shared/types/board/field.types';
 import { DEFAULT_FIELD_SIZE_COMPUTED, FIELD_CONTENT_REDUCING_FACTOR } from '@/src/app/shared/constants/board.constants';
 import { BoardService } from '@/src/app/core/modules/board/board.service';
 import { RootState } from '@/src/app/core/state/root-state.types';
 import { selectFieldNeighbors } from '@/src/app/core/state/board/board.selectors';
-// import { selectFieldNeighbors } from '../../store/board.selectors';
 import * as HELPERS from '@/src/app/shared/helpers/board.helpers';
-import { Unit } from '@/src/app/shared/types/board/unit.types';
-import { Pos } from '@/src/app/shared/types/common.types';
+import { Pos, TemplatesArray } from '@/src/app/shared/types/common.types';
 
 const AUDIT_TIME = 16;
 
@@ -43,7 +36,6 @@ const AUDIT_TIME = 16;
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
-  // providers: [BoardService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
@@ -51,25 +43,17 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit, OnChang
   @Input() fieldSizeComputed = 0;
   @Input() fields: BoardFields = [];
   CSS: BoardDynamicCSS | undefined;
-
   hostRect: DOMRect | undefined;
 
-  // @Output() setUnitEvent: EventEmitter<Unit> = new EventEmitter();
-  // @Output() setObsticleEvent: EventEmitter<FieldPos> = new EventEmitter();
-  // @Output() setEmptyEvent: EventEmitter<FieldPos> = new EventEmitter();
   @ViewChildren('fieldsTemplates', { read: ElementRef }) fieldsTemplates: QueryList<ElementRef> | undefined;
   mouseDragStart: Pos | undefined;
   mousePosStart: Pos | undefined;
   mouseMoveTo: Pos | undefined;
-  // fieldSizeComputed = DEFAULT_FIELD_SIZE_COMPUTED;
   CSSsize = DEFAULT_FIELD_SIZE_COMPUTED * FIELD_CONTENT_REDUCING_FACTOR;
-  sub: Subscription = new Subscription();
-  currentFieldNeighbors$: Observable<NeighborsRaport> | undefined;
+  mouseAccessibleFields: Field[] | undefined;
   // ### Functional flags
   borderObsticlesUp = false;
-  refs: ElementRef[] | undefined;
-  subscription: Subscription = new Subscription();
-  mouseAccessibleFields: Field[] | undefined;
+  refs: TemplatesArray<HTMLDivElement> | undefined;
   fieldsLoaded = false;
 
   private destroy$ = new Subject<void>();
@@ -110,26 +94,20 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit, OnChang
     });
   }
 
-  trackByFnRow(index: number): string {
-    return `${index}`;
+  trackByFnRow(index: number): number {
+    return index;
   }
 
   trackByFnCell(index: number, item: Field): string {
     if (index === this.boardDimensions - 1) {
       this.fieldsLoaded = true;
-      // this.CSS.structurings.display = 'initial';
       this.cdr.markForCheck();
     }
     return `${item.pos.row}${item.pos.column}`;
   }
 
-  // getDisplay() {
-  //   return this.fieldsLoaded ? 'initial' : 'none';
-  // }
-
   private initBoardWithStylings(): void {
     this.CSS = this.uiService.getStylingsDetails(this.boardDimensions, this.fieldSizeComputed);
-    // this.CSS.structurings.display = 'none';
   }
 
   /**
@@ -186,8 +164,6 @@ export class BoardComponent implements OnInit, OnDestroy, AfterViewInit, OnChang
   }
 
   onMouseUp(event: MouseEvent): void {
-    this.sub.unsubscribe();
-
     if (this.mouseDragStart && this.mousePosStart) {
       const startPos = this.getFieldFromPos(this.mousePosStart);
       const endPos = this.getFieldFromPos(event);
